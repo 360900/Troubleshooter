@@ -45,7 +45,7 @@ keywords = ["wine", "windows", "exe", "proton", "dxvk", "mono"]
 [[category]]
 id = "drivers"
 title = "Drivers"
-icon = "applications-engineering"
+icon = "system-run"
 blurb = "Missing drivers, firmware and kernel modules."
 keywords = ["driver", "firmware", "module", "dkms", "kernel", "headers"]
 

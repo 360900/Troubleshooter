@@ -1,0 +1,74 @@
+{
+  "version": 2,
+  "name": "One",
+  "tagline": "Adwaita structure, Material color, Fluent depth, glass reserved for what floats.",
+  "principles": ["Content is opaque and calm; only floating chrome (shell, popovers, OSDs, toasts) is glass.", "One accent drives everything: tonal neutrals and containers derive from it (or the wallpaper).", "Concentric geometry: inner radius = outer radius - padding, everywhere.", "Depth is communicated by a hairline stroke plus a soft two-part shadow, never by heavy outlines."],
+  "accents": {
+    "blue": { "hue": 255, "chroma": 0.16 },
+    "teal": { "hue": 195, "chroma": 0.11 },
+    "green": { "hue": 150, "chroma": 0.14 },
+    "yellow": { "hue": 85, "chroma": 0.15 },
+    "orange": { "hue": 55, "chroma": 0.17 },
+    "red": { "hue": 25, "chroma": 0.19 },
+    "pink": { "hue": 350, "chroma": 0.16 },
+    "purple": { "hue": 300, "chroma": 0.16 },
+    "slate": { "hue": 250, "chroma": 0.04 }
+  },
+  "status": {
+    "success": { "hue": 150, "chroma": 0.15 },
+    "warning": { "hue": 75, "chroma": 0.16 },
+    "danger": { "hue": 25, "chroma": 0.2 }
+  },
+  "spacing": [0, 2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 48, 64],
+  "typeScale": {
+    "caption": { "size": 12, "line": 16, "weight": 400 },
+    "body": { "size": 14, "line": 20, "weight": 400 },
+    "bodyStrong": { "size": 14, "line": 20, "weight": 600 },
+    "heading": { "size": 15, "line": 20, "weight": 700 },
+    "title3": { "size": 18, "line": 24, "weight": 650 },
+    "title2": { "size": 22, "line": 28, "weight": 750 },
+    "title1": { "size": 28, "line": 34, "weight": 800 },
+    "display": { "size": 56, "line": 60, "weight": 300 }
+  },
+  "font": { "ui": "Inter", "mono": "Geist Mono", "features": "'cv11','ss03','tnum' 0" },
+  "type": { "scale": 1.0, "titleWeight": 750, "tracking": -0.005 },
+  "icons": "adwaita",
+  "shape": { "window": 18, "container": 14, "control": 10, "small": 6 },
+  "density": { "control": 36, "row": 52, "padX": 14, "gap": 8, "headerbar": 50 },
+  "color": {
+    "neutralChroma": 0.006,
+    "neutral": {
+      "light": { "desktop": 0.92, "canvas": 0.975, "sidebar": 0.95, "surface": 1.0, "surfaceAlt": 0.965, "float": 0.99, "headerbar": 0.975, "text": 0.2, "text2": 0.45, "text3": 0.62, "stroke": 0.1, "strokeStrong": 0.2 },
+      "dark": { "desktop": 0.16, "canvas": 0.215, "sidebar": 0.245, "surface": 0.25, "surfaceAlt": 0.285, "float": 0.28, "headerbar": 0.215, "text": 0.96, "text2": 0.76, "text3": 0.6, "stroke": 0.1, "strokeStrong": 0.2 }
+    },
+    "accent": { "light": 0.56, "dark": 0.74 },
+    "container": {
+      "light": [0.92, 0.36, 0.45],
+      "dark": [0.36, 0.9, 0.55]
+    }
+  },
+  "materials": { "canvas": "solid", "sidebar": "solid", "headerbar": "solid", "float": "glass", "shell": "glass", "osd": "glass", "dialog": "solid" },
+  "glass": {
+    "blur": 12,
+    "saturate": 1.35,
+    "lum": { "light": 0.55, "dark": 0.34 },
+    "tint": { "light": 0.38, "dark": 0.52 },
+    "accentMix": { "light": 0.14, "dark": 0.18 },
+    "brightness": { "light": 1.08, "dark": 0.75 },
+    "highlight": { "light": 0.55, "dark": 0.16 },
+    "edge": { "light": 0.2, "dark": 0.6 },
+    "line": { "light": 0.7, "dark": 0.26 },
+    "specular": { "light": 0.45, "dark": 0.3 },
+    "noise": 0.03,
+    "rim": 1
+  },
+  "elevation": {
+    "darkFactor": 2,
+    "1": "0 1px 2px rgb(0 0 0 / .05)",
+    "2": "0 1px 2px rgb(0 0 0 / .06), 0 10px 28px -6px rgb(0 0 0 / .18)",
+    "3": "0 2px 6px rgb(0 0 0 / .07), 0 28px 70px -18px rgb(0 0 0 / .36)",
+    "float": "0 1px 2px rgb(0 0 0 / .08), 0 12px 40px -8px rgb(0 0 0 / .25)"
+  },
+  "stroke": { "width": 1, "inner": true },
+  "motion": { "easing": "cubic-bezier(.2,0,0,1)", "emphasized": "cubic-bezier(.05,.7,.1,1)", "fast": 120, "normal": 220, "slow": 380, "spring": true }
+}
