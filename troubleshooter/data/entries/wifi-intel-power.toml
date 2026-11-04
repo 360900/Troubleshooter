@@ -1,0 +1,29 @@
+id = "wifi-intel-power"
+title = "Intel Wi-Fi drops or stalls"
+summary = "The Intel Wi-Fi firmware logged errors. Running it in its most active power mode often stops the stalls, at a small battery cost."
+categories = ["network", "intel", "drivers"]
+systems = ["any"]
+keywords = ["intel", "iwlwifi", "iwlmvm", "ax200", "ax210", "be200", "power_scheme", "microcode error"]
+symptoms = ["wifi keeps disconnecting", "wifi stalls for a few seconds", "wireless drops every few minutes", "internet cuts out on my laptop"]
+auto_detect = true
+reproduce = "Use the internet normally until the connection drops."
+
+[[when]]
+source = "module"
+names = ["iwlwifi"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/iwlmvm/parameters/power_scheme"
+regex = '^1$'
+
+[[signals]]
+says = "The kernel log shows Intel Wi-Fi firmware errors"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'iwlwifi.*(Microcode SW error|Queue .* is stuck|Hardware error|Error sending)'
+
+[[fix]]
+reboot = true
+steps = [{ op = "module_options", module = "iwlmvm", options = ["power_scheme=1"], says = "Run the Wi-Fi chip in its most active power mode" }]

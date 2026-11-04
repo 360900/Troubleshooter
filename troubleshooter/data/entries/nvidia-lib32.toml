@@ -1,0 +1,35 @@
+id = "nvidia-lib32"
+title = "NVIDIA: 32-bit driver is missing for games"
+summary = "Steam and many Wine and Proton games need the 32-bit half of the driver. Without it they won't start, or they fall back to software rendering."
+categories = ["nvidia", "games", "wine"]
+systems = ["arch-and-based"]
+keywords = ["lib32-nvidia-utils", "32-bit", "multilib", "vulkan", "glx"]
+symptoms = ["steam won't start", "game doesn't launch with nvidia", "wine can't find vulkan", "steam says graphics driver is missing", "very low fps in old games"]
+auto_detect = true
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+source = "package"
+names = ["steam", "wine", "wine-*", "lutris"]
+
+[[when]]
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^\[multilib\]'
+
+[[fixed_when]]
+source = "package"
+names = ["lib32-nvidia-utils", "lib32-nvidia-*-utils"]
+
+[[signals]]
+says = "You have Steam or Wine, but no 32-bit NVIDIA driver"
+weight = 0.9
+source = "package"
+names = ["lib32-nvidia-utils", "lib32-nvidia-*-utils"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["lib32-nvidia-utils"] }]

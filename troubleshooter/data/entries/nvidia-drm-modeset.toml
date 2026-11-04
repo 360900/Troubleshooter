@@ -1,0 +1,31 @@
+id = "nvidia-drm-modeset"
+title = "NVIDIA: kernel mode setting is off"
+summary = "Without DRM kernel mode setting, Wayland won't run on NVIDIA and you can get tearing, a low-resolution console or a black screen at login."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["nvidia_drm.modeset", "modeset", "kms", "fbdev", "wayland", "tearing", "drm"]
+symptoms = ["wayland session doesn't start on nvidia", "screen tearing on nvidia", "black screen at login", "no wayland option at the login screen", "flickering on nvidia"]
+auto_detect = true
+
+[[when]]
+source = "module"
+names = ["nvidia_drm"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/nvidia_drm/parameters/modeset"
+regex = '^Y'
+
+[[signals]]
+says = "nvidia_drm is running with modeset off"
+weight = 0.9
+source = "file"
+path = "/sys/module/nvidia_drm/parameters/modeset"
+regex = '^N'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["nvidia_drm.modeset=1", "nvidia_drm.fbdev=1"], says = "Add kernel parameters that turn on NVIDIA kernel mode setting" },
+  { op = "initramfs" },
+]

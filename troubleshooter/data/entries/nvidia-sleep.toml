@@ -1,0 +1,55 @@
+id = "nvidia-sleep"
+title = "NVIDIA: broken or black screen after waking from sleep"
+summary = "The driver isn't saving video memory when the computer sleeps, so the desktop can come back black, garbled or frozen. Turning this on takes two kernel parameters and three system services."
+categories = ["nvidia", "sleep", "display", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["suspend", "resume", "NVreg_PreserveVideoMemoryAllocations", "preserve video memory", "nvidia-suspend", "hibernate"]
+symptoms = ["black screen after waking from sleep", "screen is garbled after resume", "desktop freezes when I open the lid", "laptop won't wake up", "windows are corrupted after suspend", "apps crash after sleep", "can't wake from suspend with nvidia"]
+auto_detect = true
+reproduce = "Put the computer to sleep and wake it up again. If it doesn't come back, restart it and run this again."
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+# Newer drivers handle this through kernel suspend notifiers and need none of it.
+[[fixed_when]]
+source = "file"
+path = "/proc/driver/nvidia/params"
+regex = '^UseKernelSuspendNotifiers: 1'
+
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/proc/driver/nvidia/params", regex = '^PreserveVideoMemoryAllocations: [12]' },
+  { source = "service", name = "nvidia-suspend.service", state = "enabled" },
+  { source = "service", name = "nvidia-resume.service", state = "enabled" },
+]
+
+[[signals]]
+says = "The driver isn't preserving video memory across sleep"
+weight = 0.7
+source = "file"
+path = "/proc/driver/nvidia/params"
+regex = '^PreserveVideoMemoryAllocations: 0'
+
+[[signals]]
+says = "The sleep services aren't enabled"
+weight = 0.2
+source = "service"
+name = "nvidia-suspend.service"
+state = "disabled"
+
+[[signals]]
+says = "The NVIDIA driver logged errors around sleep"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'NVRM:.*(suspend|resume|video memory|PreserveVideoMemory)|nvidia.*(suspend|resume).*(fail|error)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["nvidia.NVreg_PreserveVideoMemoryAllocations=1", "nvidia.NVreg_TemporaryFilePath=/var/tmp"], says = "Add kernel parameters that save video memory during sleep" },
+  { op = "service", names = ["nvidia-suspend.service", "nvidia-hibernate.service", "nvidia-resume.service"], says = "Enable NVIDIA's suspend, hibernate and resume services" },
+  { op = "initramfs" },
+]

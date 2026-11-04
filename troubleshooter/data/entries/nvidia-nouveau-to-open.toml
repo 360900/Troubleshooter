@@ -1,0 +1,42 @@
+id = "nvidia-nouveau-to-open"
+title = "NVIDIA card is using nouveau instead of the NVIDIA driver"
+summary = "Your card is new enough for NVIDIA's open kernel driver, which brings full performance, Vulkan and working sleep. It's running on nouveau, which can't reach those."
+categories = ["nvidia", "drivers", "display", "games"]
+systems = ["arch-and-based"]
+keywords = ["nouveau", "nvidia-open", "proprietary driver", "install nvidia driver", "turing", "ampere"]
+symptoms = ["low fps on nvidia", "games are slow on my rtx card", "nvidia driver not installed", "nvidia settings doesn't open", "no cuda", "screen flickers on nvidia"]
+auto_detect = true
+
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+devices = ["1e00-ffff"]
+
+[[fixed_when]]
+source = "module"
+names = ["nvidia"]
+
+[[signals]]
+says = "Your NVIDIA card is being driven by nouveau"
+weight = 0.95
+source = "pci"
+vendor = "10de"
+class = "03"
+devices = ["1e00-ffff"]
+driver = "nouveau"
+
+[[signals]]
+says = "The NVIDIA kernel driver isn't installed"
+weight = 0.5
+source = "package"
+names = ["nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install", packages = ["nvidia-open-dkms", "nvidia-utils", "{headers}"], optional = { "lib32-nvidia-utils" = ["steam", "wine", "wine-*", "lutris"] }, says = "Install the NVIDIA open driver for your kernels" },
+  { op = "remove", packages = ["xf86-video-nouveau"], says = "Remove the old nouveau X driver" },
+  { op = "initramfs" },
+]

@@ -1,0 +1,42 @@
+id = "nvidia-open-on-legacy"
+title = "This NVIDIA card needs the legacy 580xx driver"
+summary = "NVIDIA dropped Maxwell and Pascal cards (GTX 750 to GTX 10xx) from driver 590 onward, and the open kernel driver never supported them. The installed driver can't load on this card."
+categories = ["nvidia", "drivers", "display"]
+systems = ["arch-and-based"]
+keywords = ["nvidia-580xx-dkms", "580xx", "legacy driver", "maxwell", "pascal", "gtx 1080", "gtx 1070", "gtx 1060", "gtx 1050", "gtx 970", "gtx 960"]
+symptoms = ["black screen after nvidia update", "no display after updating", "driver won't load after update", "nvidia stopped working after upgrade", "card no longer supported"]
+auto_detect = true
+
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+devices = ["1340-1dff"]
+
+[[when]]
+source = "package"
+names = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open", "linux-*-nvidia"]
+
+[[fixed_when]]
+source = "package"
+names = ["nvidia-580xx-dkms"]
+
+[[signals]]
+says = "A driver that doesn't support this card is installed"
+weight = 0.95
+source = "package"
+names = ["nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open"]
+
+[[signals]]
+says = "The NVIDIA driver rejected this card at boot"
+weight = 0.9
+source = "journal"
+kernel = true
+regex = 'NVRM: .*(not supported|requires use of the NVIDIA GSP|No NVIDIA .* found)|nvidia.*probe.*failed'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install_aur", packages = ["nvidia-580xx-dkms", "nvidia-580xx-utils", "{headers}"], optional = { "lib32-nvidia-580xx-utils" = "lib32-nvidia-utils", "opencl-nvidia-580xx" = "opencl-nvidia" }, aur_bases = { "nvidia-580xx-dkms" = "nvidia-580xx-utils", "nvidia-580xx-utils" = "nvidia-580xx-utils", "opencl-nvidia-580xx" = "nvidia-580xx-utils", "lib32-nvidia-580xx-utils" = "lib32-nvidia-580xx-utils" }, replaces = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open", "linux-*-nvidia", "nvidia-utils", "lib32-nvidia-utils", "opencl-nvidia", "lib32-opencl-nvidia"] },
+  { op = "initramfs" },
+]

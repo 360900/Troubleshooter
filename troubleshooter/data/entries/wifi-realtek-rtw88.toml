@@ -1,0 +1,38 @@
+id = "wifi-realtek-rtw88"
+title = "Realtek Wi-Fi drops or slows down (rtw88)"
+summary = "These Realtek chips often drop connections because of PCIe and deep power saving. Turning those off is the usual fix and costs a little battery life."
+categories = ["network", "drivers"]
+systems = ["any"]
+keywords = ["realtek", "rtw88", "rtl8821ce", "rtl8822ce", "rtl8723de", "aspm", "power saving"]
+symptoms = ["wifi keeps disconnecting", "wifi is slow", "wireless drops every few minutes", "internet cuts out on my laptop", "weak wifi signal"]
+auto_detect = true
+reproduce = "Use the internet normally until the connection drops."
+
+[[when]]
+source = "module"
+names = ["rtw88_pci"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/rtw88_pci/parameters/disable_aspm"
+regex = '^Y'
+
+[[signals]]
+says = "You have a Realtek chip known for dropping connections"
+weight = 0.55
+source = "module"
+names = ["rtw88_8821ce", "rtw88_8822ce", "rtw88_8723de", "rtw88_8821c", "rtw88_8822c", "rtw88_8723d"]
+
+[[signals]]
+says = "The kernel log shows Realtek Wi-Fi errors"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'rtw_?88.*(failed|timeout|firmware error|error)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "module_options", module = "rtw88_pci", options = ["disable_aspm=Y"], says = "Turn off PCIe power saving for the Wi-Fi chip" },
+  { op = "module_options", module = "rtw88_core", options = ["disable_lps_deep=Y"], says = "Turn off deep power saving for the Wi-Fi chip" },
+]

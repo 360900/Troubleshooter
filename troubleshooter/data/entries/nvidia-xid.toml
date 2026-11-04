@@ -1,0 +1,20 @@
+id = "nvidia-xid"
+title = "NVIDIA: GPU reported hardware or driver errors"
+summary = "The driver logged Xid errors. They point to a crash inside the GPU, overheating, unstable overclocks, or a failing card or power supply. There's no safe automatic fix."
+categories = ["nvidia", "crashes", "display", "games"]
+systems = ["any"]
+keywords = ["xid", "NVRM", "gpu has fallen off the bus", "gpu hang", "overclock"]
+symptoms = ["game freezes then screen goes black", "gpu crash", "whole system hangs while gaming", "screen flickers and freezes under load", "fans spin up and pc freezes"]
+advice = "Remove any GPU overclock and check temperatures first. Update the driver. If errors continue on stock settings, test the card in another machine or with another power supply. Xid 79 (GPU fallen off the bus) usually means power or hardware."
+reproduce = "Open the game or app that goes wrong and use it until the problem happens."
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[signals]]
+says = "The kernel log has NVIDIA Xid errors"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'NVRM: Xid|GPU has fallen off the bus'

@@ -1,0 +1,31 @@
+id = "bluetooth-service-off"
+title = "Bluetooth service is turned off"
+summary = "You have a Bluetooth adapter, but the service that runs it isn't enabled, so no devices show up."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["bluetooth.service", "bluez", "bluetoothctl", "no default controller"]
+symptoms = ["bluetooth doesn't work", "bluetooth won't turn on", "can't pair my headphones", "no bluetooth devices found", "controller doesn't connect"]
+auto_detect = true
+
+[[when]]
+source = "file"
+path = "/sys/class/bluetooth/hci*"
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[fixed_when]]
+source = "service"
+name = "bluetooth.service"
+state = "enabled"
+
+[[signals]]
+says = "bluetooth.service is disabled"
+weight = 0.92
+source = "service"
+name = "bluetooth.service"
+state = "disabled"
+
+[[fix]]
+steps = [{ op = "service", names = ["bluetooth.service"], now = true, says = "Enable and start the Bluetooth service" }]

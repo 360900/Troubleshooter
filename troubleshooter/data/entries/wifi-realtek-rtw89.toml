@@ -1,0 +1,38 @@
+id = "wifi-realtek-rtw89"
+title = "Realtek Wi-Fi drops or slows down (rtw89)"
+summary = "RTL8852 and RTL8922 chips often drop connections because of PCIe power saving. Turning it off is the usual fix and costs a little battery life."
+categories = ["network", "drivers"]
+systems = ["any"]
+keywords = ["realtek", "rtw89", "rtl8852be", "rtl8852ae", "rtl8852ce", "rtl8922ae", "aspm", "power saving"]
+symptoms = ["wifi keeps disconnecting", "wifi is slow", "wireless drops every few minutes", "internet cuts out on my laptop", "wifi dies after sleep"]
+auto_detect = true
+reproduce = "Use the internet normally until the connection drops."
+
+[[when]]
+source = "module"
+names = ["rtw89_pci"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/rtw89_pci/parameters/disable_aspm_l1"
+regex = '^Y'
+
+[[signals]]
+says = "You have a Realtek chip known for dropping connections"
+weight = 0.55
+source = "module"
+names = ["rtw89_pci"]
+
+[[signals]]
+says = "The kernel log shows Realtek Wi-Fi errors"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'rtw89.*(failed|timeout|firmware error|error|SER catches)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "module_options", module = "rtw89_pci", options = ["disable_aspm_l1=Y", "disable_aspm_l1ss=Y"], says = "Turn off PCIe power saving for the Wi-Fi chip" },
+  { op = "module_options", module = "rtw89_core", options = ["disable_ps_mode=Y"], says = "Turn off low power mode for the Wi-Fi chip" },
+]

@@ -1,0 +1,36 @@
+id = "oom-no-swap"
+title = "Apps get killed because memory runs out"
+summary = "The kernel closes apps when memory runs out, and this system has no swap to absorb the pressure. Compressed swap in RAM (zram) gives you much more headroom."
+categories = ["crashes", "games"]
+systems = ["arch-and-based"]
+keywords = ["oom", "out of memory", "oom killer", "swap", "zram", "zram-generator"]
+symptoms = ["apps close by themselves", "browser disappears", "computer freezes when many apps are open", "game killed out of nowhere", "system locks up when memory is full"]
+auto_detect = true
+reproduce = "Do whatever you were doing when apps closed by themselves."
+
+[[fixed_when]]
+source = "file"
+path = "/proc/swaps"
+regex = '^/'
+
+[[signals]]
+says = "The kernel killed processes for lack of memory"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'Out of memory: Killed process|oom-kill:'
+
+[[signals]]
+says = "This system has no swap"
+weight = 0.2
+source = "file"
+path = "/proc/swaps"
+regex = '^/'
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["zram-generator"] },
+  { op = "write_file", path = "/etc/systemd/zram-generator.conf", content = "[zram0]\nzram-size = ram / 2\ncompression-algorithm = zstd\n", says = "Configure compressed swap using up to half your RAM" },
+  { op = "command", says = "Turn on compressed swap", run = "systemctl daemon-reload && systemctl start systemd-zram-setup@zram0.service" },
+]

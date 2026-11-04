@@ -1,0 +1,33 @@
+id = "wifi-mediatek-aspm"
+title = "MediaTek Wi-Fi drops or stops after a while"
+summary = "MT7921, MT7922 and MT7925 chips can lock up because of PCIe power saving. Turning it off is the usual fix and costs a little battery life."
+categories = ["network", "drivers"]
+systems = ["any"]
+keywords = ["mediatek", "mt7921", "mt7922", "mt7925", "filogic", "aspm", "power saving"]
+symptoms = ["wifi keeps disconnecting", "wifi stops working after a while", "wifi dies after sleep", "wireless disappears until reboot", "internet cuts out"]
+auto_detect = true
+reproduce = "Use the internet normally until the connection drops."
+
+[[when]]
+source = "module"
+names = ["mt7921e", "mt7925e"]
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/sys/module/mt7921e/parameters/disable_aspm", regex = '^Y' },
+  { source = "file", path = "/sys/module/mt7925e/parameters/disable_aspm", regex = '^Y' },
+]
+
+[[signals]]
+says = "The kernel log shows the Wi-Fi chip timing out or resetting"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'mt79(21|22|25)e?.*(timeout|chip reset|hardware reset|failed to)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "module_options", module = "mt7921e", options = ["disable_aspm=Y"], says = "Turn off PCIe power saving for MT7921 and MT7922" },
+  { op = "module_options", module = "mt7925e", options = ["disable_aspm=Y"], says = "Turn off PCIe power saving for MT7925" },
+]

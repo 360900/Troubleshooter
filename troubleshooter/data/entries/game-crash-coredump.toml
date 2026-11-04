@@ -1,0 +1,15 @@
+id = "game-crash-coredump"
+title = "A game or Windows app crashed"
+summary = "A game or Wine process crashed. The log doesn't point to a system-wide cause, so this usually comes down to that game or its Proton version."
+categories = ["games", "wine", "crashes"]
+systems = ["any"]
+keywords = ["coredump", "segfault", "proton log", "wine crash", "exe crash"]
+symptoms = ["game crashes", "game closes without an error", "steam game won't stay open", "windows app crashes under wine"]
+advice = "In Steam, try another Proton version under Properties, Compatibility. Add PROTON_LOG=1 %command% to the launch options to get a log in your home folder. Search ProtonDB for this game's known launch options."
+reproduce = "Start the game or app and do what makes it crash."
+
+[[signals]]
+says = "A game or Wine process crashed during this boot"
+weight = 0.7
+source = "journal"
+regex = 'systemd-coredump.*(wine|proton|steam|\.exe)|(wine|\.exe).*segfault at'

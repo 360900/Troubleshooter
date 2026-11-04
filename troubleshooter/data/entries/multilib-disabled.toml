@@ -1,0 +1,29 @@
+id = "multilib-disabled"
+title = "32-bit repository is turned off"
+summary = "Steam, Wine and the 32-bit graphics libraries come from the multilib repository, which isn't enabled in pacman."
+categories = ["games", "wine"]
+systems = ["arch-and-based"]
+keywords = ["multilib", "pacman.conf", "lib32", "32-bit", "target not found"]
+symptoms = ["can't install steam", "steam not found in pacman", "pacman says target not found lib32", "wine won't install", "32-bit games don't run"]
+
+[[when]]
+source = "file"
+path = "/etc/pacman.conf"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^\[multilib\]'
+
+[[signals]]
+says = "multilib is commented out in /etc/pacman.conf"
+weight = 0.85
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^#\s*\[multilib\]'
+
+[[fix]]
+steps = [
+  { op = "replace", path = "/etc/pacman.conf", address = '/^#[[:space:]]*\[multilib\]/,+1 ', pattern = '^#[[:space:]]*', replacement = '', says = "Turn on the multilib repository in pacman.conf" },
+  { op = "command", says = "Refresh the package lists", run = "pacman -Sy --noconfirm" },
+]

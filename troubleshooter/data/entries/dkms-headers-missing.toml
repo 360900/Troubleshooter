@@ -1,0 +1,24 @@
+id = "dkms-headers-missing"
+title = "Kernel headers are missing for DKMS drivers"
+summary = "DKMS drivers such as NVIDIA or Wi-Fi modules have to be built for each kernel. A kernel without its headers gets no driver, often leaving you with a black screen or no Wi-Fi after booting it."
+categories = ["drivers", "nvidia", "network"]
+systems = ["arch-and-based"]
+keywords = ["dkms", "linux-headers", "headers", "kernel module", "module not found"]
+symptoms = ["driver doesn't load after kernel update", "black screen after installing a new kernel", "module not found", "dkms build fails", "wifi gone after update"]
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["dkms"]
+
+[[signals]]
+says = "An installed kernel has no headers"
+weight = 0.9
+source = "kernel_headers"
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install", packages = ["{headers}"], says = "Install the missing kernel headers" },
+  { op = "command", says = "Build DKMS drivers for all kernels", run = "dkms autoinstall" },
+]

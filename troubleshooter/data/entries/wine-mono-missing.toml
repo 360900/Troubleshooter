@@ -1,0 +1,26 @@
+id = "wine-mono-missing"
+title = "Wine is missing Mono and Gecko"
+summary = "Many Windows apps need .NET or an embedded browser. Wine gets those from wine-mono and wine-gecko. Without them, apps crash or fail to install."
+categories = ["wine", "games"]
+systems = ["arch-and-based"]
+keywords = ["wine-mono", "wine-gecko", "dotnet", ".net", "mscoree"]
+symptoms = ["windows app won't start in wine", "installer fails under wine", ".net app crashes", "wine asks to download mono", "exe doesn't open"]
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["wine", "wine-staging", "wine-cachyos", "wine-ge-custom"]
+
+[[fixed_when]]
+source = "package"
+names = ["wine-mono"]
+
+[[signals]]
+says = "Wine is installed, but wine-mono isn't"
+weight = 0.75
+source = "package"
+names = ["wine-mono"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["wine-mono", "wine-gecko"] }]

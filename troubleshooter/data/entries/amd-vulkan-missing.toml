@@ -1,0 +1,28 @@
+id = "amd-vulkan-missing"
+title = "AMD: Vulkan driver is missing"
+summary = "Proton, DXVK and most modern games need Vulkan. Without AMD's Vulkan driver they won't start or run far too slowly."
+categories = ["amd", "games", "wine", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vulkan-radeon", "radv", "mesa", "dxvk", "vulkan"]
+symptoms = ["game won't start on my radeon card", "dxvk fails on amd", "proton games don't launch", "vulkan not found", "no vulkan device"]
+auto_detect = true
+
+[[when]]
+source = "pci"
+vendor = "1002"
+class = "03"
+driver = "amdgpu"
+
+[[fixed_when]]
+source = "package"
+names = ["vulkan-radeon", "amdvlk"]
+
+[[signals]]
+says = "You have an AMD GPU, but no AMD Vulkan driver"
+weight = 0.9
+source = "package"
+names = ["vulkan-radeon", "amdvlk"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["vulkan-radeon"], optional = { "lib32-vulkan-radeon" = ["steam", "wine", "wine-*", "lib32-mesa"] }, says = "Install AMD's Vulkan driver (RADV)" }]

@@ -1,0 +1,36 @@
+id = "wifi-broadcom-wl"
+title = "Broadcom Wi-Fi has no driver"
+summary = "This Broadcom chip needs the broadcom-wl driver, which isn't included in the kernel, so Wi-Fi doesn't show up at all."
+categories = ["network", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["broadcom", "bcm4360", "bcm4352", "bcm4331", "broadcom-wl", "wl", "b43"]
+symptoms = ["no wifi adapter found", "wifi doesn't show up", "wireless is missing", "no wifi networks on my laptop", "macbook wifi not working"]
+auto_detect = true
+
+[[when]]
+source = "pci"
+vendor = "14e4"
+class = "0280"
+devices = ["4311", "4312", "4315", "4328", "4329", "432a", "432b", "432c", "432d", "4331", "4360", "4365", "43a0", "43b1"]
+
+[[fixed_when]]
+source = "pci"
+vendor = "14e4"
+class = "0280"
+driver = "wl"
+
+[[signals]]
+says = "Your Broadcom Wi-Fi chip has no driver loaded"
+weight = 0.92
+source = "pci"
+vendor = "14e4"
+class = "0280"
+driver = "none"
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install", packages = ["broadcom-wl-dkms", "{headers}"], says = "Install the broadcom-wl driver for your kernels" },
+  { op = "blacklist", modules = ["b43", "bcma", "ssb", "brcmsmac"], says = "Stop conflicting Broadcom drivers from loading" },
+  { op = "initramfs" },
+]

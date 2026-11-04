@@ -1,0 +1,47 @@
+id = "sof-firmware-missing"
+title = "Intel audio firmware is missing"
+summary = "Most recent Intel laptops need Sound Open Firmware. Without it you get no sound, or only a \"Dummy Output\" device."
+categories = ["sound", "intel", "drivers"]
+systems = ["arch-and-based", "debian-and-based", "fedora-and-based"]
+keywords = ["sof-firmware", "sound open firmware", "dummy output", "alsa", "sof-audio", "snd_sof"]
+symptoms = ["no sound on my laptop", "only dummy output", "speakers don't work", "audio device is missing", "microphone isn't detected"]
+auto_detect = true
+reproduce = "Try to play a sound."
+
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "04"
+
+[[fixed_when]]
+source = "package"
+names = ["sof-firmware", "firmware-sof-signed", "alsa-sof-firmware"]
+
+[[signals]]
+says = "The audio driver needs Sound Open Firmware, which isn't installed"
+weight = 0.9
+source = "journal"
+kernel = true
+regex = 'sof-audio.*(error|failed|missing)|SOF firmware.*(missing|not found)|snd_soc_skl.*(failed|error)'
+
+[[signals]]
+says = "The sound firmware package isn't installed"
+weight = 0.15
+source = "package"
+names = ["sof-firmware", "firmware-sof-signed", "alsa-sof-firmware"]
+absent = true
+
+[[fix]]
+systems = ["arch-and-based"]
+reboot = true
+steps = [{ op = "install", packages = ["sof-firmware", "alsa-ucm-conf"] }]
+
+[[fix]]
+systems = ["debian-and-based"]
+reboot = true
+steps = [{ op = "install", packages = ["firmware-sof-signed"] }]
+
+[[fix]]
+systems = ["fedora-and-based"]
+reboot = true
+steps = [{ op = "install", packages = ["alsa-sof-firmware"] }]

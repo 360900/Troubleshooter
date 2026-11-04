@@ -1,0 +1,37 @@
+id = "amd-psr-flicker"
+title = "AMD laptop: screen flickers or freezes briefly"
+summary = "Panel Self Refresh, a laptop power-saving feature, can cause flicker and short freezes on AMD graphics. Turning it off costs a little battery life."
+categories = ["amd", "display"]
+systems = ["arch-and-based"]
+keywords = ["amdgpu.dcdebugmask", "psr", "panel self refresh", "flip_done", "dcn"]
+symptoms = ["screen flickers on my amd laptop", "display glitches for a moment", "cursor stutters and the screen flashes", "game is flickering on ryzen laptop", "screen freezes for a second"]
+reproduce = "Use the computer until the screen flickers or freezes."
+
+[[when]]
+source = "module"
+names = ["amdgpu"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.dcdebugmask=0x10"]
+
+[[signals]]
+says = "This is a laptop, where Panel Self Refresh is in use"
+weight = 0.3
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'
+
+[[signals]]
+says = "The kernel log shows display timeouts from amdgpu"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'amdgpu.*(flip_done timed out|REG_WAIT timeout)|\[drm\].*(flip_done timed out)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.dcdebugmask=0x10"], says = "Add a kernel parameter that turns off Panel Self Refresh" },
+  { op = "initramfs" },
+]

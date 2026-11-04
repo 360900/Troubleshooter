@@ -1,0 +1,31 @@
+id = "amd-radeon-to-amdgpu"
+title = "AMD: older card is using the radeon driver"
+summary = "Southern Islands and Sea Islands cards (HD 7000, R7, R9 2xx) can use the newer amdgpu driver, which adds Vulkan and better performance. This card is on the old radeon driver, which has no Vulkan."
+categories = ["amd", "drivers", "games", "display"]
+systems = ["arch-and-based"]
+keywords = ["radeon", "amdgpu", "si_support", "cik_support", "southern islands", "sea islands", "hd 7000", "r9 290", "r7 260"]
+symptoms = ["no vulkan on my old radeon card", "games are slow on old amd card", "vulkan not supported on hd 7970", "dxvk doesn't work on r9"]
+auto_detect = true
+
+[[when]]
+source = "pci"
+vendor = "1002"
+class = "03"
+driver = "radeon"
+devices = ["6780-679f", "6800-6819", "6820-683f", "6600-663f", "6660-666f", "6640-665f", "67a0-67bf", "1304-131d", "9830-983f", "9850-985f"]
+
+[[signals]]
+says = "This card is supported by amdgpu but running on radeon"
+weight = 0.9
+source = "pci"
+vendor = "1002"
+class = "03"
+driver = "radeon"
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["radeon.si_support=0", "amdgpu.si_support=1", "radeon.cik_support=0", "amdgpu.cik_support=1"], says = "Add kernel parameters that move this card to the amdgpu driver" },
+  { op = "install", packages = ["vulkan-radeon"], optional = { "lib32-vulkan-radeon" = ["steam", "wine", "wine-*", "lib32-mesa"] } },
+  { op = "initramfs" },
+]

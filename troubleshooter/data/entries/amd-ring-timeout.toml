@@ -1,0 +1,20 @@
+id = "amd-ring-timeout"
+title = "AMD: GPU hang or reset"
+summary = "The amdgpu driver logged a GPU timeout or reset, which usually shows up as a frozen screen or a crashed game. There's no safe automatic fix."
+categories = ["amd", "crashes", "games", "display"]
+systems = ["any"]
+keywords = ["amdgpu", "ring gfx timeout", "gpu reset", "gpu hang", "mesa"]
+symptoms = ["game freezes on amd", "screen freezes then returns to the login screen", "desktop restarts while gaming", "gpu crash on radeon"]
+advice = "Update Mesa, linux-firmware and the kernel first, since these hangs are often fixed upstream. Remove any overclock or undervolt. If one game triggers it, try another Proton version for that game."
+reproduce = "Open the game or app that goes wrong and use it until the problem happens."
+
+[[when]]
+source = "module"
+names = ["amdgpu"]
+
+[[signals]]
+says = "The kernel log shows amdgpu timeouts or GPU resets"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'amdgpu.*(ring .* timeout|GPU reset begin|GPU recovery)'

@@ -1,0 +1,31 @@
+id = "intel-vulkan-missing"
+title = "Intel: Vulkan driver is missing"
+summary = "Proton, DXVK and most modern games need Vulkan. Intel's Vulkan driver isn't installed."
+categories = ["intel", "games", "wine", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vulkan-intel", "anv", "mesa", "dxvk", "vulkan"]
+symptoms = ["game won't start on intel graphics", "vulkan not found", "dxvk fails on intel", "proton games don't launch"]
+auto_detect = true
+
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "03"
+
+[[when]]
+source = "module"
+names = ["i915", "xe"]
+
+[[fixed_when]]
+source = "package"
+names = ["vulkan-intel"]
+
+[[signals]]
+says = "You have Intel graphics, but no Intel Vulkan driver"
+weight = 0.8
+source = "package"
+names = ["vulkan-intel"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["vulkan-intel"], optional = { "lib32-vulkan-intel" = ["steam", "wine", "wine-*", "lib32-mesa"] }, says = "Install Intel's Vulkan driver" }]

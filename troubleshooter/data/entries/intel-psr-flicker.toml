@@ -1,0 +1,37 @@
+id = "intel-psr-flicker"
+title = "Intel laptop: screen flickers or freezes briefly"
+summary = "Panel Self Refresh, a laptop power-saving feature, can cause flicker and short freezes on Intel graphics. Turning it off costs a little battery life."
+categories = ["intel", "display"]
+systems = ["arch-and-based"]
+keywords = ["i915.enable_psr", "xe.enable_psr", "psr", "panel self refresh", "flip_done"]
+symptoms = ["screen flickers on my intel laptop", "display glitches for a moment", "game is flickering on intel graphics", "screen freezes for a second"]
+reproduce = "Use the computer until the screen flickers or freezes."
+
+[[when]]
+source = "module"
+names = ["i915", "xe"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["i915.enable_psr=0"]
+
+[[signals]]
+says = "This is a laptop, where Panel Self Refresh is in use"
+weight = 0.3
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'
+
+[[signals]]
+says = "The kernel log shows display errors from the Intel driver"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = '(i915|xe).*(flip_done timed out|PSR.*(error|timeout)|pipe .* underrun)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["i915.enable_psr=0", "xe.enable_psr=0"], says = "Add kernel parameters that turn off Panel Self Refresh" },
+  { op = "initramfs" },
+]

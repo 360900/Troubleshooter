@@ -1,0 +1,27 @@
+id = "games-max-map-count"
+title = "Memory map limit is too low for some games"
+summary = "Some large games, especially under Proton, need more memory mappings than this system allows, and they crash when they hit the limit."
+categories = ["games", "crashes", "wine"]
+systems = ["any"]
+keywords = ["vm.max_map_count", "max_map_count", "sysctl", "mappings"]
+symptoms = ["game crashes on start", "game crashes after a few minutes", "game closes itself to desktop", "game crashes while loading", "proton game crashes"]
+auto_detect = true
+
+[[when]]
+source = "file"
+path = "/proc/sys/vm/max_map_count"
+
+[[fixed_when]]
+source = "file"
+path = "/proc/sys/vm/max_map_count"
+regex = '^([1-9][0-9]{6,})$'
+
+[[signals]]
+says = "vm.max_map_count is below the 1048576 most games are fine with"
+weight = 0.7
+source = "file"
+path = "/proc/sys/vm/max_map_count"
+regex = '^[0-9]{1,6}$'
+
+[[fix]]
+steps = [{ op = "sysctl", values = { "vm.max_map_count" = "1048576" }, says = "Raise the memory map limit to 1048576" }]
