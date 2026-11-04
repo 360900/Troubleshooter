@@ -1,0 +1,85 @@
+# Sidebar order. icon is a name in ui/assets/icons.
+
+[[category]]
+id = "display"
+title = "Display"
+icon = "video-display"
+blurb = "Flickering, black screens, tearing, wrong resolution."
+keywords = ["screen", "monitor", "display", "flicker", "graphics", "tearing", "wayland", "resolution"]
+
+[[category]]
+id = "nvidia"
+title = "NVIDIA"
+icon = "gpu"
+blurb = "NVIDIA drivers, nouveau, legacy cards."
+keywords = ["nvidia", "geforce", "rtx", "gtx", "nouveau", "cuda"]
+
+[[category]]
+id = "amd"
+title = "AMD"
+icon = "gpu"
+blurb = "amdgpu, radeon and Vulkan on AMD graphics."
+keywords = ["amd", "radeon", "amdgpu", "ryzen", "rx"]
+
+[[category]]
+id = "intel"
+title = "Intel"
+icon = "gpu"
+blurb = "Intel graphics and audio."
+keywords = ["intel", "iris", "arc", "uhd", "i915"]
+
+[[category]]
+id = "games"
+title = "Games"
+icon = "input-gaming"
+blurb = "Games that won't start, crash or run badly, Steam and Proton."
+keywords = ["game", "steam", "proton", "fps", "lutris", "gaming"]
+
+[[category]]
+id = "wine"
+title = "Wine"
+icon = "wine"
+blurb = "Windows apps under Wine and Proton."
+keywords = ["wine", "windows", "exe", "proton", "dxvk", "mono"]
+
+[[category]]
+id = "drivers"
+title = "Drivers"
+icon = "applications-engineering"
+blurb = "Missing drivers, firmware and kernel modules."
+keywords = ["driver", "firmware", "module", "dkms", "kernel", "headers"]
+
+[[category]]
+id = "crashes"
+title = "Crashes"
+icon = "dialog-error"
+blurb = "Apps closing by themselves, freezes, GPU hangs."
+keywords = ["crash", "freeze", "hang", "killed", "memory", "segfault", "coredump"]
+
+[[category]]
+id = "network"
+title = "Wi-Fi and network"
+icon = "network-wireless"
+blurb = "Wi-Fi that's missing, slow or keeps dropping."
+keywords = ["wifi", "wireless", "network", "internet", "broadcom", "realtek", "mediatek"]
+
+[[category]]
+id = "sleep"
+title = "Sleep and power"
+icon = "weather-clear-night"
+blurb = "Problems going to sleep or waking up."
+keywords = ["sleep", "suspend", "resume", "wake", "hibernate", "lid", "battery"]
+
+[[category]]
+id = "sound"
+title = "Sound"
+icon = "audio-volume-high"
+blurb = "No sound, missing audio devices."
+keywords = ["sound", "audio", "speaker", "microphone", "headphones"]
+
+[[category]]
+id = "bluetooth"
+title = "Bluetooth"
+icon = "bluetooth"
+blurb = "Bluetooth that's off or missing."
+keywords = ["bluetooth", "headset", "controller", "pairing"]
