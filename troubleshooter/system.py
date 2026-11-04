@@ -218,6 +218,13 @@ class System:
     def cmdline(self) -> list[str]:
         return (self.read("/proc/cmdline") or "").split()
 
+    @property
+    def boot_time(self) -> float:
+        for line in (self.read("/proc/stat") or "").splitlines():
+            if line.startswith("btime "):
+                return float(line.split()[1])
+        return 0.0
+
     def journal_cursor(self) -> str | None:
         """Position in the journal right now, used to read only what happens next."""
         out = self._exec(["journalctl", "-n", "0", "--show-cursor", "--no-pager"], 15).out
