@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Troubleshooter
+Comment=Find and fix common Linux problems
+Exec=troubleshooter
+Icon=troubleshooter
+Categories=System;
+Keywords=fix;problem;driver;nvidia;amd;wifi;sleep;crash;wine;games;
+StartupWMClass=troubleshooter
