@@ -13,3 +13,11 @@ source = "pci"
 vendor = "8086"
 class = "03"
 devices = ["e200-e2ff"]
+
+# xe prints these when it couldn't map all of the card's memory (xe_vram.c, xe_pci_rebar.c).
+[[signals]]
+says = "The xe driver reported that Resizable BAR isn't in effect"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = '\bxe\b.*(Small BAR device|Failed to resize BAR|resize VRAM BAR)'
