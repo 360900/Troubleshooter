@@ -8,20 +8,21 @@ symptoms = ["no internet at all", "network management disabled", "network icon s
 source = "https://wiki.archlinux.org/title/NetworkManager#Network_management_disabled"
 
 [[when]]
-source = "file"
-path = "/var/lib/NetworkManager/NetworkManager.state"
+source = "package"
+names = ["networkmanager"]
 
+# Ask NetworkManager itself: its state file is in /var/lib/NetworkManager, which only root can read.
 [[fixed_when]]
-source = "file"
-path = "/var/lib/NetworkManager/NetworkManager.state"
-regex = '^NetworkingEnabled=true'
+source = "command"
+argv = ["nmcli", "networking"]
+regex = '^enabled$'
 
 [[signals]]
-says = "NetworkManager's saved state has networking turned off"
+says = "NetworkManager has networking turned off"
 weight = 0.85
-source = "file"
-path = "/var/lib/NetworkManager/NetworkManager.state"
-regex = '^NetworkingEnabled=false'
+source = "command"
+argv = ["nmcli", "networking"]
+regex = '^disabled$'
 
 [[fix]]
 steps = [{ op = "command", says = "Turn networking back on in NetworkManager", run = "nmcli networking on", undo = "nmcli networking off" }]
