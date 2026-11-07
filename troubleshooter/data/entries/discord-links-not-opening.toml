@@ -16,11 +16,16 @@ names = ["discord", "discord-ptb", "discord-canary", "discord_arch_electron"]
 source = "package"
 names = ["xdg-utils"]
 
+# Other packages can provide xdg-open too, so what counts is the command being there.
+[[fixed_when]]
+source = "file"
+path = "/usr/bin/xdg-open"
+
 [[signals]]
-says = "Discord is installed but xdg-utils is not"
+says = "Discord is installed but there's no xdg-open command"
 weight = 0.7
-source = "package"
-names = ["xdg-utils"]
+source = "file"
+path = "/usr/bin/xdg-open"
 absent = true
 
 [[fix]]

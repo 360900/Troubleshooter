@@ -166,5 +166,18 @@ class LibvirtTests(NetworkCase):
         self.assertEqual(self.evaluate("libvirt-default-network-inactive", m).status, engine.FIXED)
 
 
+class DiscordTests(NetworkCase):
+    def test_missing_xdg_open_is_recommended(self):
+        m = self.machine()
+        m.packages = {"discord"}
+        self.assertTrue(self.evaluate("discord-links-not-opening", m).recommended)
+
+    def test_xdg_open_from_another_package_is_fine(self):
+        m = self.machine()
+        m.packages = {"discord", "handlr-regex"}
+        m.write("/usr/bin/xdg-open", "#!/bin/sh\n")
+        self.assertEqual(self.evaluate("discord-links-not-opening", m).status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
