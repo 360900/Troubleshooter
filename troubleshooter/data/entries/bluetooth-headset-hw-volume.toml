@@ -15,9 +15,13 @@ names = ["wireplumber"]
 source = "package"
 names = ["bluez"]
 
+# Set in any WirePlumber config fragment: system-wide, per user or from a package.
 [[fixed_when]]
-source = "file"
-path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-hw-volume.conf"
+any_of = [
+  { source = "file", path = "/etc/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluez5\.enable-hw-volume"?\s*[=:]\s*false' },
+  { source = "file", path = "~/.config/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluez5\.enable-hw-volume"?\s*[=:]\s*false' },
+  { source = "file", path = "/usr/share/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluez5\.enable-hw-volume"?\s*[=:]\s*false' }
+]
 
 [[fix]]
 reboot = true

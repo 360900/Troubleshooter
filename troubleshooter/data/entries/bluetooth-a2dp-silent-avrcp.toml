@@ -15,9 +15,13 @@ names = ["wireplumber"]
 source = "package"
 names = ["bluez"]
 
+# Set in any WirePlumber config fragment: system-wide, per user or from a package.
 [[fixed_when]]
-source = "file"
-path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-avrcp.conf"
+any_of = [
+  { source = "file", path = "/etc/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluez5\.dummy-avrcp-player"?\s*[=:]\s*true' },
+  { source = "file", path = "~/.config/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluez5\.dummy-avrcp-player"?\s*[=:]\s*true' },
+  { source = "file", path = "/usr/share/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluez5\.dummy-avrcp-player"?\s*[=:]\s*true' }
+]
 
 [[fix]]
 reboot = true

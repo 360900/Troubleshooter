@@ -84,3 +84,42 @@ class BluetoothTests(EngineCase):
         self.assertEqual(len(execs), 2)
         for line in execs:
             self.assertIn("bluetoothctl --timeout", line)
+
+    def wireplumber(self, entry_id, path, text):
+        m = self.machine()
+        m.packages = {"wireplumber", "bluez"}
+        target = m.home / path[2:] if path.startswith("~/") else m.root / path.lstrip("/")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text)
+        return engine.diagnose_entry(DB.entries[entry_id], m.system()).status
+
+    def test_wireplumber_settings_made_elsewhere_count(self):
+        cases = [
+            ("bluetooth-headset-autoswitch", "~/.local/state/wireplumber/sm-settings",
+             "[sm-settings]\nbluetooth.autoswitch-to-headset-profile=false\n"),
+            ("bluetooth-headset-autoswitch", "~/.config/wireplumber/wireplumber.conf.d/51-mine.conf",
+             "wireplumber.settings = {\n  bluetooth.autoswitch-to-headset-profile = false\n}\n"),
+            ("bluetooth-headset-hw-volume", "/etc/wireplumber/wireplumber.conf.d/80-bluez-properties.conf",
+             "monitor.bluez.properties = {\n  bluez5.enable-hw-volume = false\n}\n"),
+            ("bluetooth-a2dp-silent-avrcp", "~/.config/wireplumber/wireplumber.conf.d/60-bluez-dummy-avrcp.conf",
+             "monitor.bluez.properties = {\n  bluez5.dummy-avrcp-player = true\n}\n"),
+        ]
+        for entry_id, path, text in cases:
+            with self.subTest(entry=entry_id, path=path):
+                self.assertEqual(self.wireplumber(entry_id, path, text), engine.FIXED)
+
+    def test_commented_or_opposite_wireplumber_settings_dont_count(self):
+        path = "/etc/wireplumber/wireplumber.conf.d/51-mine.conf"
+        text = "wireplumber.settings = {\n  # bluetooth.autoswitch-to-headset-profile = false\n}\n"
+        self.assertEqual(self.wireplumber("bluetooth-headset-autoswitch", path, text), engine.APPLIES)
+        text = "monitor.bluez.properties = {\n  bluez5.enable-hw-volume = true\n}\n"
+        self.assertEqual(self.wireplumber("bluetooth-headset-hw-volume", path, text), engine.APPLIES)
+
+    def test_our_own_files_still_count(self):
+        for entry_id in ("bluetooth-headset-autoswitch", "bluetooth-headset-hw-volume", "bluetooth-a2dp-silent-avrcp"):
+            with self.subTest(entry=entry_id):
+                m = self.machine()
+                m.packages = {"wireplumber", "bluez"}
+                result = run_script(m, plan_for(m, entry_id).script)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(engine.diagnose_entry(DB.entries[entry_id], m.system()).status, engine.FIXED)

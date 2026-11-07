@@ -15,9 +15,15 @@ names = ["wireplumber"]
 source = "package"
 names = ["bluez"]
 
+# Set in any WirePlumber config fragment: system-wide, per user or from a package,
+# or saved with wpctl settings --save.
 [[fixed_when]]
-source = "file"
-path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-autoswitch.conf"
+any_of = [
+  { source = "file", path = "/etc/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluetooth\.autoswitch-to-headset-profile"?\s*[=:]\s*false' },
+  { source = "file", path = "~/.config/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluetooth\.autoswitch-to-headset-profile"?\s*[=:]\s*false' },
+  { source = "file", path = "/usr/share/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*"?bluetooth\.autoswitch-to-headset-profile"?\s*[=:]\s*false' },
+  { source = "file", path = "~/.local/state/wireplumber/sm-settings", regex = '^bluetooth\.autoswitch-to-headset-profile=false' }
+]
 
 [[fix]]
 reboot = true
