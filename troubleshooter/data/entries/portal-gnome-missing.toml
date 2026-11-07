@@ -21,6 +21,11 @@ names = ["gnome-shell"]
 source = "package"
 names = ["xdg-desktop-portal-gnome"]
 
+# Another build (a -git package) installs the same files under its own package name.
+[[fixed_when]]
+source = "file"
+path = "/usr/share/xdg-desktop-portal/portals/gnome.portal"
+
 [[signals]]
 says = "GNOME is installed, but its portal backend isn't"
 weight = 0.85

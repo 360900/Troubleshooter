@@ -21,6 +21,11 @@ names = ["plasma-workspace"]
 source = "package"
 names = ["xdg-desktop-portal-kde"]
 
+# Another build (a -git package) installs the same files under its own package name.
+[[fixed_when]]
+source = "file"
+path = "/usr/share/xdg-desktop-portal/portals/kde.portal"
+
 [[signals]]
 says = "Plasma is installed, but its portal backend isn't"
 weight = 0.85

@@ -16,12 +16,26 @@ names = ["thunar"]
 source = "package"
 names = ["gvfs"]
 
+# Another build (a -git package) installs the same files under its own package name.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/gvfsd"
+
+# Outside Xfce, Thunar is often added on purpose as a plain file manager without gvfs, so
+# that alone isn't recommended on launch. In Xfce the desktop's trash icon goes missing too.
 [[signals]]
 says = "Thunar is installed without gvfs"
-weight = 0.7
+weight = 0.3
 source = "package"
 names = ["gvfs"]
 absent = true
+
+[[signals]]
+says = "This is an Xfce session, whose desktop and Thunar expect gvfs"
+weight = 0.6
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?XFCE(:|$)'
 
 [[fix]]
 reboot = true

@@ -21,6 +21,11 @@ names = ["plasma-workspace"]
 source = "package"
 names = ["powerdevil"]
 
+# Another build (a -git package) installs the same files under its own package name.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/org_kde_powerdevil"
+
 [[signals]]
 says = "Plasma is installed, but PowerDevil isn't"
 weight = 0.85
