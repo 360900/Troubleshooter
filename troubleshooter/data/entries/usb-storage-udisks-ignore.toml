@@ -5,5 +5,5 @@ categories = ["devices", "boot"]
 systems = ["any"]
 keywords = ["udisks", "UDISKS_IGNORE", "udev", "automount", "usb storage", "camera", "recorder", "file manager"]
 symptoms = ["camera storage doesn't appear in file manager", "usb device not showing up", "recorder detected but not mountable", "usb drive not mounting automatically", "device shows in lsblk but not in files"]
-advice = "Run udevadm info --attribute-walk --name=/dev/sdX | grep UDISKS_IGNORE with your device. If it is set to 1, add a rule in /etc/udev/rules.d that matches the device (for example by its serial) and sets ENV{UDISKS_IGNORE}=\"0\", reload with udevadm control --reload and replug it."
+advice = "Run udevadm info --query=property --name=/dev/sdX | grep UDISKS_IGNORE with your device. If it is set to 1, add a rule in /etc/udev/rules.d that matches the device (for example by its serial) and sets ENV{UDISKS_IGNORE}=\"0\", reload with udevadm control --reload and replug it."
 source = "https://wiki.archlinux.org/title/USB_storage_devices#Device_is_detected_but_does_not_register_as_mountable"
