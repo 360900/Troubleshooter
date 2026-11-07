@@ -5,7 +5,7 @@ categories = ["display", "drivers", "intel"]
 systems = ["any"]
 keywords = ["blacklist", "modprobe.d", "i915", "xe", "amdgpu", "install /usr/bin/false", "integrated graphics"]
 symptoms = ["laptop screen stays black", "integrated graphics not detected", "intel graphics driver not loading", "amdgpu not loaded", "black screen after following an nvidia guide"]
-advice = "Open the files in /etc/modprobe.d and remove the lines that blacklist i915, xe or amdgpu (or redirect them to /usr/bin/false), then run `mkinitcpio -P` and reboot. Leave them if you blocked the integrated GPU on purpose, for example on a desktop that uses only an NVIDIA card."
+advice = "Open the files in /etc/modprobe.d and remove the lines that blacklist i915, xe or amdgpu (or redirect them to /usr/bin/false), and drop them from any module_blacklist or modprobe.blacklist kernel parameter, then run `mkinitcpio -P` and reboot. Leave them if you blocked the integrated GPU on purpose, for example on a desktop that uses only an NVIDIA card."
 source = "https://wiki.archlinux.org/title/AMDGPU#Loading"
 
 [[when]]
@@ -20,7 +20,7 @@ weight = 0.6
 all_of = [
   { source = "pci", vendor = "8086", class = "03" },
   { source = "module", names = ["i915", "xe"], absent = true },
-  { source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*(blacklist\s+(i915|xe)\b|install\s+(i915|xe)\s+/(usr/)?bin/(false|true)\b)' },
+  { any_of = [{ source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*(blacklist\s+(i915|xe)\b|install\s+(i915|xe)\s+/(usr/)?bin/(false|true)\b)' }, { source = "cmdline", regex = '^(module_blacklist|modprobe\.blacklist)=(.*,)?(i915|xe)(,|$)' }] },
 ]
 
 [[signals]]
@@ -29,5 +29,5 @@ weight = 0.6
 all_of = [
   { source = "pci", vendor = "1002", class = "03" },
   { source = "module", names = ["amdgpu", "radeon"], absent = true },
-  { source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*(blacklist\s+amdgpu\b|install\s+amdgpu\s+/(usr/)?bin/(false|true)\b)' },
+  { any_of = [{ source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*(blacklist\s+amdgpu\b|install\s+amdgpu\s+/(usr/)?bin/(false|true)\b)' }, { source = "cmdline", regex = '^(module_blacklist|modprobe\.blacklist)=(.*,)?amdgpu(,|$)' }] },
 ]

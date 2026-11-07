@@ -84,5 +84,26 @@ class IntelPsrTests(AuditCase):
         self.assertEqual(self.evaluate("intel-psr-flicker", m).status, engine.APPLIES)
 
 
+class IntelArcRebarTests(AuditCase):
+    def test_small_bar_from_xe_is_evidence(self):
+        m = self.machine()
+        m.pci("0000:03:00.0", "8086", "e20b", "030000", "xe")  # Arc B580
+        self.assertFalse(self.evaluate("intel-arc-rebar", m).found)
+        m.journal("kernel: xe 0000:03:00.0: [drm] Small BAR device\n")
+        self.assertTrue(self.evaluate("intel-arc-rebar", m).recommended)
+
+
+class GpuBlacklistTests(AuditCase):
+    def test_blacklisted_on_the_kernel_command_line(self):
+        m = self.machine()
+        m.pci("0000:00:02.0", "8086", "a7a0", "030000")
+        m.modules("nvidia")
+        m.write("/proc/cmdline", "root=/dev/sda1 module_blacklist=nouveau,i915 quiet\n")
+        d = self.evaluate("gpu-driver-blacklisted", m)
+        self.assertEqual(len(d.found), 1)
+        m.write("/proc/cmdline", "root=/dev/sda1 module_blacklist=nouveau quiet\n")
+        self.assertFalse(self.evaluate("gpu-driver-blacklisted", m).found)
+
+
 if __name__ == "__main__":
     unittest.main()
