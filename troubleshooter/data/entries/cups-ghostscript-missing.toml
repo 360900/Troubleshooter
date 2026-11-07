@@ -1,6 +1,6 @@
 id = "cups-ghostscript-missing"
 title = "Printing: jobs fail with \"Filter failed\""
-summary = "CUPS needs Ghostscript to turn documents into something most printers understand. It isn't installed, so print jobs stop with a \"Filter failed\" error."
+summary = "Many printer drivers in CUPS need Ghostscript to turn documents into something the printer understands. It isn't installed, so print jobs for those printers stop with a \"Filter failed\" error."
 categories = ["devices"]
 systems = ["arch-and-based"]
 keywords = ["ghostscript", "gstoraster", "filter failed", "cups-filters", "error_log"]
@@ -15,9 +15,10 @@ names = ["cups"]
 source = "package"
 names = ["ghostscript"]
 
+# Only a hint by itself: driverless printers that take PDF don't need Ghostscript.
 [[signals]]
 says = "Ghostscript isn't installed"
-weight = 0.6
+weight = 0.4
 source = "package"
 names = ["ghostscript"]
 absent = true

@@ -141,3 +141,12 @@ class RateMirrorsTests(EngineCase):
         d = self.mirrors("enabled")
         self.assertEqual(d.status, engine.APPLIES)
         self.assertTrue(d.found)
+
+
+class PrintingTests(EngineCase):
+    def test_missing_ghostscript_alone_is_only_a_hint(self):
+        m = self.machine()
+        m.packages = {"cups"}
+        # Driverless printers take PDF and don't need it.
+        d = engine.evaluate(DB.entries["cups-ghostscript-missing"], m.system())
+        self.assertLess(d.confidence, engine.RECOMMEND_AT)
