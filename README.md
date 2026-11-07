@@ -69,7 +69,9 @@ steps = [
 
 **sources:** `pci`, `usb`, `journal`, `file`, `command`, `service`, `kernel_param`, `kernel_headers`, `package`, `module`, `cmdline`, `env`, plus `all_of` and `any_of` groups. Match with `regex`, `contains` or `absent = true`.
 
-**ops:** `install`, `remove`, `install_aur`, `kernel_params`, `initramfs`, `write_file`, `replace`, `module_options`, `blacklist`, `sysctl`, `service`, `command`
+**ops:** `install`, `remove`, `install_aur`, `kernel_params`, `initramfs`, `write_file`, `replace`, `module_options`, `blacklist`, `sysctl`, `service`, `command`, `run_from_repo`
+
+`run_from_repo` clones a GitHub repository at a pinned full commit hash into `/var/lib/troubleshooter/repos/` and runs a script from it with `args`; undo runs it again with `undo_args`. The MacBook Pro 2016-2017 entries (`mbp-*`) use it to run [mbp132-setup](https://github.com/360900/mbp132-setup)'s `mbp132-setup-cli.sh` for one part at a time.
 
 Search synonyms are in `troubleshooter/data/lexicon.toml`.
 

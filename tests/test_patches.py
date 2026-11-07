@@ -1,4 +1,5 @@
 """Runs the generated root scripts for real, against a fake root and stub binaries."""
+import shutil
 import subprocess
 import unittest
 
@@ -339,6 +340,73 @@ class InitramfsTests(PatchCase):
         m.write("/etc/pacman.d/hooks/90-dracut-install.hook", "")
         with self.assertRaises(patches.PlanError):
             patches.build_plan("ts-test", "Test", self.STEPS, True, m.system())
+
+
+class RunFromRepoTests(PatchCase):
+    """Fixes that run a script from a repository pinned to one commit (mbp132-setup)."""
+    COMMIT = "0123456789abcdef0123456789abcdef01234567"
+    STEP = {"op": "run_from_repo", "repo": "https://github.com/example/tool", "commit": COMMIT,
+            "script": "tool.sh", "args": ["--no-audio", "--wifi-country", "TR/1"],
+            "undo_args": ["--uninstall", "--no-audio"], "says": "Run the tool"}
+
+    def machine_with_git(self, lands_on=COMMIT):
+        m = self.machine()
+        m.packages = {"git"}
+        # clone creates the tree with a tool.sh that logs its arguments; checkout records
+        # which commit it landed on, and rev-parse reports it.
+        (m.stubs / "git").write_text(f'''#!/bin/sh
+echo "git $*" >> "{m.log}"
+case "$1" in
+  clone) mkdir -p "$5" && printf '#!/bin/sh\\necho "tool $*" >> "{m.log}"\\n' > "$5/tool.sh" ;;
+  -C) dir=$2; shift 2
+      case "$1" in
+        rev-parse) cat "$dir/.head" 2>/dev/null ;;
+        checkout) echo {lands_on} > "$dir/.head" ;;
+      esac ;;
+esac
+''')
+        return m
+
+    def plan(self, m, step=None):
+        return patches.build_plan("ts-test", "Test", [step or self.STEP], True, m.system())
+
+    def test_clones_the_pinned_commit_once_and_runs_the_script(self):
+        m = self.machine_with_git()
+        plan = self.plan(m)
+        self.apply(m, plan)
+        self.apply(m, plan)
+        run = m.commands_run()
+        self.assertEqual(sum(c.startswith("git clone") for c in run), 1, run)
+        self.assertIn(f"git -C {m.root}/var/lib/troubleshooter/repos/tool-0123456789ab.tmp checkout --quiet --detach "
+                      f"{self.COMMIT}", run)
+        self.assertEqual([c for c in run if c.startswith("tool")], ["tool --no-audio --wifi-country TR/1"] * 2)
+
+    def test_a_different_commit_stops_the_fix(self):
+        m = self.machine_with_git(lands_on="f" * 40)
+        result = self.run_script(m, self.plan(m).script)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse([c for c in m.commands_run() if c.startswith("tool")])
+
+    def test_undo_runs_the_script_with_undo_args_even_if_the_clone_is_gone(self):
+        m = self.machine_with_git()
+        plan = self.plan(m)
+        self.apply(m, plan)
+        shutil.rmtree(m.root / "var/lib/troubleshooter/repos")
+        self.assertEqual(self.run_script(m, plan.undo_script).returncode, 0)
+        self.assertEqual([c for c in m.commands_run() if c.startswith("tool")][-1], "tool --uninstall --no-audio")
+
+    def test_git_is_installed_first_when_missing(self):
+        m = self.machine()
+        self.assertIn("pacman -S --needed --noconfirm git", self.plan(m).script)
+
+    def test_rejects_unsafe_steps(self):
+        bad = [{"repo": "http://github.com/x/y"}, {"repo": "https://example.com/x/y"},
+               {"commit": "main"}, {"commit": "0123456"}, {"script": "../x.sh"}, {"script": "/bin/sh"},
+               {"args": ["--x; rm -rf /"]}, {"undo_args": ["$(id)"]}]
+        for change in bad:
+            with self.subTest(change=change):
+                self.assertTrue(patches.validate_step({**self.STEP, **change}))
+        self.assertIsNone(patches.validate_step(self.STEP))
 
 
 class OtherFixTests(PatchCase):

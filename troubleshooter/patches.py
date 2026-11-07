@@ -18,6 +18,11 @@ BACKUP_ROOT = "/var/lib/troubleshooter/backups"
 _PARAM = re.compile(r"^[A-Za-z0-9_.\-]+(=[A-Za-z0-9_.,:/\-]+)?$")
 _PACKAGE = re.compile(r"^[A-Za-z0-9@._+*\-]+$")
 _MODULE = re.compile(r"^[A-Za-z0-9_\-]+$")
+_REPO = re.compile(r"^https://github\.com/[A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+$")
+_COMMIT = re.compile(r"^[0-9a-f]{40}$")
+_REPO_PATH = re.compile(r"^(?!/)(?!.*\.\.)[A-Za-z0-9_.\-/]+$")
+_ARG = re.compile(r"^[A-Za-z0-9_.,:/=+\-]+$")
+REPOS_ROOT = "/var/lib/troubleshooter/repos"
 
 _PRELUDE = r'''
 ts_backup() {
@@ -346,6 +351,35 @@ def _op_service(step: dict, system: System, entry_id: str) -> Step | None:
                 [f"systemctl {action}{now} {names}"], undo_first=[f"systemctl {undo_action}{now} {names}"])
 
 
+def _repo_fetch(system: System, repo: str, commit: str) -> tuple[str, list[str]]:
+    """Lines that leave a root-owned clone of repo at exactly commit, and its directory."""
+    name = repo.rstrip("/").rsplit("/", 1)[1]
+    where = _q(str(system.path(f"{REPOS_ROOT}/{name}-{commit[:12]}")))
+    tmp = _q(str(system.path(f"{REPOS_ROOT}/{name}-{commit[:12]}.tmp")))
+    return where, [
+        f'if [ "$(git -C {where} rev-parse HEAD 2>/dev/null)" != {commit} ]; then',
+        f'  rm -rf {where} {tmp}',
+        f'  mkdir -p "$(dirname {where})"',
+        f'  git clone --quiet --no-checkout {_q(repo)} {tmp}',
+        f'  git -C {tmp} checkout --quiet --detach {commit}',
+        f'  [ "$(git -C {tmp} rev-parse HEAD)" = {commit} ]',
+        f'  mv {tmp} {where}',
+        'fi',
+    ]
+
+
+def _op_run_from_repo(step: dict, system: System, entry_id: str) -> Step:
+    """Run a script from a repository, pinned to one commit. Undo runs it again with undo_args."""
+    where, fetch = _repo_fetch(system, step["repo"], step["commit"])
+    script = f"{where}/{_q(step['script'])}"
+    lines = [] if system.installed("git") else [_pm_install(system, ["git"])]
+    lines += [*fetch, " ".join(["bash", script, *map(_q, step.get("args", []))])]
+    undo = []
+    if "undo_args" in step:
+        undo = [*fetch, " ".join(["bash", script, *map(_q, step["undo_args"])])]
+    return Step(step["says"], lines, undo)
+
+
 def _op_command(step: dict, system: System, entry_id: str) -> Step:
     return Step(step["says"], [step["run"]], [step["undo"]] if step.get("undo") else [])
 
@@ -363,12 +397,14 @@ OPS = {
     "sysctl": _op_sysctl,
     "service": _op_service,
     "command": _op_command,
+    "run_from_repo": _op_run_from_repo,
 }
 _REQUIRED = {
     "install": ("packages",), "remove": ("packages",), "install_aur": ("packages",),
     "kernel_params": ("add",), "write_file": ("path", "content"),
     "replace": ("path", "pattern", "replacement", "says"), "module_options": ("module", "options"),
     "blacklist": ("modules",), "sysctl": ("values",), "service": ("names",), "command": ("says", "run"),
+    "run_from_repo": ("says", "repo", "commit", "script"),
 }
 
 
@@ -392,6 +428,16 @@ def validate_step(step: dict) -> str | None:
             return f"bad module option {option!r}"
     if "|" in step.get("pattern", "") or "|" in step.get("replacement", ""):
         return "replace can't use | because it's the sed delimiter"
+    if op == "run_from_repo":
+        if not _REPO.match(step["repo"]):
+            return f"repo must be a GitHub https URL, not {step['repo']!r}"
+        if not _COMMIT.match(step["commit"]):
+            return "commit must be a full 40-character commit hash"
+        if not _REPO_PATH.match(step["script"]):
+            return f"bad script path {step['script']!r}"
+        for arg in [*step.get("args", []), *step.get("undo_args", [])]:
+            if not _ARG.match(arg):
+                return f"bad script argument {arg!r}"
     if step.get("action", "enable") not in ("enable", "disable", "mask"):
         return f"bad service action {step['action']!r}"
     return None
