@@ -1,11 +1,11 @@
 id = "gamemode-ananicy-conflict"
-title = "GameMode and Ananicy Cpp are both running"
-summary = "GameMode and Ananicy Cpp both change process priorities, and using them together isn't recommended. They can undo each other's work and make game performance less predictable."
+title = "GameMode and Ananicy Cpp both set game priorities"
+summary = "GameMode can raise the priority of games (its renice setting), while Ananicy Cpp sets process priorities from its own rules. Using both for this isn't recommended: they can undo each other's work and make game performance less predictable. GameMode leaves priorities alone unless renice is set."
 categories = ["games"]
 systems = ["any"]
-keywords = ["gamemode", "gamemoderun", "ananicy-cpp", "ananicy", "nice", "priority", "cachyos-ananicy-rules"]
+keywords = ["gamemode", "gamemoderun", "gamemode.ini", "renice", "ananicy-cpp", "ananicy", "nice", "priority", "cachyos-ananicy-rules"]
 symptoms = ["gamemode doesn't help", "games stutter with gamemode", "inconsistent fps", "game priority keeps changing"]
-advice = "Pick one. Either stop adding gamemoderun to your games, or turn off Ananicy Cpp with sudo systemctl disable --now ananicy-cpp.service."
+advice = "Pick one. Either set renice=0 in gamemode.ini (or stop adding gamemoderun to your games), or turn off Ananicy Cpp with sudo systemctl disable --now ananicy-cpp.service."
 source = "https://wiki.archlinux.org/title/Improving_performance#Ananicy_Cpp"
 
 [[when]]
@@ -16,9 +16,18 @@ names = ["gamemode"]
 source = "package"
 names = ["ananicy-cpp"]
 
-[[signals]]
-says = "Ananicy Cpp is running"
-weight = 0.5
+# CachyOS installs and runs both by default. That alone is fine, because GameMode's
+# default renice=0 leaves nice levels to Ananicy Cpp.
+[[when]]
 source = "service"
 name = "ananicy-cpp.service"
 state = "active"
+
+[[signals]]
+says = "GameMode is set to renice games, which Ananicy Cpp also does"
+weight = 0.6
+any_of = [
+  { source = "file", path = "/etc/gamemode.ini", regex = '^\s*renice\s*=\s*[1-9]' },
+  { source = "file", path = "~/.config/gamemode.ini", regex = '^\s*renice\s*=\s*[1-9]' },
+  { source = "file", path = "/usr/share/gamemode/gamemode.ini", regex = '^\s*renice\s*=\s*[1-9]' },
+]

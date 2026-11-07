@@ -260,3 +260,20 @@ class GameTests(EngineCase):
     def test_steam_helpers_are_not_games(self):
         self.assertFalse(self.crashed("systemd-coredump[9]: Process 51 (steamwebhelper) of user 1000 dumped core."))
         self.assertFalse(self.crashed("systemd-coredump[9]: Process 51 (xdg-desktop-por) of user 1000 dumped core."))
+
+    def ananicy(self, gamemode_ini=None):
+        m = self.machine()
+        m.packages = {"gamemode", "ananicy-cpp"}
+        m.outputs["services"] = {"ananicy-cpp.service": "active"}
+        if gamemode_ini:
+            m.write("/etc/gamemode.ini", gamemode_ini)
+        return engine.diagnose_entry(DB.entries["gamemode-ananicy-conflict"], m.system())
+
+    def test_cachyos_defaults_are_not_a_conflict(self):
+        # GameMode's default renice=0 leaves nice levels alone.
+        d = self.ananicy("[general]\nrenice=0\n")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertLess(d.confidence, engine.RECOMMEND_AT)
+
+    def test_gamemode_renicing_next_to_ananicy_is_found(self):
+        self.assertGreaterEqual(self.ananicy("[general]\nrenice=10\n").confidence, engine.RECOMMEND_AT)
