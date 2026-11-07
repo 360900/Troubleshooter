@@ -21,6 +21,26 @@ source = "file"
 path = "/etc/conf.d/wireless-regdom"
 regex = '^\s*WIRELESS_REGDOM='
 
+# The file is only one way to set it. Many chips take the country from their firmware (shown
+# as a self-managed phy) or from the router, and the kernel parameter works too.
+[[fixed_when]]
+source = "cmdline"
+regex = '^cfg80211\.ieee80211_regdom='
+
+[[fixed_when]]
+source = "command"
+argv = ["iw", "reg", "get"]
+exit = 0
+regex = '^country (?!00:)[A-Z0-9]{2}:'
+
+[[signals]]
+says = "The Wi-Fi regulatory domain in use is the world default (00)"
+weight = 0.4
+source = "command"
+argv = ["iw", "reg", "get"]
+exit = 0
+regex = '^country 00:'
+
 [[signals]]
 says = "No country is selected in /etc/conf.d/wireless-regdom"
 weight = 0.3

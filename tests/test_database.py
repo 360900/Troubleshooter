@@ -44,6 +44,7 @@ class DatabaseTests(unittest.TestCase):
             ["locale", "-a"],  # lists the generated locales, changes nothing
             ["df", "--output=pcent", "/var/cache/pacman/pkg"],  # prints how full a disk is
             ["modinfo", "-F", "name", "loop"],  # reads module metadata from disk, loads nothing
+            ["iw", "reg", "get"],  # prints the regulatory domain, needs no privileges
         ]
 
         def commands(spec):
