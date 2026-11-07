@@ -72,3 +72,29 @@ class VulkanMissingTests(EngineCase):
     def test_installed_driver_is_fixed(self):
         self.assertEqual(self.gpu("amd-vulkan-missing", {"steam", "vulkan-radeon"}).status, engine.FIXED)
         self.assertEqual(self.gpu("intel-vulkan-missing", {"steam", "vulkan-intel"}).status, engine.FIXED)
+
+
+class NvidiaPackageNameTests(EngineCase):
+    def test_open_driver_for_the_lts_kernel_on_pascal_is_caught(self):
+        # Arch names it nvidia-open-lts, and CachyOS also has a 580xx open build.
+        for driver in ("nvidia-open-lts", "nvidia-580xx-open-dkms"):
+            with self.subTest(driver=driver):
+                m = self.machine()
+                m.pci("0000:01:00.0", "10de", "1c03", "030000")  # GTX 1060
+                m.packages = {driver, "nvidia-utils"}
+                self.assertIn("nvidia-open-on-legacy", self.scan_ids(m))
+
+    def test_kepler_next_to_a_turing_card_keeps_nouveau(self):
+        m = self.machine()
+        m.pci("0000:01:00.0", "10de", "2484", "030000", "nouveau")  # RTX 3070
+        m.pci("0000:02:00.0", "10de", "1180", "030000", "nouveau")  # GTX 680
+        m.modules("nouveau")
+        self.assertNotIn("nvidia-nouveau-to-open", self.scan_ids(m))
+
+    def test_steam_driver_swap_skips_machines_with_an_nvidia_kernel_driver(self):
+        for driver in ("nvidia-open-lts", "nvidia-580xx-open-dkms"):
+            with self.subTest(driver=driver):
+                m = self.machine()
+                m.pci("0000:05:00.0", "1002", "73bf", "030000", "amdgpu")
+                m.packages = {"steam", "lib32-nvidia-utils", "nvidia-utils", driver}
+                self.assertNotIn("steam-nvidia-vulkan-on-amd", self.scan_ids(m))

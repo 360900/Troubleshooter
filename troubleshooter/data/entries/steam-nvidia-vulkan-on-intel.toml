@@ -1,6 +1,6 @@
 id = "steam-nvidia-vulkan-on-intel"
 title = "Steam: NVIDIA's 32-bit driver is installed on an Intel system"
-summary = "Older Steam packages pulled in a 32-bit Vulkan driver, and pacman picked lib32-nvidia-utils unless you chose another. It is still installed. With Intel graphics and no NVIDIA card it can't work, and it can conflict with Intel's driver. The fix swaps it for Intel's 32-bit Vulkan driver."
+summary = "Steam needs a 32-bit Vulkan driver, and pacman picks lib32-nvidia-utils for it unless you choose another. It is installed here. With Intel graphics and no NVIDIA card it can't work, and it can conflict with Intel's driver. The fix swaps it for Intel's 32-bit Vulkan driver."
 categories = ["games", "intel", "wine"]
 systems = ["arch-and-based"]
 keywords = ["lib32-nvidia-utils", "lib32-vulkan-intel", "lib32-vulkan-driver", "vulkan", "dxvk", "DxvkError"]
@@ -28,7 +28,7 @@ names = ["lib32-nvidia-utils", "lib32-nvidia-*-utils"]
 # or unplugged eGPUs hide it from PCI. A kernel driver for it means it is still in use.
 [[when]]
 source = "package"
-names = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "nvidia-*xx-dkms", "linux-*-nvidia*", "supergfxctl", "envycontrol", "optimus-manager*"]
+names = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-open-lts", "nvidia-*-dkms", "linux-*-nvidia*", "supergfxctl", "envycontrol", "optimus-manager*"]
 absent = true
 
 [[signals]]

@@ -1,6 +1,6 @@
 id = "nvidia-nouveau-to-open"
 title = "NVIDIA card is using nouveau instead of the NVIDIA driver"
-summary = "Your card is new enough for NVIDIA's open kernel driver, which brings full performance, Vulkan and working sleep. It's running on nouveau, which can't reach those."
+summary = "Your card is new enough for NVIDIA's open kernel driver. It's running on nouveau, which is slower in games and has no CUDA, NVENC or DLSS."
 categories = ["nvidia", "drivers", "display", "games"]
 systems = ["arch-and-based"]
 keywords = ["nouveau", "nvidia-open", "proprietary driver", "install nvidia driver", "turing", "ampere"]
@@ -14,12 +14,13 @@ vendor = "10de"
 class = "03"
 devices = ["1e00-ffff"]
 
-# A Maxwell or Pascal card next to it would lose its driver, since the open driver can't run it.
+# An older card next to it would lose its driver: the open driver can't run anything
+# before Turing, and NVIDIA's packages turn nouveau off for every card.
 [[when]]
 source = "pci"
 vendor = "10de"
 class = "03"
-devices = ["1340-1dff"]
+devices = ["0000-1dff"]
 absent = true
 
 [[fixed_when]]
@@ -39,7 +40,7 @@ driver = "nouveau"
 says = "The NVIDIA kernel driver isn't installed"
 weight = 0.5
 source = "package"
-names = ["nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open"]
+names = ["nvidia-open", "nvidia-open-dkms", "nvidia-open-lts", "linux-*-nvidia-open"]
 absent = true
 
 [[fix]]

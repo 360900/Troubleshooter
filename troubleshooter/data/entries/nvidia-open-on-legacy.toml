@@ -24,7 +24,7 @@ absent = true
 
 [[when]]
 source = "package"
-names = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open", "linux-*-nvidia"]
+names = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-580xx-open-dkms", "nvidia-open-lts", "linux-*-nvidia-open", "linux-*-nvidia"]
 
 [[fixed_when]]
 source = "package"
@@ -34,14 +34,14 @@ names = ["nvidia-580xx-dkms"]
 [[fixed_when]]
 all_of = [
   { source = "pci", vendor = "10de", class = "03", devices = ["1340-1dff"], driver = "nvidia" },
-  { source = "package", names = ["nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open"], absent = true },
+  { source = "package", names = ["nvidia-open", "nvidia-open-dkms", "nvidia-580xx-open-dkms", "nvidia-open-lts", "linux-*-nvidia-open"], absent = true },
 ]
 
 [[signals]]
 says = "A driver that doesn't support this card is installed"
 weight = 0.95
 source = "package"
-names = ["nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open"]
+names = ["nvidia-open", "nvidia-open-dkms", "nvidia-580xx-open-dkms", "nvidia-open-lts", "linux-*-nvidia-open"]
 
 [[signals]]
 says = "The NVIDIA driver rejected this card at boot"
@@ -55,6 +55,6 @@ regex = 'NVRM: .*(is not supported by open|supported through the NVIDIA \d+\.xx 
 [[fix]]
 reboot = true
 steps = [
-  { op = "install_aur", packages = ["nvidia-580xx-dkms", "nvidia-580xx-utils", "{headers}"], optional = { "lib32-nvidia-580xx-utils" = "lib32-nvidia-utils", "opencl-nvidia-580xx" = "opencl-nvidia" }, aur_bases = { "nvidia-580xx-dkms" = "nvidia-580xx-utils", "nvidia-580xx-utils" = "nvidia-580xx-utils", "opencl-nvidia-580xx" = "nvidia-580xx-utils", "lib32-nvidia-580xx-utils" = "lib32-nvidia-580xx-utils" }, replaces = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-lts-open", "linux-*-nvidia-open", "linux-*-nvidia", "nvidia-utils", "lib32-nvidia-utils", "opencl-nvidia", "lib32-opencl-nvidia"] },
+  { op = "install_aur", packages = ["nvidia-580xx-dkms", "nvidia-580xx-utils", "{headers}"], optional = { "lib32-nvidia-580xx-utils" = "lib32-nvidia-utils", "opencl-nvidia-580xx" = "opencl-nvidia" }, aur_bases = { "nvidia-580xx-dkms" = "nvidia-580xx-utils", "nvidia-580xx-utils" = "nvidia-580xx-utils", "opencl-nvidia-580xx" = "nvidia-580xx-utils", "lib32-nvidia-580xx-utils" = "lib32-nvidia-580xx-utils" }, replaces = ["nvidia", "nvidia-dkms", "nvidia-lts", "nvidia-open", "nvidia-open-dkms", "nvidia-580xx-open-dkms", "nvidia-open-lts", "linux-*-nvidia-open", "linux-*-nvidia", "nvidia-utils", "lib32-nvidia-utils", "opencl-nvidia", "lib32-opencl-nvidia"] },
   { op = "initramfs" },
 ]
