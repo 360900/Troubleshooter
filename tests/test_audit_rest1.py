@@ -169,3 +169,22 @@ class PrintingTests(EngineCase):
         # Driverless printers take PDF and don't need it.
         d = engine.evaluate(DB.entries["cups-ghostscript-missing"], m.system())
         self.assertLess(d.confidence, engine.RECOMMEND_AT)
+
+
+class DiskErrorTests(EngineCase):
+    def errors(self, line):
+        m = self.machine()
+        m.journal(line + "\n")
+        return engine.evaluate(DB.entries["disk-io-errors"], m.system()).found
+
+    def test_read_errors_are_found(self):
+        self.assertTrue(self.errors("kernel: I/O error, dev sda, sector 123 op 0x0:(READ) flags 0x80700 "
+                                    "phys_seg 1 prio class 0"))
+        self.assertTrue(self.errors("kernel: I/O error, dev nvme0n1, sector 9 op 0x1:(WRITE) flags 0x0 "
+                                    "phys_seg 1 prio class 0"))
+
+    def test_unsupported_discard_is_not_a_failing_drive(self):
+        self.assertFalse(self.errors("kernel: I/O error, dev sdb, sector 2048 op 0x3:(DISCARD) flags 0x800 "
+                                     "phys_seg 1 prio class 0"))
+        self.assertFalse(self.errors("kernel: I/O error, dev sdb, sector 0 op 0x9:(WRITE_ZEROES) flags 0x800 "
+                                     "phys_seg 0 prio class 0"))

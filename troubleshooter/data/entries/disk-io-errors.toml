@@ -14,4 +14,6 @@ says = "The kernel logged I/O errors on a drive"
 weight = 0.75
 source = "journal"
 kernel = true
-regex = 'I/O error, dev (sd[a-z]+|nvme\d+n\d+|mmcblk\d+)|critical medium error|ata\d+\.\d+: error: \{ UNC'
+# A failed discard or write-zeroes request only means the drive or USB adapter doesn't
+# support that command, which is harmless.
+regex = 'I/O error, dev (sd[a-z]+|nvme\d+n\d+|mmcblk\d+)(?!.* op 0x[0-9a-f]+:\((DISCARD|WRITE_ZEROES|SECURE_ERASE)\))|critical medium error|ata\d+\.\d+: error: \{ UNC'
