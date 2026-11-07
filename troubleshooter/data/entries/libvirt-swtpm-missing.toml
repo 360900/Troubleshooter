@@ -25,5 +25,5 @@ absent = true
 [[fix]]
 steps = [
   { op = "install", packages = ["swtpm"], says = "Install swtpm, the TPM emulator" },
-  { op = "command", says = "Restart libvirt so it finds swtpm", run = "systemctl try-restart libvirtd.service" },
+  { op = "command", says = "Restart libvirt so it finds swtpm", run = "systemctl try-restart libvirtd.service virtqemud.service" },
 ]
