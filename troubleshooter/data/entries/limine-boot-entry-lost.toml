@@ -5,7 +5,7 @@ categories = ["boot"]
 systems = ["arch-and-based"]
 keywords = ["limine", "limine-install", "--fallback", "efibootmgr", "BOOTX64.EFI", "boot entry", "nvram", "uefi"]
 symptoms = ["limine boot entry disappeared", "computer boots straight to windows", "limine missing from bios boot menu", "pc goes to bios instead of linux", "boot entry gone after bios update"]
-advice = "Boot Linux from the firmware's one-time boot menu or a live USB, then run sudo limine-install --fallback to also place Limine at the default path EFI/BOOT/BOOTX64.EFI, which firmware always tries. On boards where boot entries don't work at all, use sudo limine-install --skip-uefi --fallback and pick that path in the firmware's boot order."
+advice = "Boot Linux from the firmware's one-time boot menu or a live USB, then run sudo limine-install --fallback to also place Limine at the default path EFI/BOOT/BOOTX64.EFI, which firmware always tries. On boards where boot entries don't work at all, use sudo limine-install --skip-uefi --fallback and pick that path in the firmware's boot order. limine-install comes with limine-mkinitcpio-hook or limine-dracut-support; without them, copy /usr/share/limine/BOOTX64.EFI to EFI/BOOT/BOOTX64.EFI on the EFI partition yourself."
 source = "https://wiki.archlinux.org/title/Limine#Boot_entry_automation"
 
 [[when]]
