@@ -1,0 +1,46 @@
+id = "cachyos-repo-unsupported-cpu"
+title = "Updates: CachyOS repositories built for a newer CPU"
+summary = "The system uses CachyOS packages built for a CPU feature level this processor doesn't have. Programs from those repositories crash with \"illegal instruction\", often right after moving the drive to another PC or switching repositories."
+categories = ["updates", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["x86-64-v3", "x86-64-v4", "znver4", "avx2", "avx512", "illegal instruction", "invalid opcode", "SIGILL", "cachyos-v4-mirrorlist", "cachyos-v3-mirrorlist", "optimized repositories"]
+symptoms = ["programs crash with illegal instruction", "core dumped illegal instruction", "everything crashes after moving the ssd to a new pc", "pacman crashes with illegal instruction", "system broken after switching to v4 repos", "apps crash on old cpu after cachyos update"]
+auto_detect = true
+advice = "Switch to repositories this CPU can run. In /etc/pacman.conf, rename the [cachyos-v4], [cachyos-core-v4] and [cachyos-extra-v4] sections (or the -znver4 ones) to their -v3 names and point them at /etc/pacman.d/cachyos-v3-mirrorlist. If the CPU has no AVX2 either, delete those sections and the -v3 ones, keeping only [cachyos]. Leave [cachyos], [core], [extra] and [multilib] as they are. Then run sudo pacman -Syy and reinstall everything with pacman -Qqn | sudo pacman -S -, and restart. If pacman itself crashes, do this from the CachyOS live USB after entering the installed system with cachy-chroot."
+source = "https://wiki.cachyos.org/features/optimized_repos/#checking-cpu-compatibility"
+
+[[when]]
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^\[cachyos'
+
+[[signals]]
+says = "The x86-64-v4 repositories are enabled, but this CPU doesn't support AVX-512"
+weight = 0.9
+all_of = [
+  { source = "file", path = "/etc/pacman.conf", regex = '^\[cachyos(-core|-extra)?-v4\]' },
+  { source = "file", path = "/proc/cpuinfo", regex = '^flags\s*:(?=.*\bavx512f\b)(?=.*\bavx512bw\b)(?=.*\bavx512cd\b)(?=.*\bavx512dq\b)(?=.*\bavx512vl\b)', absent = true },
+]
+
+[[signals]]
+says = "The Zen 4 repositories are enabled, but this isn't an AMD Zen 4 or Zen 5 CPU"
+weight = 0.9
+all_of = [
+  { source = "file", path = "/etc/pacman.conf", regex = '^\[cachyos(-core|-extra)?-znver4\]' },
+  { any_of = [{ source = "file", path = "/proc/cpuinfo", regex = '^vendor_id\s*:\s*AuthenticAMD', absent = true }, { source = "file", path = "/proc/cpuinfo", regex = '^flags\s*:.*\bavx512f\b', absent = true }] },
+]
+
+[[signals]]
+says = "The x86-64-v3 repositories are enabled, but this CPU doesn't support AVX2"
+weight = 0.9
+all_of = [
+  { source = "file", path = "/etc/pacman.conf", regex = '^\[cachyos(-core|-extra)?-v3\]' },
+  { source = "file", path = "/proc/cpuinfo", regex = '^flags\s*:(?=.*\bavx2\b)(?=.*\bbmi2\b)(?=.*\bfma\b)(?=.*\bmovbe\b)', absent = true },
+]
+
+[[signals]]
+says = "Programs crashed on an instruction this CPU doesn't have"
+weight = 0.3
+source = "journal"
+kernel = true
+regex = 'trap invalid opcode'

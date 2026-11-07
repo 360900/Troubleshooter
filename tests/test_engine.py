@@ -104,6 +104,49 @@ class AutoDetectTests(EngineCase):
         self.assertEqual(self.scan_ids(m), set())
 
 
+class CachyOSTests(EngineCase):
+    ZEN4 = "vendor_id\t: AuthenticAMD\nflags\t\t: fpu avx2 bmi2 fma movbe avx512f avx512bw avx512cd avx512dq avx512vl\n"
+    HASWELL = "vendor_id\t: GenuineIntel\nflags\t\t: fpu avx2 bmi2 fma movbe\n"
+    OLD = "vendor_id\t: GenuineIntel\nflags\t\t: fpu sse4_2 avx\n"
+
+    def repos(self, m, level, cpu):
+        m.write("/etc/pacman.conf", f"[options]\n[cachyos-{level}] \n[cachyos-core-{level}]\n[cachyos]\n[core]\n")
+        m.write("/proc/cpuinfo", cpu)
+        return "cachyos-repo-unsupported-cpu" in self.scan_ids(m)
+
+    def test_repos_the_cpu_can_run_are_fine(self):
+        for level, cpu in (("znver4", self.ZEN4), ("v4", self.ZEN4), ("v3", self.ZEN4), ("v3", self.HASWELL)):
+            self.assertFalse(self.repos(self.machine(), level, cpu), (level, cpu))
+
+    def test_repos_built_for_a_newer_cpu_are_caught(self):
+        for level, cpu in (("v4", self.HASWELL), ("znver4", self.HASWELL), ("v3", self.OLD),
+                           ("znver4", self.ZEN4.replace("AuthenticAMD", "GenuineIntel"))):
+            self.assertTrue(self.repos(self.machine(), level, cpu), (level, cpu))
+
+    def nvidia_machine(self, *kernels_with_module):
+        m = self.machine()
+        m.pci("0000:01:00.0", "10de", "2c02", "030000", "nvidia")
+        m.packages = {"nvidia-utils", "linux-cachyos-nvidia-open"}
+        for kernel, version in (("linux-cachyos", "7.3.1-1-cachyos"), ("linux-cachyos-lts", "6.18.55-2-cachyos-lts")):
+            m.write(f"/usr/lib/modules/{version}/pkgbase", kernel + "\n")
+            if kernel in kernels_with_module:
+                m.write(f"/usr/lib/modules/{version}/extramodules/nvidia.ko.zst", "")
+        return m
+
+    def test_kernel_without_nvidia_module_is_caught(self):
+        self.assertIn("nvidia-kernel-missing-driver", self.scan_ids(self.nvidia_machine("linux-cachyos")))
+        both = self.nvidia_machine("linux-cachyos", "linux-cachyos-lts")
+        self.assertNotIn("nvidia-kernel-missing-driver", self.scan_ids(both))
+
+    def test_dkms_module_counts_and_dkms_setups_are_left_to_the_headers_entry(self):
+        m = self.nvidia_machine("linux-cachyos")
+        m.write("/usr/lib/modules/6.18.55-2-cachyos-lts/updates/dkms/nvidia.ko.zst", "")
+        self.assertEqual(m.system().kernels_without("nvidia"), [])
+        m = self.nvidia_machine()
+        m.packages = {"nvidia-utils", "nvidia-open-dkms"}
+        self.assertNotIn("nvidia-kernel-missing-driver", self.scan_ids(m))
+
+
 class MacBookProTests(EngineCase):
     """mbp132-setup's parts on a 2016-2017 MacBook Pro, each found on its own."""
     NVRAM = "/usr/lib/firmware/brcm/brcmfmac43602-pcie.Apple Inc.-MacBookPro13,2.txt"

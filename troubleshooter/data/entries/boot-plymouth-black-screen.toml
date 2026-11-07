@@ -1,0 +1,21 @@
+id = "boot-plymouth-black-screen"
+title = "Boot: black screen or hang at the boot animation"
+summary = "Plymouth draws the boot animation and the password prompt for encrypted disks. On some systems, especially with older NVIDIA cards, it leaves the screen black or stuck. Turning it off shows plain boot messages instead."
+categories = ["boot", "display", "nvidia"]
+systems = ["arch-and-based"]
+keywords = ["plymouth", "boot splash", "boot animation", "plymouth.enable=0", "disablehooks=plymouth", "splash", "mkinitcpio"]
+symptoms = ["black screen during boot", "stuck on the boot logo", "boot animation freezes", "screen stays black until the login screen", "no password prompt for encrypted disk", "can't see boot messages"]
+advice = "This adds plymouth.enable=0 and disablehooks=plymouth to the kernel parameters, which turns the animation off without uninstalling it. Undo brings it back."
+source = "https://wiki.cachyos.org/cachyos_basic/faq/#how-to-disable-the-boot-loading-animation-plymouth"
+
+[[when]]
+source = "package"
+names = ["plymouth"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["plymouth.enable=0"]
+
+[[fix]]
+reboot = true
+steps = [{ op = "kernel_params", add = ["plymouth.enable=0", "disablehooks=plymouth"], says = "Turn off the boot animation" }]

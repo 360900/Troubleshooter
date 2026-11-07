@@ -409,7 +409,73 @@ esac
         self.assertIsNone(patches.validate_step(self.STEP))
 
 
+class KernelDriverTests(PatchCase):
+    def machine_with(self, release, packages, kernels):
+        m = self.machine(release)
+        m.packages = set(packages)
+        for kernel, version, has_module in kernels:
+            m.write(f"/usr/lib/modules/{version}/pkgbase", kernel + "\n")
+            if has_module:
+                m.write(f"/usr/lib/modules/{version}/extramodules/nvidia.ko.zst", "")
+        return m
+
+    def test_cachyos_gets_the_package_for_the_kernel_missing_it(self):
+        m = self.machine_with(CACHY, {"nvidia-utils", "mkinitcpio", "linux-cachyos-nvidia-open"},
+                              [("linux-cachyos", "7.3.1-1-cachyos", True),
+                               ("linux-cachyos-lts", "6.18.55-2-cachyos-lts", False)])
+        m.outputs["repos"] = {"linux-cachyos-lts-nvidia-open"}
+        plan = self.plan(m, "nvidia-kernel-missing-driver")
+        self.assertIn("pacman -S --needed --noconfirm linux-cachyos-lts-nvidia-open", plan.script)
+        self.assertIn("mkinitcpio -P", plan.script)
+        self.assertIn("linux-cachyos-lts-nvidia-open", plan.undo_script)
+        self.apply(m, plan)
+
+    def test_arch_names_the_lts_package_its_own_way(self):
+        m = self.machine_with(ARCH, {"nvidia-utils", "nvidia-open"},
+                              [("linux", "7.3.1-arch1-1", True), ("linux-lts", "6.18.55-1-lts", False)])
+        m.outputs["repos"] = {"nvidia-open", "nvidia-open-lts"}
+        self.assertIn("nvidia-open-lts", self.plan(m, "nvidia-kernel-missing-driver").script)
+
+    def test_kernel_without_a_ready_made_package_is_reported(self):
+        m = self.machine_with(ARCH, {"nvidia-utils", "nvidia-open"},
+                              [("linux", "7.3.1-arch1-1", True), ("linux-zen", "7.3.1-zen1-1", False)])
+        m.outputs["repos"] = {"nvidia-open"}
+        with self.assertRaisesRegex(patches.PlanError, "linux-zen"):
+            self.plan(m, "nvidia-kernel-missing-driver")
+
+    def test_unknown_driver_package_is_reported_not_skipped(self):
+        m = self.machine_with(CACHY, {"nvidia-utils"}, [("linux-cachyos", "7.3.1-1-cachyos", False)])
+        with self.assertRaisesRegex(patches.PlanError, "which package"):
+            self.plan(m, "nvidia-kernel-missing-driver")
+
+    def test_kernel_placeholder_needs_a_module(self):
+        self.assertIsNotNone(patches.validate_step(
+            {"op": "install", "packages": [], "optional": {"{kernel}-nvidia-open": "x"}}))
+        self.assertIsNone(patches.validate_step(
+            {"op": "install", "packages": [], "kernels_without": "nvidia", "optional": {"{kernel}-nvidia-open": "x"}}))
+
+
 class OtherFixTests(PatchCase):
+    def test_shader_cache_limit_is_raised_for_every_user(self):
+        m = self.machine(CACHY)
+        self.apply(m, self.plan(m, "games-shader-cache-small"))
+        conf = m.read("/etc/environment.d/90-troubleshooter-shader-cache.conf")
+        self.assertIn("MESA_SHADER_CACHE_MAX_SIZE=12G\n", conf)
+        self.assertIn("__GL_SHADER_DISK_CACHE_SIZE=12000000000\n", conf)
+
+    def test_mirror_ranking_is_masked_and_unmasked(self):
+        m = self.machine(CACHY)
+        plan = self.plan(m, "cachyos-rate-mirrors-slow-boot")
+        self.assertIn("systemctl mask cachyos-rate-mirrors.timer cachyos-rate-mirrors.service", plan.script)
+        self.assertIn("systemctl unmask cachyos-rate-mirrors.timer cachyos-rate-mirrors.service", plan.undo_script)
+
+    def test_plymouth_is_turned_off_with_kernel_parameters(self):
+        m = self.machine(CACHY)
+        m.packages = {"grub", "plymouth"}
+        m.write("/etc/default/grub", GRUB)
+        self.apply(m, self.plan(m, "boot-plymouth-black-screen"))
+        self.assertIn("plymouth.enable=0 disablehooks=plymouth", m.read("/etc/default/grub"))
+
     def test_multilib_uncomments_only_its_own_block(self):
         m = self.machine()
         conf = ("[core]\nInclude = /etc/pacman.d/mirrorlist\n\n#[multilib-testing]\n#Include = /etc/pacman.d/mirrorlist\n\n"
@@ -457,6 +523,14 @@ class OtherFixTests(PatchCase):
                     m.outputs["services"] = {name: "enabled" for step in fix.steps
                                              if step["op"] == "service" and step.get("action") == "disable"
                                              for name in step["names"]}
+                    # A kernel that's missing the module, with its driver package in the repos.
+                    m.outputs["repos"] = set()
+                    for step in fix.steps:
+                        if "kernels_without" in step:
+                            name, needs = next(iter(step["optional"].items()))
+                            m.packages.add(needs if isinstance(needs, str) else needs[0])
+                            m.outputs["repos"].add(name.replace("{kernel}", "linux-test"))
+                            m.write("/usr/lib/modules/1.0-test/pkgbase", "linux-test\n")
                     system = m.system()
                     if not system.in_scopes(fix.systems):
                         continue

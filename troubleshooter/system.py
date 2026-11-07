@@ -183,6 +183,15 @@ class System:
         names = {(self.read(f) or "").strip() for f in self.glob("/usr/lib/modules/*/pkgbase")}
         return sorted(n for n in names if n)
 
+    def kernels_without(self, module: str) -> list[str]:
+        """Installed kernels that have no copy of a module, whether built in, packaged or from DKMS."""
+        missing = set()
+        for pkgbase in self.glob("/usr/lib/modules/*/pkgbase"):
+            name = (self.read(pkgbase) or "").strip()
+            if name and not glob.glob(f"{glob.escape(str(pkgbase.parent))}/**/{module}.ko*", recursive=True):
+                missing.add(name)
+        return sorted(missing)
+
     # Hardware
 
     @property

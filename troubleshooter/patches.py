@@ -142,14 +142,44 @@ def _headers(system: System) -> list[str]:
     return []
 
 
-def _expand_packages(step: dict, system: System) -> list[str]:
-    """Named packages, plus {optional = needs} ones whose companion is installed."""
+KERNEL = "{kernel}-"
+
+
+def _kernel_packages(system: System, suffix: str, module: str) -> list[str]:
+    """A driver package for each kernel that lacks the module, named as the repositories name it.
+
+    CachyOS uses <kernel>-<suffix> (linux-cachyos-lts-nvidia-open). Arch uses <suffix> for linux
+    and <suffix>-<flavor> for the others (nvidia-open-lts).
+    """
     packages = []
+    for kernel in system.kernels_without(module):
+        arch_style = suffix if kernel == "linux" else f"{suffix}-{kernel.removeprefix('linux-')}"
+        found = next((p for p in (f"{kernel}-{suffix}", arch_style) if system.in_repos(p)), None)
+        if not found:
+            raise PlanError(f"There's no ready-made {suffix} package for {kernel} in the repositories, "
+                            "so it can't be added automatically.")
+        packages.append(found)
+    return packages
+
+
+def _expand_packages(step: dict, system: System) -> list[str]:
+    """Named packages, plus {optional = needs} ones whose companion is installed.
+
+    An optional name starting with {kernel}- stands for one package per kernel missing the
+    step's kernels_without module.
+    """
+    packages, per_kernel = [], False
     for name in step.get("packages", []):
         packages += _headers(system) if name == "{headers}" else [name]
     for name, needs in step.get("optional", {}).items():
         if system.installed(*([needs] if isinstance(needs, str) else needs)):
-            packages.append(name)
+            if name.startswith(KERNEL):
+                per_kernel = True
+                packages += _kernel_packages(system, name.removeprefix(KERNEL), step["kernels_without"])
+            else:
+                packages.append(name)
+    if "kernels_without" in step and not per_kernel:
+        raise PlanError("Couldn't tell which package provides this driver here, so nothing was changed.")
     return packages
 
 
@@ -418,8 +448,12 @@ def validate_step(step: dict) -> str | None:
         if not _PARAM.match(param):
             return f"bad kernel parameter {param!r}"
     for name in [*step.get("packages", []), *step.get("replaces", []), *step.get("optional", {})]:
-        if name != "{headers}" and not _PACKAGE.match(name):
+        if name != "{headers}" and not _PACKAGE.match(name.removeprefix(KERNEL)):
             return f"bad package name {name!r}"
+    if any(name.startswith(KERNEL) for name in step.get("optional", {})) != ("kernels_without" in step):
+        return "{kernel}- packages and kernels_without go together"
+    if "kernels_without" in step and not _MODULE.match(step["kernels_without"]):
+        return f"bad module name {step['kernels_without']!r}"
     for module in [*step.get("modules", []), *([step["module"]] if "module" in step else [])]:
         if not _MODULE.match(module):
             return f"bad module name {module!r}"

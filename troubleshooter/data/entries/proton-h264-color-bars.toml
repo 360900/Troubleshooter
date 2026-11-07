@@ -1,0 +1,13 @@
+id = "proton-h264-color-bars"
+title = "Proton: game videos are missing or show color bars"
+summary = "Cutscenes and intro videos in H.264 need a codec Steam doesn't download until it's unlocked. Without it, Valve's Proton skips those videos or shows color bars instead."
+categories = ["games"]
+systems = ["any"]
+keywords = ["h264", "h.264", "openh264", "unlockh264", "cutscenes", "intro video", "color bars", "test pattern", "proton", "media foundation"]
+symptoms = ["game shows color bars instead of cutscene", "cutscenes don't play in proton", "intro videos are black in steam games", "game videos skipped on linux", "rainbow bars instead of video"]
+advice = "Open a terminal and run steam steam://unlockh264/ to start Steam with the codec unlocked. Wait until Steam finishes loading, quit it, then start Steam normally."
+source = "https://wiki.cachyos.org/configuration/gaming/#fix-h264-videos-not-playing-or-displaying-color-bars-in-games-with-valves-proton"
+
+[[when]]
+source = "package"
+names = ["steam", "steam-native-runtime"]

@@ -1,0 +1,27 @@
+id = "cachyos-rate-mirrors-slow-boot"
+title = "Boot: mirror ranking slows down startup"
+summary = "CachyOS ranks its download mirrors every few days, and when a run was missed it happens at boot. It waits for the network and tests many mirrors, which can show up as a slow start in systemd-analyze blame."
+categories = ["boot", "updates"]
+systems = ["arch-and-based"]
+keywords = ["cachyos-rate-mirrors", "rate-mirrors", "systemd-analyze blame", "critical-chain", "network-online.target", "mirrorlist", "slow boot"]
+symptoms = ["boot takes a long time", "system boots slowly lately", "systemd-analyze blame shows cachyos-rate-mirrors", "slow startup after cachyos update", "waiting for network at boot"]
+advice = "Masking the service and its timer stops the automatic ranking. Your mirror lists then stay as they are, so rerun sudo cachyos-rate-mirrors yourself now and then, or whenever downloads get slow."
+source = "https://wiki.cachyos.org/cachyos_basic/faq/#recently-my-system-is-taking-a-long-time-to-boot"
+
+[[when]]
+source = "package"
+names = ["cachyos-rate-mirrors"]
+
+[[fixed_when]]
+source = "service"
+name = "cachyos-rate-mirrors.timer"
+state = "masked"
+
+[[signals]]
+says = "Mirror ranking ran for 10 seconds or more during this boot"
+weight = 0.6
+source = "journal"
+regex = 'cachyos-rate-mirrors\.service: Consumed .* over ([0-9]+h |[0-9]+min |[1-9][0-9]+\.)'
+
+[[fix]]
+steps = [{ op = "service", action = "mask", names = ["cachyos-rate-mirrors.timer", "cachyos-rate-mirrors.service"], says = "Stop ranking mirrors automatically" }]

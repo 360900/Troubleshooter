@@ -1,0 +1,14 @@
+id = "nvidia-dx12-slow"
+title = "NVIDIA: DirectX 12 games run slower than on Windows"
+summary = "On NVIDIA cards, many DirectX 12 games lose a noticeable part of their frame rate under Proton compared with Windows, while DirectX 11 and Vulkan games don't. It's a limitation of NVIDIA's Linux driver, not of your setup or distribution."
+categories = ["nvidia", "games"]
+systems = ["any"]
+keywords = ["dx12", "directx 12", "d3d12", "vkd3d", "vkd3d-proton", "fps loss", "nvidia performance", "proton"]
+symptoms = ["dx12 games have low fps on nvidia", "games slower on linux than windows with nvidia", "poor performance in directx 12 games", "vkd3d slow on nvidia", "fps drop in new games on nvidia"]
+advice = "There's no fix yet; NVIDIA is working on it in the driver. Keep the driver up to date, and where a game offers DirectX 11 or Vulkan (in its settings or with a launch option such as -dx11), use that instead."
+source = "https://wiki.cachyos.org/configuration/gaming/#performance-drop-on-nvidia-in-directx12-games"
+
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"

@@ -1,0 +1,49 @@
+id = "nvidia-kernel-missing-driver"
+title = "NVIDIA: a kernel has no NVIDIA driver"
+summary = "One of the installed kernels has no NVIDIA module. Booting it gives a black screen or a fallback desktop, and rebuilding boot images prints \"module not found: 'nvidia'\" because the NVIDIA modules are set to load early."
+categories = ["nvidia", "boot"]
+systems = ["arch-and-based"]
+keywords = ["module not found", "nvidia_modeset", "nvidia_uvm", "nvidia_drm", "mkinitcpio", "early loading", "linux-cachyos-lts", "nvidia-open", "nvidia-open-lts", "chwd", "second kernel"]
+symptoms = ["error module not found nvidia", "mkinitcpio says module not found nvidia_modeset", "black screen when booting the lts kernel", "nvidia driver missing on second kernel", "update shows nvidia module not found errors", "fallback kernel has no nvidia driver"]
+auto_detect = true
+advice = "Install the NVIDIA module package that matches each kernel: on CachyOS that's the kernel name plus -nvidia-open (such as linux-cachyos-lts-nvidia-open); on Arch it's nvidia-open for linux and nvidia-open-lts for linux-lts. For other kernels, switch to nvidia-open-dkms and install each kernel's headers. Then rebuild the boot images. If you don't use a kernel any more, removing it works too."
+source = "https://wiki.cachyos.org/cachyos_basic/faq/#error-module-not-found-nvidia-nvidia_modeset-"
+
+[[when]]
+source = "package"
+names = ["nvidia-utils", "nvidia-*-utils"]
+
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+
+# With DKMS, a missing module means missing headers or a failed build: see dkms-headers-missing.
+[[when]]
+source = "package"
+names = ["nvidia*-dkms"]
+absent = true
+
+[[fixed_when]]
+source = "kernel_modules"
+name = "nvidia"
+absent = true
+
+[[signals]]
+says = "An installed kernel has no NVIDIA module"
+weight = 0.8
+source = "kernel_modules"
+name = "nvidia"
+
+[[signals]]
+says = "Rebuilding the boot images couldn't find the NVIDIA modules"
+weight = 0.3
+source = "file"
+path = "/var/log/pacman.log"
+regex = "module not found: '?nvidia"
+
+[[fix]]
+steps = [
+  { op = "install", packages = [], kernels_without = "nvidia", says = "Install the NVIDIA driver for each kernel that's missing it", optional = { "{kernel}-nvidia-open" = ["linux*-nvidia-open", "nvidia-open", "nvidia-open-lts"], "{kernel}-nvidia" = ["linux*-nvidia"] } },
+  { op = "initramfs" },
+]

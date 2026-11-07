@@ -1,0 +1,23 @@
+id = "games-shader-cache-small"
+title = "Games compile shaders again on every launch"
+summary = "The graphics driver keeps compiled shaders on disk, but with a size limit that big games outgrow. Old shaders get thrown away, so loading takes long and the first minutes stutter every time."
+categories = ["games"]
+systems = ["any"]
+keywords = ["shader cache", "MESA_SHADER_CACHE_MAX_SIZE", "__GL_SHADER_DISK_CACHE_SIZE", "environment.d", "shader compilation", "stutter", "radv", "mesa"]
+symptoms = ["game compiles shaders every launch", "stutter every time i start a game", "long loading times every launch", "shader cache keeps getting cleared", "game stutters at the beginning every time"]
+advice = "This raises the limit to 12 GB for both Mesa (AMD and Intel) and NVIDIA, for every user, in /etc/environment.d. The cache only grows as games need it. Log out and back in, or restart, for it to take effect."
+source = "https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size"
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/environment.d/*.conf", regex = '^\s*(MESA_SHADER_CACHE_MAX_SIZE|__GL_SHADER_DISK_CACHE_SIZE)=' },
+  { source = "file", path = "~/.config/environment.d/*.conf", regex = '^\s*(MESA_SHADER_CACHE_MAX_SIZE|__GL_SHADER_DISK_CACHE_SIZE)=' },
+]
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/environment.d/90-troubleshooter-shader-cache.conf", says = "Let games keep up to 12 GB of compiled shaders", content = """
+# Added by Troubleshooter: games-shader-cache-small
+MESA_SHADER_CACHE_MAX_SIZE=12G
+__GL_SHADER_DISK_CACHE_SIZE=12000000000
+""" }]
