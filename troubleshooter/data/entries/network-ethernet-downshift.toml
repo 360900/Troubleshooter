@@ -14,9 +14,11 @@ source = "https://wiki.archlinux.org/title/Network_configuration/Ethernet#MicroS
 source = "pci"
 class = "0200"
 
+# phylib (r8169 and most other drivers) logs the first two, igb and e1000e the third.
+# igb's "downshifted because it overheated" is left out, since that isn't the cable.
 [[signals]]
 says = "The kernel reports the Ethernet link was downshifted to a lower speed"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'Downshift occurred from negotiated speed|Link is Up - .*\(downshifted\)'
+regex = 'Downshift occurred from negotiated speed|Link is Up - .*\(downshifted\)|Link Speed was downgraded by SmartSpeed'
