@@ -41,6 +41,7 @@ class DatabaseTests(unittest.TestCase):
         reviewed = [
             ["resolvectl", "mdns"],  # status only, no arguments that change anything
             ["pacman", "-Qq", "pulse-native-provider"],  # local database query only
+            ["locale", "-a"],  # lists the generated locales, changes nothing
         ]
 
         def commands(spec):

@@ -16,22 +16,19 @@ names = ["steam"]
 source = "file"
 path = "/etc/locale.gen"
 
+# locale -a lists what's actually generated, whether through locale.gen, a locale-archive
+# built some other way, or glibc-locales, which ships every locale as a directory.
 [[fixed_when]]
-source = "file"
-path = "/etc/locale.gen"
-regex = '^en_US\.UTF-8 UTF-8'
-
-# The locale can exist without locale.gen: glibc-locales ships it as a directory.
-[[fixed_when]]
-source = "file"
-path = "/usr/lib/locale/en_US.[uU][tT][fF]*8"
+source = "command"
+argv = ["locale", "-a"]
+regex = '^en_US\.utf-?8$'
 
 [[signals]]
-says = "en_US.UTF-8 is not enabled in /etc/locale.gen"
+says = "The en_US.UTF-8 locale isn't generated"
 weight = 0.8
-source = "file"
-path = "/etc/locale.gen"
-regex = '^en_US\.UTF-8 UTF-8'
+source = "command"
+argv = ["locale", "-a"]
+regex = '^en_US\.utf-?8$'
 absent = true
 
 [[fix]]

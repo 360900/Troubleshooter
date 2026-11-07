@@ -79,5 +79,24 @@ class WineMonoTests(DesktopCase):
         self.assertEqual(self.evaluate("wine-mono-missing", m).status, engine.FIXED)
 
 
+class SteamLocaleTests(DesktopCase):
+    def steam(self, locales, locale_gen="#en_US.UTF-8 UTF-8\n"):
+        m = self.machine()
+        m.packages = {"steam"}
+        m.write("/etc/locale.gen", locale_gen)
+        m.outputs["commands"] = {("locale", "-a"): locales}
+        return self.evaluate("steam-locale-missing", m)
+
+    def test_missing_locale_is_recommended(self):
+        self.assertTrue(self.steam("C\nC.utf8\nde_DE.utf8\nPOSIX\n").recommended)
+
+    def test_enabled_but_never_generated_is_still_missing(self):
+        self.assertTrue(self.steam("C\nC.utf8\nPOSIX\n", "en_US.UTF-8 UTF-8\n").recommended)
+
+    def test_generated_locale_is_fixed_however_it_got_there(self):
+        self.assertEqual(self.steam("C\nen_US.utf8\nPOSIX\n").status, engine.FIXED)
+        self.assertEqual(self.steam("C\nen_US.UTF-8\nPOSIX\n").status, engine.FIXED)  # glibc-locales
+
+
 if __name__ == "__main__":
     unittest.main()
