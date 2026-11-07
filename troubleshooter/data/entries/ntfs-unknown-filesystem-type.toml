@@ -1,6 +1,6 @@
 id = "ntfs-unknown-filesystem-type"
 title = "Windows drive: \"unknown filesystem type 'ntfs'\""
-summary = "On kernels older than 7.1 there is no driver named ntfs, so a mount asking for that type fails or comes up read-only. The working driver on those kernels is called ntfs3."
+summary = "On kernels older than 7.1, a mount asking for the type ntfs fails or comes up read-only, because that name is missing or only a read-only stand-in. The working driver on those kernels is called ntfs3."
 categories = ["boot"]
 systems = ["arch-and-based"]
 keywords = ["ntfs", "ntfs3", "unknown filesystem type", "mount -t ntfs3", "fstab", "linux-lts", "read-only"]
