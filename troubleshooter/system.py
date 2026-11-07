@@ -37,7 +37,8 @@ class Result:
 
     @property
     def available(self) -> bool:
-        return self.code != 127
+        """False when the command is missing (127) or timed out or couldn't start (124)."""
+        return self.code not in (124, 127)
 
 
 @dataclass(frozen=True)

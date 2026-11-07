@@ -76,7 +76,8 @@ def _journal(system: System, spec: dict, window: bool = False) -> list[str] | No
         result = system.run(*_journal_args(spec), f"--after-cursor={system.cursor}")
     else:
         result = system.run(*_journal_args(spec), "-b", str(spec.get("boot", 0)))
-    return result.out.splitlines() if result.available else None
+    # journalctl prints its error (e.g. no such boot) as output and exits non-zero.
+    return result.out.splitlines() if result.ok else None
 
 
 def _file(system: System, spec: dict) -> list[str] | None:
@@ -99,9 +100,10 @@ def _command(system: System, spec: dict) -> list[str] | None:
     result = system.run(*spec["argv"])
     if not result.available:
         return None
-    if "exit" in spec and result.code != spec["exit"]:
-        return []
-    return result.out.splitlines()
+    if "exit" in spec:
+        return result.out.splitlines() if result.code == spec["exit"] else []
+    # A failing command's output is its error message, which says nothing about the machine.
+    return result.out.splitlines() if result.ok else None
 
 
 def _service(system: System, spec: dict) -> list[str] | None:
