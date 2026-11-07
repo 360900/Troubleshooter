@@ -12,6 +12,8 @@ source = "https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader
 any_of = [
   { source = "file", path = "/etc/environment.d/*.conf", regex = '^\s*(MESA_SHADER_CACHE_MAX_SIZE|__GL_SHADER_DISK_CACHE_SIZE)=' },
   { source = "file", path = "~/.config/environment.d/*.conf", regex = '^\s*(MESA_SHADER_CACHE_MAX_SIZE|__GL_SHADER_DISK_CACHE_SIZE)=' },
+  { source = "env", name = "MESA_SHADER_CACHE_MAX_SIZE" },
+  { source = "env", name = "__GL_SHADER_DISK_CACHE_SIZE" },
 ]
 
 [[fix]]
