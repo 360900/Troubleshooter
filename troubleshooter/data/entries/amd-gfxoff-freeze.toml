@@ -12,15 +12,21 @@ source = "https://wiki.archlinux.org/title/AMDGPU#System_freezes_or_reboots_when
 source = "module"
 names = ["amdgpu"]
 
-# Someone who already set their own mask (for overclocking) should choose the bits themselves.
+# Someone who set their own mask that keeps GFXOFF (0x8000) on, for overclocking, should
+# choose the bits themselves. A hex mask has GFXOFF off when its fourth digit from the
+# right is 0-7.
 [[when]]
 source = "cmdline"
-regex = '^amdgpu\.ppfeaturemask=(?!0xffff7fff$)'
+regex = '^amdgpu\.ppfeaturemask=(?!0x(?:[0-9a-f]*[0-7][0-9a-f]{3}|[0-9a-f]{1,3})$)'
 absent = true
 
+# Any mask without GFXOFF counts, including 0xffff7fff from older versions of this fix.
 [[fixed_when]]
-source = "kernel_param"
-params = ["amdgpu.ppfeaturemask=0xffff7fff"]
+any_of = [
+  { source = "kernel_param", params = ["amdgpu.ppfeaturemask=0xfff73fff"] },
+  { source = "kernel_param", params = ["amdgpu.ppfeaturemask=0xffff7fff"] },
+  { source = "cmdline", regex = '^amdgpu\.ppfeaturemask=0x(?:[0-9a-f]*[0-7][0-9a-f]{3}|[0-9a-f]{1,3})$' },
+]
 
 [[signals]]
 says = "The kernel log shows amdgpu timeouts or GPU resets"
@@ -32,6 +38,8 @@ regex = 'amdgpu.*(ring .* timeout|GPU reset begin)'
 [[fix]]
 reboot = true
 steps = [
-  { op = "kernel_params", add = ["amdgpu.ppfeaturemask=0xffff7fff"], says = "Add a kernel parameter that turns off GFXOFF and keeps other power features" },
+  # The driver default (0xfff7bfff) without GFXOFF. 0xffff7fff would also turn on Overdrive,
+  # which taints the kernel, and the experimental GFX_DCS feature.
+  { op = "kernel_params", add = ["amdgpu.ppfeaturemask=0xfff73fff"], says = "Add a kernel parameter that turns off GFXOFF and keeps the other default power features" },
   { op = "initramfs" },
 ]
