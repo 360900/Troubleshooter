@@ -1,0 +1,32 @@
+id = "wifi-broadcom-tg3-blacklisted"
+title = "Broadcom Ethernet doesn't work with the broadcom-wl driver"
+summary = "The broadcom-wl package blocks the tg3 Ethernet driver because the two used to conflict. With it installed, a Broadcom wired port has no driver."
+categories = ["network", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["tg3", "broadcom-wl-dkms", "broadcom ethernet", "blacklist", "macbook ethernet", "bcm57765"]
+symptoms = ["ethernet not detected", "wired connection doesn't work", "no ethernet port found", "ethernet stopped after installing broadcom driver"]
+advice = "If you need the wired port, load tg3 at boot by creating /etc/modules-load.d/tg3.conf with the single line tg3, then restart. Loading a module by name works even though it's blacklisted. If Wi-Fi or Ethernet then misbehave, remove the file again."
+source = "https://wiki.archlinux.org/title/Broadcom_wireless#Ethernet_card_is_not_detected"
+
+[[when]]
+source = "package"
+names = ["broadcom-wl-dkms", "broadcom-wl"]
+
+[[when]]
+source = "pci"
+vendor = "14e4"
+class = "0200"
+
+[[fixed_when]]
+source = "pci"
+vendor = "14e4"
+class = "0200"
+driver = "tg3"
+
+[[signals]]
+says = "Your Broadcom Ethernet controller has no driver loaded"
+weight = 0.85
+source = "pci"
+vendor = "14e4"
+class = "0200"
+driver = "none"

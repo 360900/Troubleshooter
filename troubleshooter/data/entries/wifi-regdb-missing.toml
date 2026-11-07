@@ -1,0 +1,28 @@
+id = "wifi-regdb-missing"
+title = "Wi-Fi: wireless regulatory database is missing"
+summary = "The kernel couldn't load the database of Wi-Fi channels and power limits allowed in your country, so it falls back to very restrictive settings. Some networks may be invisible or slow."
+categories = ["network", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["wireless-regdb", "regulatory.db", "cfg80211", "regdomain", "country code"]
+symptoms = ["some wifi networks don't show up", "can't see my 5ghz network", "wifi is slow", "wifi only connects at 2.4ghz", "can't connect to my router"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#Respecting_the_regulatory_domain"
+
+[[when]]
+source = "module"
+names = ["cfg80211"]
+
+[[fixed_when]]
+source = "package"
+names = ["wireless-regdb"]
+
+[[signals]]
+says = "The kernel couldn't load regulatory.db at boot"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'cfg80211: failed to load regulatory\.db'
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["wireless-regdb"], says = "Install the wireless regulatory database" }]

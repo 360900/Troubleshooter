@@ -1,0 +1,30 @@
+id = "sensors-asrock-nct6796d-s"
+title = "ASRock board: no fan or voltage readings"
+summary = "These ASRock boards use a variant of the Nuvoton NCT6796D sensor chip with an ID the driver doesn't recognize, so fans, voltages and board temperatures are missing. A driver option fixes it."
+categories = ["devices"]
+systems = ["any"]
+keywords = ["nct6775", "nct6796d", "force_id", "0xd801", "asrock", "lm_sensors", "fan speed", "hwmon"]
+symptoms = ["sensors shows no fan speed", "can't see fan rpm", "fan control doesn't find any fans", "motherboard temperatures missing", "coolercontrol shows no fans"]
+source = "https://wiki.archlinux.org/title/Lm_sensors#Asrock_B650M_Pro_RS_/_B850M_Pro_RS_/_B850M_Steel_Legend_WiFi_/_X870_Pro_RS"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/board_name"
+regex = '(B650M Pro RS|B850M Pro RS|B850M Steel Legend WiFi|X870 Pro RS)'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/modprobe.d/*.conf"
+regex = '^\s*options\s+nct6775\s+.*force_id=0xd801'
+
+[[signals]]
+says = "No Nuvoton sensor chip is being read"
+weight = 0.7
+source = "file"
+path = "/sys/class/hwmon/hwmon*/name"
+regex = '^nct6'
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "module_options", module = "nct6775", options = ["force_id=0xd801"], says = "Tell the sensor driver which chip this board has" }]

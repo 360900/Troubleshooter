@@ -1,0 +1,40 @@
+id = "power-tlp-framework-ethernet"
+title = "Framework Ethernet card stops working with TLP"
+summary = "TLP puts USB devices into power saving, which cuts out the Framework Ethernet expansion card (Realtek RTL8156). Excluding that card from USB power saving fixes it."
+categories = ["network", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["tlp", "usb_denylist", "0bda:8156", "rtl8156", "framework ethernet", "usb autosuspend", "r8152"]
+symptoms = ["ethernet expansion card doesn't work", "wired connection drops on framework", "usb ethernet adapter stops working", "ethernet only works when plugged in"]
+source = "https://wiki.archlinux.org/title/Framework_Laptop_13#Ethernet_not_working_with_tlp"
+
+[[when]]
+source = "usb"
+vendor = "0bda"
+devices = ["8156"]
+
+[[when]]
+source = "package"
+names = ["tlp"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/tlp.d/*.conf"
+regex = '^\s*USB_DENYLIST=.*0bda:8156'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/tlp.conf"
+regex = '^\s*USB_DENYLIST=.*0bda:8156'
+
+[[signals]]
+says = "TLP is enabled and manages USB power saving"
+weight = 0.45
+source = "service"
+name = "tlp.service"
+state = "enabled"
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/tlp.d/90-troubleshooter-usb-ethernet.conf", content = "USB_DENYLIST=\"0bda:8156\"\n", says = "Exclude the Ethernet card from TLP's USB power saving" },
+  { op = "command", says = "Apply the TLP settings", run = "tlp start", undo = "tlp start" },
+]

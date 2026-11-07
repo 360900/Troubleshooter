@@ -1,0 +1,32 @@
+id = "nm-resolved-missing"
+title = "NetworkManager keeps asking for systemd-resolved"
+summary = "NetworkManager sends DNS settings to systemd-resolved even when it isn't running, which floods the log with failed start requests. Telling NetworkManager not to do that stops it without changing how DNS works."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["systemd-resolved", "dbus-org.freedesktop.resolve1.service", "org.freedesktop.resolve1", "dns", "networkmanager"]
+symptoms = ["log is full of resolve1 errors", "unit dbus-org.freedesktop.resolve1.service not found", "networkmanager errors in the journal", "journal spam about systemd-resolved"]
+source = "https://wiki.archlinux.org/title/NetworkManager#Unit_dbus-org.freedesktop.resolve1.service_not_found"
+
+[[when]]
+source = "package"
+names = ["networkmanager"]
+
+[[fixed_when]]
+source = "service"
+name = "systemd-resolved.service"
+state = "active"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/NetworkManager/conf.d/*.conf"
+regex = '^\s*systemd-resolved\s*=\s*false'
+
+[[signals]]
+says = "D-Bus failed to start systemd-resolved for NetworkManager"
+weight = 0.85
+source = "journal"
+regex = "(Activation via systemd failed for unit|could not be found).*'dbus-org\\.freedesktop\\.resolve1\\.service'|Activation request for 'org\\.freedesktop\\.resolve1' failed"
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/NetworkManager/conf.d/troubleshooter-no-systemd-resolved.conf", content = "[main]\nsystemd-resolved=false\n", says = "Stop NetworkManager from sending DNS settings to systemd-resolved" }]

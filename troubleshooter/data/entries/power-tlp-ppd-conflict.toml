@@ -1,0 +1,34 @@
+id = "power-tlp-ppd-conflict"
+title = "Power: TLP and power-profiles-daemon fight each other"
+summary = "TLP and power-profiles-daemon both manage power settings and can't run together. Your desktop can start power-profiles-daemon at any time and quietly stop TLP. Masking power-profiles-daemon keeps TLP in charge, but the desktop's power mode switch stops working."
+categories = ["sleep"]
+systems = ["arch-and-based"]
+keywords = ["tlp", "power-profiles-daemon", "ppd", "powerprofilesctl", "mask", "conflict", "battery life"]
+symptoms = ["tlp settings don't apply", "battery life got worse", "tlp stops running by itself", "power profiles and tlp conflict", "laptop runs hot with tlp"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/CPU_frequency_scaling#power-profiles-daemon"
+
+[[when]]
+source = "package"
+names = ["tlp"]
+
+[[when]]
+source = "package"
+names = ["power-profiles-daemon"]
+
+[[fixed_when]]
+source = "service"
+name = "power-profiles-daemon.service"
+state = "masked"
+
+[[signals]]
+says = "TLP is enabled, but power-profiles-daemon can still start"
+weight = 0.8
+all_of = [
+  { source = "service", name = "tlp.service", state = "enabled" },
+  { source = "service", name = "power-profiles-daemon.service", state = "masked", absent = true },
+]
+
+[[fix]]
+reboot = true
+steps = [{ op = "service", action = "mask", names = ["power-profiles-daemon.service"], says = "Mask power-profiles-daemon so it can't start and override TLP" }]

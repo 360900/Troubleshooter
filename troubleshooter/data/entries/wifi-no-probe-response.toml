@@ -1,0 +1,21 @@
+id = "wifi-no-probe-response"
+title = "Wi-Fi: router stops answering and the connection drops"
+summary = "The Wi-Fi card lost contact with the router and disconnected. This usually comes from router settings or interference rather than this computer."
+categories = ["network"]
+systems = ["any"]
+keywords = ["no probe response from ap", "channel width", "20mhz", "40mhz", "dfs", "interference", "router"]
+symptoms = ["wifi keeps disconnecting", "wifi drops every few minutes", "internet cuts out", "wifi reconnects all the time"]
+advice = "In your router's settings, set the channel width to 20 MHz and pick a fixed channel instead of auto. On 5 GHz, choose a channel that isn't a DFS channel. If that doesn't help, try connecting on 2.4 GHz only."
+reproduce = "Use the internet normally until the connection drops."
+source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#Random_disconnections"
+
+[[when]]
+source = "file"
+path = "/sys/class/ieee80211/phy*"
+
+[[signals]]
+says = "The kernel log shows the router stopped answering"
+weight = 0.75
+source = "journal"
+kernel = true
+regex = 'No probe response from AP .* disconnecting'

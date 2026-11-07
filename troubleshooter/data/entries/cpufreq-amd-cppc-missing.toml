@@ -1,0 +1,26 @@
+id = "cpufreq-amd-cppc-missing"
+title = "AMD CPU: modern power management is off in the BIOS"
+summary = "The amd_pstate driver needs CPPC, which this motherboard's firmware doesn't expose. The CPU falls back to an older driver with only a few speed steps, costing efficiency and some responsiveness."
+categories = ["sleep", "amd"]
+systems = ["any"]
+keywords = ["amd_pstate", "amd-pstate-epp", "cppc", "_CPC object", "acpi_cpufreq", "ryzen", "cpu frequency"]
+symptoms = ["amd pstate not working", "cpu stuck at a few frequencies", "ryzen laptop battery life is bad", "power profiles don't change anything", "cpu doesn't boost properly"]
+advice = "In the UEFI setup, set CPPC to Enabled instead of Auto (often under AMD CBS, NBIO, SMU). If there's no such option, update the BIOS. After that, cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver should show amd-pstate-epp."
+source = "https://wiki.archlinux.org/title/CPU_frequency_scaling#amd_pstate"
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'AuthenticAMD'
+
+[[fixed_when]]
+source = "file"
+path = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver"
+regex = '^amd[-_]pstate'
+
+[[signals]]
+says = "The kernel says the firmware doesn't provide CPPC"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = '_CPC object is not present in SBIOS or ACPI disabled'

@@ -1,0 +1,38 @@
+id = "wifi-broadcom-wl-ibt"
+title = "Broadcom wl driver crashes on newer Intel CPUs"
+summary = "The broadcom-wl driver isn't compatible with Indirect Branch Tracking, a security feature of 11th gen and newer Intel CPUs, and crashes. Turning the feature off makes Wi-Fi work, but removes that protection."
+categories = ["network", "drivers", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["broadcom-wl", "wl", "ibt", "ibt=off", "indirect branch tracking", "missing endbr", "kernel oops"]
+symptoms = ["broadcom wifi doesn't work", "kernel oops with broadcom driver", "wifi missing on new laptop", "system unstable with broadcom wifi", "wl driver crashes"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Broadcom_wireless#broadcom-wl"
+
+[[when]]
+source = "module"
+names = ["wl"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["ibt=off"]
+
+[[signals]]
+says = "The kernel stopped the wl driver for breaking Indirect Branch Tracking"
+weight = 0.9
+source = "journal"
+kernel = true
+regex = 'Missing ENDBR:.*\[wl\]'
+
+[[signals]]
+says = "The kernel reported Indirect Branch Tracking violations"
+weight = 0.4
+source = "journal"
+kernel = true
+regex = 'Missing ENDBR'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["ibt=off"], says = "Add a kernel parameter that turns off Indirect Branch Tracking" },
+  { op = "initramfs" },
+]

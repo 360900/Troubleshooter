@@ -1,0 +1,27 @@
+id = "hibernate-not-enough-swap"
+title = "Hibernate fails: not enough free swap"
+summary = "The memory image didn't fit into a single swap space, so the computer woke straight back up instead of hibernating."
+categories = ["sleep"]
+systems = ["any"]
+keywords = ["hibernate", "not enough free memory", "error -12 creating image", "swap size", "resumed again", "image_size"]
+symptoms = ["hibernate doesn't work", "computer wakes up right after hibernating", "hibernate returns to the desktop", "hibernation fails"]
+advice = "The image has to fit in one swap partition or file, so make that swap larger (about the size of your RAM is safe). If you have several swap spaces, give the one meant for hibernation a lower priority so it stays empty. Closing large apps before hibernating also helps."
+reproduce = "Hibernate the computer and let it wake up."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#System_wakes_up_immediately_after_hibernating"
+
+[[when]]
+source = "file"
+path = "/proc/swaps"
+
+[[signals]]
+says = "The kernel couldn't fit the hibernation image into swap"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'PM: hibernation: (Not enough free memory|Error -12 creating image)'
+
+[[signals]]
+says = "systemd reported that hibernation was aborted"
+weight = 0.5
+source = "journal"
+regex = 'systemd-sleep.*Failed to put system to sleep\. System resumed again'

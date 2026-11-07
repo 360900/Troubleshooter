@@ -1,0 +1,20 @@
+id = "hibernate-swapfile-in-home"
+title = "Hibernate fails: swap file is in your home folder"
+summary = "systemd checks the swap space before hibernating, but it isn't allowed to look inside /home, /root or /run/user. A swap file there makes hibernation fail with \"No such file or directory\"."
+categories = ["sleep"]
+systems = ["any"]
+keywords = ["hibernate", "swap file", "protecthome", "systemd-logind", "no such file or directory", "call to hibernate failed"]
+symptoms = ["hibernate doesn't work", "call to hibernate failed", "hibernate says no such file or directory", "hibernate option missing", "can't hibernate"]
+advice = "Turn the swap file off with swapoff, create a new swap file outside your home folder (for example /swapfile or /swap/swapfile on Btrfs), update /etc/fstab to point to it, and delete the old one."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#No_such_file_or_directory"
+
+[[when]]
+source = "file"
+path = "/proc/swaps"
+
+[[signals]]
+says = "An active swap file is inside /home, /root or /run/user"
+weight = 0.85
+source = "file"
+path = "/proc/swaps"
+regex = '^/(home|root|run/user)/'

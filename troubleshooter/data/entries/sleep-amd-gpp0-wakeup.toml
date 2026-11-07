@@ -1,0 +1,21 @@
+id = "sleep-amd-gpp0-wakeup"
+title = "AMD A520I/B550I board doesn't wake from sleep"
+summary = "On some A520I and B550I motherboards, a PCIe port's wakeup setting keeps the PC from fully sleeping or waking. The power light stays on and only a hard power off helps."
+categories = ["sleep", "amd"]
+systems = ["any"]
+keywords = ["gpp0", "/proc/acpi/wakeup", "a520i", "b550i", "wake from sleep", "amd motherboard"]
+symptoms = ["pc won't wake from sleep", "monitor stays black after suspend", "power light stays on in sleep", "have to hold the power button after suspend", "computer doesn't fully sleep"]
+advice = "Run echo GPP0 > /proc/acpi/wakeup as root (it toggles, so run it once) and test a suspend. If it helps, make it permanent with a small systemd service that runs that command at boot, or a udev rule that sets power/wakeup to disabled for the GPP0 bridge. Also make sure amd-ucode is installed and the BIOS is up to date."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#PC_will_not_wake_from_sleep_on_A520I_and_B550I_motherboards"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/board_name"
+regex = '(A520|B550)-?I\b'
+
+[[signals]]
+says = "GPP0 is allowed to wake the system"
+weight = 0.6
+source = "file"
+path = "/proc/acpi/wakeup"
+regex = '^GPP0\s+\S+\s+\*enabled'

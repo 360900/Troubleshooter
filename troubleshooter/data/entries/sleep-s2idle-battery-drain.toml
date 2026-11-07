@@ -1,0 +1,30 @@
+id = "sleep-s2idle-battery-drain"
+title = "Laptop battery drains fast while asleep"
+summary = "This laptop sleeps with suspend-to-idle (s2idle), which on some machines uses far more power than the deeper S3 sleep. The firmware also offers S3, which you can try."
+categories = ["sleep"]
+systems = ["any"]
+keywords = ["s2idle", "deep", "mem_sleep", "S3", "modern standby", "MemorySleepMode", "mem_sleep_default", "battery drain"]
+symptoms = ["battery drains while laptop is asleep", "laptop is warm in my bag", "battery empty after a night in sleep", "suspend uses too much battery", "laptop doesn't really sleep"]
+advice = "Test deep sleep first: run echo deep > /sys/power/mem_sleep as root and suspend and wake a few times. If it works, make it permanent with MemorySleepMode=deep in the [Sleep] section of /etc/systemd/sleep.conf.d/mem-deep.conf. Some laptops also have a BIOS sleep setting such as \"Linux\" or \"S3\"; if deep sleep misbehaves, go back to s2idle."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#Changing_suspend_method"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'
+
+[[when]]
+source = "file"
+path = "/sys/power/mem_sleep"
+
+[[fixed_when]]
+source = "file"
+path = "/sys/power/mem_sleep"
+regex = '\[deep\]'
+
+[[signals]]
+says = "The laptop uses s2idle although the firmware offers deep (S3) sleep"
+weight = 0.35
+source = "file"
+path = "/sys/power/mem_sleep"
+regex = '\[s2idle\].*deep'

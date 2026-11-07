@@ -1,0 +1,27 @@
+id = "wifi-rfkill-soft-blocked"
+title = "Wi-Fi is switched off (soft block)"
+summary = "The Wi-Fi card is turned off in software, for example by airplane mode or a Wi-Fi key, so no networks show up. Unblocking it turns the radio back on."
+categories = ["network"]
+systems = ["any"]
+keywords = ["rfkill", "soft blocked", "airplane mode", "rfkill unblock", "wlan"]
+symptoms = ["wifi is turned off and won't turn on", "no wifi networks found", "wifi toggle is greyed out", "airplane mode stuck on", "wifi disabled"]
+source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#Rfkill_caveat"
+
+[[when]]
+source = "file"
+path = "/sys/class/ieee80211/phy*/rfkill*/soft"
+
+[[fixed_when]]
+source = "file"
+path = "/sys/class/ieee80211/phy*/rfkill*/soft"
+regex = '^0'
+
+[[signals]]
+says = "The Wi-Fi card is soft blocked"
+weight = 0.85
+source = "file"
+path = "/sys/class/ieee80211/phy*/rfkill*/soft"
+regex = '^1'
+
+[[fix]]
+steps = [{ op = "command", says = "Turn the Wi-Fi radio back on", run = "rfkill unblock wlan", undo = "rfkill block wlan" }]

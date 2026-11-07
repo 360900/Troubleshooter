@@ -1,0 +1,20 @@
+id = "nm-wpa-enterprise-old-tls"
+title = "Wi-Fi: university or work network rejects the login (old TLS)"
+summary = "This WPA Enterprise network (such as eduroam) only speaks TLS 1.0 or 1.1, which OpenSSL 3 refuses by default. You can allow it for that one connection."
+categories = ["network"]
+systems = ["any"]
+keywords = ["wpa enterprise", "eduroam", "peap", "802-1x", "phase1-auth-flags", "unsupported protocol", "openssl", "tls 1.0", "wpa_supplicant"]
+symptoms = ["can't connect to eduroam", "university wifi keeps asking for password", "work wifi authentication fails", "enterprise wifi won't connect", "eap authentication failed"]
+advice = "Run nmcli connection show to find the connection name, then nmcli connection modify 'NAME' 802-1x.phase1-auth-flags 32 to allow TLS 1.0 (use 64 for TLS 1.1), and reconnect. The better long-term fix is for the network's administrators to support TLS 1.3."
+reproduce = "Try to connect to the network again."
+source = 'https://wiki.archlinux.org/title/NetworkManager#WPA_Enterprise_connections_fail_to_authenticate_with_OpenSSL_"unsupported_protocol"_error'
+
+[[when]]
+source = "package"
+names = ["wpa_supplicant"]
+
+[[signals]]
+says = "wpa_supplicant refused the network's old TLS version"
+weight = 0.85
+source = "journal"
+regex = 'wpa_supplicant.*SSL_connect error:.*unsupported protocol'

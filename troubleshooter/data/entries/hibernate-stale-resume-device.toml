@@ -1,0 +1,22 @@
+id = "hibernate-stale-resume-device"
+title = "Hibernate fails: resume device points to the wrong place"
+summary = "The saved hibernation target no longer matches an active swap space, so systemd refuses to hibernate. Clearing it lets systemd pick a swap space again."
+categories = ["sleep"]
+systems = ["any"]
+keywords = ["hibernate", "/sys/power/resume", "resume_offset", "resume=", "not an active swap device"]
+symptoms = ["hibernate doesn't work", "call to hibernate failed", "specified resume device is missing", "can't hibernate after changing swap"]
+reproduce = "Try to hibernate again."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#Specified_resume_device_is_missing_or_is_not_an_active_swap_device"
+
+[[when]]
+source = "file"
+path = "/sys/power/resume"
+
+[[signals]]
+says = "systemd says the resume device isn't an active swap space"
+weight = 0.8
+source = "journal"
+regex = 'Specified resume device is missing or is not an active swap device'
+
+[[fix]]
+steps = [{ op = "command", says = "Clear the saved hibernation target until the next restart (check resume= in your kernel parameters if it comes back)", run = "echo 0:0 > /sys/power/resume && echo 0 > /sys/power/resume_offset" }]

@@ -1,0 +1,36 @@
+id = "power-framework-intel-thermald"
+title = "Framework Intel: fans are loud"
+summary = "On Intel Framework laptops, Intel's thermal daemon (thermald) handles heat much better than the default and makes the fans noticeably quieter."
+categories = ["sleep", "devices", "intel"]
+systems = ["arch-and-based"]
+keywords = ["thermald", "framework", "fan noise", "intel", "thermal"]
+symptoms = ["fan is loud on my framework laptop", "fans spin up all the time", "laptop is noisy", "framework laptop runs hot"]
+source = "https://wiki.archlinux.org/title/Framework_Laptop_13#Lowering_fan_noise"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Framework'
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'GenuineIntel'
+
+[[fixed_when]]
+source = "service"
+name = "thermald.service"
+state = "enabled"
+
+[[signals]]
+says = "thermald isn't installed"
+weight = 0.3
+source = "package"
+names = ["thermald"]
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["thermald"] },
+  { op = "service", names = ["thermald.service"], now = true, says = "Enable and start thermald" },
+]

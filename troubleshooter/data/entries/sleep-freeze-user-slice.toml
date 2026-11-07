@@ -1,0 +1,16 @@
+id = "sleep-freeze-user-slice"
+title = "Sleep hangs for a minute, then wakes back up"
+summary = "Before sleeping, systemd pauses all user programs, and that step failed. The computer then waits about 60 seconds and wakes up, or hangs after waking. Virtual machines (KVM) often trigger it."
+categories = ["sleep", "crashes"]
+systems = ["any"]
+keywords = ["user.slice", "failed to freeze unit", "SYSTEMD_SLEEP_FREEZE_USER_SESSIONS", "systemd-suspend", "kvm", "frozen"]
+symptoms = ["computer wakes up a minute after suspend", "suspend takes 60 seconds", "laptop doesn't go to sleep", "can't log in after waking", "system hangs after waking up"]
+advice = "Close virtual machines before suspending and check that systemd and the kernel are up to date. If it still happens, add a drop-in with Environment=SYSTEMD_SLEEP_FREEZE_USER_SESSIONS=false to systemd-suspend.service, systemd-hibernate.service, systemd-hybrid-sleep.service and systemd-suspend-then-hibernate.service (systemctl edit NAME). On some machines that drop-in stops sleep from working, so remove it again if it does."
+reproduce = "Put the computer to sleep and wake it up again."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#System_freezes_for_60_seconds_and_then_wakes_back_up_or_hangs_after_waking_up"
+
+[[signals]]
+says = "systemd couldn't pause user programs before sleeping"
+weight = 0.85
+source = "journal"
+regex = "Failed to freeze unit 'user\\.slice'"

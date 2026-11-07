@@ -1,0 +1,19 @@
+id = "fan-fancontrol-paths-changed"
+title = "Fan control won't start: sensor paths changed"
+summary = "The sensor drivers loaded in a different order this boot, so the paths in /etc/fancontrol point to the wrong devices and fancontrol refuses to start."
+categories = ["devices"]
+systems = ["any"]
+keywords = ["fancontrol", "pwmconfig", "hwmon", "configuration appears to be outdated", "/etc/fancontrol", "lm_sensors"]
+symptoms = ["fancontrol won't start", "fan control stopped working after reboot", "fans are loud after restart", "fancontrol says run pwmconfig again"]
+advice = "List the modules from the two arrays in /etc/conf.d/lm_sensors, one per line, in /etc/modules-load.d/modules.conf so they always load in the same order, then run pwmconfig again. If the paths still change, use absolute device paths in /etc/fancontrol or switch to another fan control tool."
+source = "https://wiki.archlinux.org/title/Fan_speed_control#Device_paths_have_changed_in_/etc/fancontrol"
+
+[[when]]
+source = "file"
+path = "/etc/fancontrol"
+
+[[signals]]
+says = "fancontrol found that its configuration no longer matches the hardware"
+weight = 0.9
+source = "journal"
+regex = 'fancontrol.*Configuration appears to be outdated, please run pwmconfig again'

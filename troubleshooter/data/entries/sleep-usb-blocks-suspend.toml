@@ -1,0 +1,24 @@
+id = "sleep-usb-blocks-suspend"
+title = "Sleep: a USB device stops the computer from suspending"
+summary = "A device on a USB controller refused to suspend, so the computer stayed awake or woke up right away. Usually one plugged-in device is to blame."
+categories = ["sleep", "devices"]
+systems = ["any"]
+keywords = ["xhci_hcd", "failed to suspend async", "error -16", "some devices failed to suspend", "usb controller", "suspend"]
+symptoms = ["computer won't go to sleep", "pc wakes up right after suspend", "suspend fails", "screen turns off then comes back", "sleep doesn't work with usb devices plugged in"]
+advice = "Unplug USB devices one at a time and try to suspend after each, starting with hubs, docks, receivers and drives. The log lines below name the controller's PCI address; lspci -s ADDRESS shows which controller it is."
+reproduce = "Put the computer to sleep and wake it up again."
+source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate#Failure_to_suspend_due_to_USB_device"
+
+[[signals]]
+says = "A USB controller refused to suspend"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'xhci_hcd .*PM: failed to suspend.*error -16'
+
+[[signals]]
+says = "The kernel aborted suspend because a device failed"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'PM: Some devices failed to suspend, or early wake event detected'

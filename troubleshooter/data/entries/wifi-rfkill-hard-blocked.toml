@@ -1,0 +1,20 @@
+id = "wifi-rfkill-hard-blocked"
+title = "Wi-Fi is switched off by a hardware switch"
+summary = "The Wi-Fi card is turned off by a physical switch, a key combination or the firmware. Software can't turn it back on."
+categories = ["network"]
+systems = ["any"]
+keywords = ["rfkill", "hard blocked", "wireless switch", "airplane mode", "wlan"]
+symptoms = ["wifi is turned off and won't turn on", "no wifi networks found", "wifi keeps turning itself off", "wifi switch doesn't work", "wifi disabled by hardware"]
+advice = "Look for a Wi-Fi switch on the side or front of the laptop, or a key with an antenna or airplane icon (often together with Fn), and use it. If there is none, check the Wi-Fi setting in the BIOS. On some older laptops a worn switch can cut Wi-Fi when the laptop moves."
+source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#Rfkill_caveat"
+
+[[when]]
+source = "file"
+path = "/sys/class/ieee80211/phy*/rfkill*/hard"
+
+[[signals]]
+says = "The Wi-Fi card is hard blocked"
+weight = 0.85
+source = "file"
+path = "/sys/class/ieee80211/phy*/rfkill*/hard"
+regex = '^1'

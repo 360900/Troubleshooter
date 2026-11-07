@@ -1,0 +1,35 @@
+id = "wifi-nm-powersave"
+title = "Wi-Fi drops because of power saving"
+summary = "Aggressive Wi-Fi power saving makes some cards drop the connection or stall. Telling NetworkManager to turn it off usually helps, at a small battery cost."
+categories = ["network"]
+systems = ["any"]
+keywords = ["wifi.powersave", "power_save", "networkmanager", "deauthenticating", "reason=3", "DEAUTH_LEAVING"]
+symptoms = ["wifi keeps disconnecting", "wifi drops every few minutes", "wifi stalls then comes back", "internet cuts out on my laptop", "wifi slow to respond"]
+reproduce = "Use the internet normally until the connection drops."
+source = "https://wiki.archlinux.org/title/Power_management#NetworkManager"
+
+[[when]]
+source = "package"
+names = ["networkmanager"]
+
+[[when]]
+source = "file"
+path = "/sys/class/ieee80211/phy*"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/NetworkManager/conf.d/*.conf"
+regex = '^\s*wifi\.powersave\s*=\s*2'
+
+[[signals]]
+says = "The Wi-Fi connection was dropped from this side"
+weight = 0.3
+source = "journal"
+kernel = true
+regex = 'deauthenticating from .* by local choice \(Reason: 3=DEAUTH_LEAVING\)'
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/NetworkManager/conf.d/troubleshooter-wifi-powersave.conf", content = "[connection]\nwifi.powersave=2\n", says = "Tell NetworkManager to turn off Wi-Fi power saving" },
+  { op = "command", says = "Reload the NetworkManager settings (applies the next time Wi-Fi connects)", run = "nmcli general reload", undo = "nmcli general reload" },
+]

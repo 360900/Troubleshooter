@@ -1,0 +1,27 @@
+id = "nm-networking-disabled"
+title = "Networking is turned off in NetworkManager"
+summary = "NetworkManager has networking switched off as a whole, so no wired or Wi-Fi connection comes up. This can stick after a crash or a misclick."
+categories = ["network"]
+systems = ["any"]
+keywords = ["networkmanager", "network management disabled", "NetworkingEnabled", "nmcli networking on", "NetworkManager.state"]
+symptoms = ["no internet at all", "network management disabled", "network icon says disabled", "ethernet and wifi both don't work", "no network connections listed"]
+source = "https://wiki.archlinux.org/title/NetworkManager#Network_management_disabled"
+
+[[when]]
+source = "file"
+path = "/var/lib/NetworkManager/NetworkManager.state"
+
+[[fixed_when]]
+source = "file"
+path = "/var/lib/NetworkManager/NetworkManager.state"
+regex = '^NetworkingEnabled=true'
+
+[[signals]]
+says = "NetworkManager's saved state has networking turned off"
+weight = 0.85
+source = "file"
+path = "/var/lib/NetworkManager/NetworkManager.state"
+regex = '^NetworkingEnabled=false'
+
+[[fix]]
+steps = [{ op = "command", says = "Turn networking back on in NetworkManager", run = "nmcli networking on", undo = "nmcli networking off" }]

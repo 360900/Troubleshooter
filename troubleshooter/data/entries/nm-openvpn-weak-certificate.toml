@@ -1,0 +1,20 @@
+id = "nm-openvpn-weak-certificate"
+title = "VPN: OpenVPN rejects an old certificate"
+summary = "OpenSSL 3 refuses certificates signed with old algorithms, so this OpenVPN connection fails to start. The real fix is a new certificate from whoever runs the VPN."
+categories = ["network"]
+systems = ["any"]
+keywords = ["openvpn", "networkmanager-openvpn", "ca md too weak", "openssl", "legacy provider", "tls-cipher", "SECLEVEL"]
+symptoms = ["vpn won't connect", "openvpn fails to start", "vpn stopped working after update", "openvpn certificate error"]
+advice = "Ask the VPN administrator to issue certificates with a modern signature algorithm. As a stopgap you can run nmcli connection modify 'NAME' +vpn.data tls-cipher=DEFAULT:@SECLEVEL=0 and enable OpenSSL's legacy provider in /etc/ssl/openssl.cnf, which weakens security for that connection."
+reproduce = "Try to start the VPN connection again."
+source = 'https://wiki.archlinux.org/title/NetworkManager#OpenVPN_connections_fail_with_OpenSSL_"ca_md_too_weak"_error'
+
+[[when]]
+source = "package"
+names = ["networkmanager-openvpn", "openvpn"]
+
+[[signals]]
+says = "OpenVPN rejected the certificate as too weak"
+weight = 0.9
+source = "journal"
+regex = '(nm-openvpn|openvpn).*ca md too weak'

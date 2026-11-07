@@ -1,0 +1,39 @@
+id = "wifi-broadcom-bcm43602"
+title = "Broadcom BCM43602 Wi-Fi needs a driver option"
+summary = "The BCM43602 chip, found in many MacBooks, needs a brcmfmac option to work reliably. It's a single kernel parameter."
+categories = ["network", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["bcm43602", "brcmfmac", "feature_disable", "14e4:43ba", "macbook wifi", "broadcom"]
+symptoms = ["macbook wifi not working", "broadcom wifi doesn't connect", "wifi keeps dropping on macbook", "wifi firmware errors broadcom"]
+source = "https://wiki.archlinux.org/title/Broadcom_wireless#BCM43602_802.11ac_Wireless_LAN_SoC"
+
+[[when]]
+source = "pci"
+vendor = "14e4"
+devices = ["43ba"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["brcmfmac.feature_disable=0x82000"]
+
+[[signals]]
+says = "Your BCM43602 is running on brcmfmac without the needed option"
+weight = 0.4
+source = "pci"
+vendor = "14e4"
+devices = ["43ba"]
+driver = "brcmfmac"
+
+[[signals]]
+says = "The kernel log shows brcmfmac errors"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'brcmfmac.*(firmware has halted|bus is down|timed out|failed with error)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["brcmfmac.feature_disable=0x82000"], says = "Add the kernel parameter BCM43602 needs" },
+  { op = "initramfs" },
+]

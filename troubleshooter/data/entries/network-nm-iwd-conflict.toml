@@ -1,0 +1,38 @@
+id = "network-nm-iwd-conflict"
+title = "Network: iwd and NetworkManager both start on their own"
+summary = "iwd.service is enabled next to NetworkManager. Two programs fighting over the Wi-Fi card cause disconnects and failed connections. NetworkManager starts iwd itself when it needs it."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["iwd", "iwd.service", "networkmanager", "wifi.backend", "wpa_supplicant", "conflict"]
+symptoms = ["wifi keeps disconnecting", "wifi connects and drops over and over", "networkmanager can't connect to wifi", "iwd crashes", "wifi takes forever to connect"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Iwd#Wi-Fi_keeps_disconnecting_due_to_iwd_crash"
+
+[[when]]
+source = "package"
+names = ["networkmanager"]
+
+[[when]]
+source = "package"
+names = ["iwd"]
+
+[[when]]
+source = "service"
+name = "NetworkManager.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "service"
+name = "iwd.service"
+state = "disabled"
+
+[[signals]]
+says = "iwd.service is enabled although NetworkManager manages the network"
+weight = 0.8
+source = "service"
+name = "iwd.service"
+state = "enabled"
+
+[[fix]]
+reboot = true
+steps = [{ op = "service", action = "disable", names = ["iwd.service"], says = "Stop iwd from starting on its own (NetworkManager still starts it when needed)" }]

@@ -1,0 +1,30 @@
+id = "sleep-framework-intel-s2idle"
+title = "Framework Intel: laptop doesn't fully sleep"
+summary = "On Intel Framework boards, a firmware quirk keeps the keyboard light and power button on during sleep and drains the battery. A kernel parameter that changes what the firmware is told fixes it."
+categories = ["sleep", "intel"]
+systems = ["arch-and-based"]
+keywords = ["framework", "acpi_osi", "Windows 2020", "s2idle", "nvme.noacpi", "suspend battery drain"]
+symptoms = ["framework laptop stays on in sleep", "keyboard light stays on when suspended", "battery drains during sleep on framework", "power button light stays on in suspend", "laptop won't wake up, ssd disappears"]
+advice = "Add acpi_osi=\"!Windows 2020\" to your kernel parameters (keep the quotes) and restart. If the laptop sometimes fails to wake because the SSD disappears, also try nvme.noacpi=1, but only on Intel boards."
+source = "https://wiki.archlinux.org/title/Framework_Laptop_13#Suspend"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Framework'
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'GenuineIntel'
+
+[[fixed_when]]
+source = "cmdline"
+regex = 'acpi_osi=.?!Windows'
+
+[[signals]]
+says = "The workaround isn't in your kernel parameters"
+weight = 0.3
+source = "cmdline"
+regex = 'acpi_osi='
+absent = true

@@ -1,0 +1,21 @@
+id = "wifi-ath11k-sleep"
+title = "Qualcomm Wi-Fi stops working after sleep (ath11k)"
+summary = "Qualcomm ath11k Wi-Fi chips, such as the Killer AX500 and those in many AMD ThinkPads, often don't come back after suspend or hibernate. Unloading the driver before sleep and loading it after avoids it."
+categories = ["network", "sleep", "drivers"]
+systems = ["any"]
+keywords = ["ath11k", "ath11k_pci", "qca6390", "wcn6855", "killer ax500", "qualcomm", "resume"]
+symptoms = ["wifi gone after waking from sleep", "no wifi after resume", "wifi broken after hibernate", "need to reboot to get wifi back", "laptop hangs on resume"]
+advice = "To get Wi-Fi back now, run rmmod ath11k_pci, wait a little, then modprobe ath11k_pci. To avoid it, create two small systemd services: one that runs /usr/bin/rmmod ath11k_pci before sleep.target and one that runs /usr/bin/modprobe ath11k_pci after suspend.target and hibernate.target, then enable both."
+reproduce = "Put the computer to sleep, wake it up and check whether Wi-Fi works."
+source = "https://wiki.archlinux.org/title/Dell_XPS_13_(9310)#AX500"
+
+[[when]]
+source = "module"
+names = ["ath11k_pci"]
+
+[[signals]]
+says = "The kernel log shows ath11k failing around sleep"
+weight = 0.7
+source = "journal"
+kernel = true
+regex = 'ath11k_pci.*(firmware crashed|failed to (suspend|resume)|timeout|failed to power up)'

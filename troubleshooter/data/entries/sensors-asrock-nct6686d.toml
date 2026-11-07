@@ -1,0 +1,38 @@
+id = "sensors-asrock-nct6686d"
+title = "ASRock AM5 board: no fan or voltage readings"
+summary = "These ASRock boards use a Nuvoton NCT6686D sensor chip, and its driver only starts on its own with Intel CPUs. With an AMD CPU it has to be forced on and loaded at boot."
+categories = ["devices", "amd"]
+systems = ["any"]
+keywords = ["nct6683", "nct6686d", "force=1", "asrock", "x870 steel legend", "b650i lightning", "lm_sensors", "fan speed"]
+symptoms = ["sensors shows no fan speed", "can't see fan rpm", "fan control doesn't find any fans", "motherboard temperatures missing"]
+source = "https://wiki.archlinux.org/title/Lm_sensors#Asrock_X870_Steel_Legend_WiFi_/_B650I_Lightning_WiFi_/_B650_LiveMixer"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/board_name"
+regex = '(X870 Steel Legend WiFi|B650I Lightning WiFi|B650 LiveMixer)'
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'AuthenticAMD'
+
+[[fixed_when]]
+source = "file"
+path = "/sys/class/hwmon/hwmon*/name"
+regex = '^nct6683'
+
+[[signals]]
+says = "The NCT6686D sensor chip isn't being read"
+weight = 0.7
+source = "file"
+path = "/sys/class/hwmon/hwmon*/name"
+regex = '^nct6683'
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "module_options", module = "nct6683", options = ["force=1"], says = "Force the sensor driver on for this board" },
+  { op = "write_file", path = "/etc/modules-load.d/troubleshooter-nct6683.conf", content = "nct6683\n", says = "Load the sensor driver at boot" },
+]

@@ -1,0 +1,30 @@
+id = "power-framework-amd-tlp"
+title = "Framework AMD: TLP isn't recommended"
+summary = "Framework advises power-profiles-daemon instead of TLP on its AMD Ryzen boards. TLP's defaults can cost battery life and cause other power quirks there."
+categories = ["sleep", "amd"]
+systems = ["arch-and-based"]
+keywords = ["framework", "tlp", "power-profiles-daemon", "ryzen 7040", "ppd", "battery life"]
+symptoms = ["bad battery life on framework laptop", "framework amd battery drains fast", "should i use tlp on framework", "framework laptop runs hot"]
+advice = "Switch to power-profiles-daemon: run systemctl disable --now tlp.service, then systemctl unmask power-profiles-daemon.service and systemctl enable --now power-profiles-daemon.service (install power-profiles-daemon first if needed). You can then pick a power mode from your desktop's battery menu."
+source = "https://wiki.archlinux.org/title/Framework_Laptop_13#(AMD)_TLP_is_not_advised_for_power_management._PPD_is_recommended"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Framework'
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'AuthenticAMD'
+
+[[when]]
+source = "package"
+names = ["tlp"]
+
+[[signals]]
+says = "TLP is enabled on a Framework AMD laptop"
+weight = 0.6
+source = "service"
+name = "tlp.service"
+state = "enabled"

@@ -1,0 +1,27 @@
+id = "sensors-msi-nct6687"
+title = "MSI board: no fan or voltage readings"
+summary = "These MSI boards use a Nuvoton NCT6687 sensor chip that the kernel doesn't support yet. A community driver from the AUR adds fans, voltages and temperatures."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["nct6687", "nct6687d-dkms-git", "nct6683", "msi", "tomahawk", "mortar", "lm_sensors", "fan speed"]
+symptoms = ["sensors shows no fan speed", "can't see fan rpm", "fan control doesn't find any fans", "motherboard temperatures missing", "fan readings are wrong on msi board"]
+advice = "Install nct6687d-dkms-git from the AUR, run modprobe nct6687 and check the output of sensors. To load it at boot, add nct6687 to a file in /etc/modules-load.d/. If sensors-detect set up nct6683 in /etc/conf.d/lm_sensors, replace it with nct6687."
+source = "https://wiki.archlinux.org/title/Lm_sensors#MSI_MAG_B650_/_X870_TOMAHAWK_WIFI_/_Z890_TOMAHAWK_WIFI_(MS-7D75/MS-7E32)_/_MAG_B550_MORTAR_WIFI_(MS-7C94)"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/board_name"
+regex = '(MS-7D75|MS-7E32|MS-7C94)'
+
+[[fixed_when]]
+source = "file"
+path = "/sys/class/hwmon/hwmon*/name"
+regex = '^nct6687'
+
+[[signals]]
+says = "The NCT6687 sensor chip isn't being read"
+weight = 0.6
+source = "file"
+path = "/sys/class/hwmon/hwmon*/name"
+regex = '^nct6687'
+absent = true

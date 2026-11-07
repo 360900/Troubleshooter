@@ -1,0 +1,36 @@
+id = "wifi-regdom-unset"
+title = "Wi-Fi: your country isn't set"
+summary = "Without a country setting, the Wi-Fi card only uses channels allowed everywhere. Networks on other channels stay invisible, some chips can't connect at all, and others stay on slow 2.4 GHz."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["wireless-regdom", "regulatory domain", "regdomain", "iw reg", "country 00", "wireless-regdb", "6ghz", "5ghz"]
+symptoms = ["some wifi networks don't show up", "can see my wifi but can't connect", "no 5ghz networks", "wifi is stuck on 2.4ghz", "wifi connects then disconnects right away", "wifi 6e not working"]
+advice = "Open /etc/conf.d/wireless-regdom as root, remove the # in front of the line for your country (for example WIRELESS_REGDOM=\"DE\"), save and restart. Run iw reg get afterwards to check that your country code shows up instead of 00."
+source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#Wi-Fi_networks_invisible_because_of_incorrect_regulatory_domain"
+
+[[when]]
+source = "file"
+path = "/etc/conf.d/wireless-regdom"
+
+[[when]]
+source = "file"
+path = "/sys/class/ieee80211/phy*"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/conf.d/wireless-regdom"
+regex = '^\s*WIRELESS_REGDOM='
+
+[[signals]]
+says = "No country is selected in /etc/conf.d/wireless-regdom"
+weight = 0.3
+source = "file"
+path = "/etc/conf.d/wireless-regdom"
+regex = '^\s*WIRELESS_REGDOM='
+absent = true
+
+[[signals]]
+says = "This Wi-Fi chip is known to need the country set to connect or to use 5 GHz"
+weight = 0.25
+source = "module"
+names = ["rtw88_pci", "rtw88_usb", "mt7921e", "mt7925e"]

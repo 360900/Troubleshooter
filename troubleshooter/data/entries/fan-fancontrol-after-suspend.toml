@@ -1,0 +1,21 @@
+id = "fan-fancontrol-after-suspend"
+title = "Fan control stops working after sleep"
+summary = "fancontrol from lm_sensors doesn't pick up again after the computer wakes from sleep, so fans stay at whatever speed the hardware chooses. It has to be restarted after each wake-up."
+categories = ["devices", "sleep"]
+systems = ["any"]
+keywords = ["fancontrol", "fancontrol.service", "lm_sensors", "pwmconfig", "resume", "system-sleep"]
+symptoms = ["fans are loud after waking from sleep", "fan curve stops working after suspend", "fancontrol doesn't work after resume", "fans stuck at full speed after sleep"]
+advice = "Run systemctl restart fancontrol.service after waking. To do it automatically, add an executable script to /usr/lib/systemd/system-sleep/ that runs systemctl restart fancontrol.service when its first argument is post."
+source = "https://wiki.archlinux.org/title/Fan_speed_control#Fancontrol_stops_working_after_suspend–wake_cycles"
+
+[[when]]
+source = "service"
+name = "fancontrol.service"
+state = "enabled"
+
+[[signals]]
+says = "fancontrol runs on this computer"
+weight = 0.3
+source = "service"
+name = "fancontrol.service"
+state = "enabled"
