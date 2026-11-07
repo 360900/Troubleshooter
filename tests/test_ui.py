@@ -13,7 +13,7 @@ from PySide6.QtCore import QEventLoop, QTimer
 from PySide6.QtWidgets import QPushButton
 
 from tests.fakes import CACHY, FakeMachine
-from troubleshooter import history
+from troubleshooter import engine, history
 from troubleshooter.database import load_database
 from troubleshooter.ui import pages
 from troubleshooter.ui.app import create_app
@@ -116,6 +116,18 @@ class UiTest(unittest.TestCase):
         self.assertTrue(any(t.endswith("%") for t in texts), texts)
         self.assertIn("Add kernel parameters that save video memory during sleep", texts)
         self.assertIn("You'll need to restart afterwards.", texts)
+
+    def test_advice_shows_next_to_a_fix_and_instead_of_a_missing_one(self):
+        entry = self.db.entries["games-shader-cache-small"]
+        d = engine.Diagnosis(entry, engine.APPLIES, 60, fix=entry.fixes[0])
+        plan = engine.build_plan(d, self.m.system())
+        self.window.fix.show_diagnosis(d, plan, None, "CachyOS")
+        self.assertIn(entry.advice, self.texts(self.window.fix))
+        self.window.fix.show_diagnosis(d, None, None, "Debian")
+        texts = self.texts(self.window.fix)
+        self.assertIn("What to do", texts)
+        self.assertIn(entry.advice, texts)
+        self.assertNotIn("No fix for your system yet", texts)
 
     def test_source_link_opens_the_page(self):
         self.open_fix("nvidia-sleep")

@@ -386,6 +386,12 @@ class FixPage(Page):
             self.body.addWidget(message_box("object-select", "success", "Nothing to change", plan_error))
             return
         if not plan:
+            if entry.advice:
+                self.section("What to do", f"There's no automatic fix for {os_name}.")
+                box = BoxedList()
+                box.add(Row(entry.advice, icon_name="dialog-warning"))
+                self.body.addWidget(box)
+                return
             scopes = " and ".join(SCOPES[s] for s in entry.systems)
             self.body.addWidget(message_box("dialog-warning", "warning", "No fix for your system yet",
                                             f"Fixes exist for {scopes}. You're on {os_name}."))
@@ -452,6 +458,8 @@ class FixPage(Page):
         box.add(Row("Files are backed up first, and you can undo this from Applied fixes.", icon_name="edit-undo"))
         if plan.reboot:
             box.add(Row("You'll need to restart afterwards.", icon_name="system-reboot"))
+        if d.entry.advice:
+            box.add(Row(d.entry.advice, icon_name="dialog-information"))
         self.body.addWidget(box)
 
         self.body.addSpacing(4)

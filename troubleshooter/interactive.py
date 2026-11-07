@@ -585,6 +585,9 @@ class Session:
             self.say(entry.advice, indent=2)
         elif error:
             box("Nothing to change", error, "success")
+        elif not plan and entry.advice:
+            self.section("What to do", f"There's no automatic fix for {os_name}.")
+            self.say(entry.advice, indent=2)
         elif not plan:
             box("No fix for your system yet", f"Fixes exist for {_scopes(entry.systems)}. You're on {os_name}.",
                 "warning")
@@ -596,6 +599,8 @@ class Session:
             self.say("Files are backed up first, and you can undo this from Applied fixes.", indent=2)
             if plan.reboot:
                 self.say("You'll need to restart afterwards.", indent=2)
+            if entry.advice:
+                self.say(entry.advice, indent=2)
             if not d.recommended:
                 self.write()
                 self.say("Confidence is low. This may not be your problem, so only apply it if the description fits.",

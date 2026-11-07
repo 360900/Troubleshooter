@@ -61,7 +61,7 @@ source = "file"
 path = "/sys/module/nvidia_drm/parameters/modeset"
 regex = '^N'
 
-[[fix]]                                    # or `advice = "..."` if there's no safe fix
+[[fix]]                                    # or `advice = "..."` if there's no safe fix; with a fix, advice is shown as a note, or as what to do where no fix applies
 systems = ["arch-and-based"]               # optional, one [[fix]] per variant
 reboot = true
 steps = [

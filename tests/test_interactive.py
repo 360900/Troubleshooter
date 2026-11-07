@@ -11,7 +11,7 @@ from unittest import mock
 
 from tests.test_ui import GRUB, problem_machine
 from troubleshooter import __main__ as launcher
-from troubleshooter import history, interactive
+from troubleshooter import engine, history, interactive
 from troubleshooter.database import load_database
 
 
@@ -254,6 +254,22 @@ class InteractiveTest(unittest.TestCase):
         self.assertIn("This isn't meant for your system", out)
         self.assertNotIn("a) Apply fix", out)
         self.assertEqual(self.hist.load(), [])
+
+    def test_advice_shows_next_to_a_fix_and_instead_of_a_missing_one(self):
+        entry = self.db.entries["games-shader-cache-small"]
+        d = engine.Diagnosis(entry, engine.APPLIES, 60, fix=entry.fixes[0])
+        self.run_session()
+        plan = engine.build_plan(d, self.m.system())
+        # Wrapped text is compared with line breaks collapsed.
+        self.out = self.session.out = io.StringIO()
+        self.session.show_fix(d, plan, None, False)
+        self.assertIn(entry.advice, " ".join(self.out.getvalue().split()))
+        self.out = self.session.out = io.StringIO()
+        self.session.show_fix(d, None, None, False)
+        text = " ".join(self.out.getvalue().split())
+        self.assertIn("What to do", text)
+        self.assertIn(entry.advice, text)
+        self.assertNotIn("No fix for your system yet", text)
 
     def test_empty_history(self):
         out = self.run_session("h")
