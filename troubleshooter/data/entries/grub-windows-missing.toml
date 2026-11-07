@@ -1,0 +1,57 @@
+id = "grub-windows-missing"
+title = "GRUB: Windows is missing from the boot menu"
+summary = "GRUB only lists other systems when os-prober is installed and allowed to run, which is off by default. Turning it on and rebuilding the menu adds Windows back."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["os-prober", "GRUB_DISABLE_OS_PROBER", "grub-mkconfig", "windows boot manager", "dual boot", "bootmgfw.efi"]
+symptoms = ["windows doesn't show up in grub", "no windows option at startup", "can't boot into windows anymore", "grub only shows linux", "dual boot menu missing windows"]
+source = "https://wiki.archlinux.org/title/GRUB#Detecting_other_operating_systems"
+
+[[when]]
+source = "package"
+names = ["grub"]
+
+[[when]]
+source = "file"
+path = "/etc/default/grub"
+
+# Only when GRUB actually generated a menu, not just installed next to another loader.
+[[when]]
+source = "file"
+path = "/boot/grub/grub.cfg"
+
+[[when]]
+any_of = [
+  { source = "file", path = "/boot/EFI/Microsoft/Boot/bootmgfw.efi" },
+  { source = "file", path = "/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
+  { source = "file", path = "/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
+]
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["os-prober"] },
+  { source = "file", path = "/etc/default/grub", regex = "^GRUB_DISABLE_OS_PROBER=[\"']?false" },
+]
+
+[[signals]]
+says = "os-prober is turned off in /etc/default/grub"
+weight = 0.5
+source = "file"
+path = "/etc/default/grub"
+regex = "^GRUB_DISABLE_OS_PROBER=[\"']?false"
+absent = true
+
+[[signals]]
+says = "os-prober isn't installed"
+weight = 0.4
+source = "package"
+names = ["os-prober"]
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["os-prober", "fuse3"], says = "Install os-prober, which finds other systems for GRUB" },
+  { op = "replace", path = "/etc/default/grub", pattern = '^#?[[:space:]]*GRUB_DISABLE_OS_PROBER=.*', replacement = 'GRUB_DISABLE_OS_PROBER=false', says = "Allow GRUB to look for other systems" },
+  { op = "command", says = "Add the setting if the file doesn't have it yet", run = "grep -q '^GRUB_DISABLE_OS_PROBER=' /etc/default/grub || echo 'GRUB_DISABLE_OS_PROBER=false' >> /etc/default/grub" },
+  { op = "command", says = "Rebuild the GRUB menu", run = "grub-mkconfig -o /boot/grub/grub.cfg", undo = "grub-mkconfig -o /boot/grub/grub.cfg" },
+]

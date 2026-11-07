@@ -1,0 +1,32 @@
+id = "ssd-ncq-errors"
+title = "SATA drive: freezes and command queueing errors"
+summary = "Some SSDs and SATA controllers fail with Native Command Queueing, which shows up as stalls and timeouts in the log. Turning NCQ off stops them at a small cost in disk speed."
+categories = ["boot", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["ncq", "libata.force=noncq", "fpdma queued", "failed command", "ata exception", "sata", "ssd firmware"]
+symptoms = ["system freezes for a few seconds", "disk stops responding", "ata failed command read fpdma queued", "computer hangs when copying files", "ssd freezes"]
+auto_detect = false
+reproduce = "Copy a large folder or do whatever makes the computer stall."
+source = "https://wiki.archlinux.org/title/Solid_state_drive#Resolving_NCQ_errors"
+
+[[when]]
+source = "file"
+path = "/sys/module/libata"
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["libata.force=noncq"]
+
+[[signals]]
+says = "The kernel logged failed queued (NCQ) commands on a SATA drive"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'ata\d+\.\d+: failed command: (READ|WRITE) FPDMA QUEUED'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["libata.force=noncq"], says = "Add a kernel parameter that turns off command queueing for SATA drives" },
+  { op = "initramfs" },
+]

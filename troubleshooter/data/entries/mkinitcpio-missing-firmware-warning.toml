@@ -1,0 +1,16 @@
+id = "mkinitcpio-missing-firmware-warning"
+title = "Updates: \"Possibly missing firmware for module\" warnings"
+summary = "mkinitcpio warns about firmware for drivers it includes in the boot image. When the warnings come from the fallback image or hardware you don't have, they're harmless."
+categories = ["updates", "boot", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["mkinitcpio", "possibly missing firmware", "fallback", "initramfs", "linux-firmware", "mkinitcpio-firmware", "qla2xxx", "aic94xx", "xhci_pci"]
+symptoms = ["warning possibly missing firmware for module", "mkinitcpio warnings during update", "is my update broken firmware warning", "firmware warnings when updating kernel"]
+advice = "If the warnings appear only while building the fallback image, or name hardware you don't own (server RAID or SCSI cards, for example), you can ignore them. If they appear for the default image, install linux-firmware. To silence them, install the matching firmware package (mkinitcpio-firmware in the AUR covers most) or turn off the fallback image."
+source = "https://wiki.archlinux.org/title/Mkinitcpio#Possibly_missing_firmware_for_module_XXXX"
+
+[[signals]]
+says = "The update log has missing firmware warnings from mkinitcpio"
+weight = 0.5
+source = "file"
+path = "/var/log/pacman.log"
+regex = 'WARNING: Possibly missing firmware for module'

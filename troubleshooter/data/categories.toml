@@ -83,3 +83,31 @@ title = "Bluetooth"
 icon = "bluetooth"
 blurb = "Bluetooth that's off or missing."
 keywords = ["bluetooth", "headset", "controller", "pairing"]
+
+[[category]]
+id = "updates"
+title = "Updates and packages"
+icon = "system-software-install"
+blurb = "Updates that fail, keyring and mirror errors, broken packages."
+keywords = ["update", "upgrade", "pacman", "package", "install", "keyring", "mirror", "signature", "aur"]
+
+[[category]]
+id = "boot"
+title = "Startup and disks"
+icon = "drive-harddisk"
+blurb = "Slow or failed startup, boot loaders, disks, time and dual boot."
+keywords = ["boot", "startup", "grub", "disk", "ssd", "drive", "filesystem", "dual boot", "clock", "time"]
+
+[[category]]
+id = "desktop"
+title = "Desktop and apps"
+icon = "applications-system"
+blurb = "Fonts, screen sharing, browsers, Flatpak apps and the desktop itself."
+keywords = ["desktop", "app", "font", "emoji", "browser", "firefox", "chrome", "flatpak", "screen sharing", "gnome", "kde", "plasma"]
+
+[[category]]
+id = "devices"
+title = "Printers, webcams and more"
+icon = "printer"
+blurb = "Printers, scanners, webcams, sensors and firmware updates."
+keywords = ["printer", "printing", "scanner", "webcam", "camera", "sensor", "fan", "firmware update", "usb"]

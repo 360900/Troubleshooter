@@ -1,0 +1,21 @@
+id = "btrfs-no-space"
+title = "Btrfs: disk is full"
+summary = "The Btrfs file system ran out of space and may have switched to read-only. Old snapshots often hold far more space than you'd expect."
+categories = ["boot", "updates"]
+systems = ["any"]
+keywords = ["btrfs", "no space left on device", "enospc", "errno=-28", "balance", "snapshots", "snapper", "timeshift", "read-only"]
+symptoms = ["no space left on device", "disk full but files are small", "file system became read-only", "update fails because disk is full", "can't save files anymore"]
+auto_detect = true
+advice = "Delete old snapshots first (in Snapper, Timeshift or btrfs subvolume delete), then check real usage with sudo btrfs filesystem usage /. If space still looks used up, run sudo btrfs balance start -dusage=10 / to repack half-empty chunks."
+source = "https://wiki.archlinux.org/title/Btrfs#No_space_left_on_device"
+
+[[when]]
+source = "module"
+names = ["btrfs"]
+
+[[signals]]
+says = "Btrfs hit an out-of-space error"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'BTRFS.*(errno=-28|error -28)'

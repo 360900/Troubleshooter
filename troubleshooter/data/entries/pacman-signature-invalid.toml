@@ -1,0 +1,17 @@
+id = "pacman-signature-invalid"
+title = "Updates: package signatures are invalid or untrusted"
+summary = "pacman rejects packages when the keyring is out of date or the system clock is wrong. Updating the keyring package first and fixing the clock solves almost every case."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["archlinux-keyring", "pacman-key", "pgp signature", "signature is invalid", "unknown trust", "marginal trust", "invalid or corrupted package", "keyring"]
+symptoms = ["signature is unknown trust", "invalid or corrupted package (pgp signature)", "update fails with signature error", "pacman says signature is invalid", "can't update after a long time", "key could not be looked up remotely"]
+advice = "Make sure the date and time are correct, then update the keyring before everything else: sudo pacman -Sy --needed archlinux-keyring && sudo pacman -Su (on CachyOS, EndeavourOS or Manjaro, include cachyos-keyring, endeavouros-keyring or manjaro-keyring as well). If one package still fails, delete it from /var/cache/pacman/pkg so it downloads again. As a last resort, reset the keys by removing /etc/pacman.d/gnupg and running sudo pacman-key --init and sudo pacman-key --populate."
+source = "https://wiki.archlinux.org/title/Pacman/Package_signing#Invalid_signature_errors"
+
+[[signals]]
+says = "No time synchronization service is enabled, so the clock may be wrong"
+weight = 0.2
+all_of = [
+  { source = "service", name = "systemd-timesyncd.service", state = "disabled" },
+  { source = "package", names = ["chrony", "ntp", "openntpd", "ntpd-rs"], absent = true },
+]

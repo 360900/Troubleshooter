@@ -1,0 +1,31 @@
+id = "time-sync-off"
+title = "Clock isn't set automatically"
+summary = "No time synchronization service is running, so the clock drifts over time. A wrong clock breaks package signature checks, secure websites and logins to some services."
+categories = ["boot", "updates"]
+systems = ["arch-and-based"]
+keywords = ["systemd-timesyncd", "ntp", "timedatectl set-ntp", "chrony", "time sync", "clock drift", "certificate not yet valid"]
+symptoms = ["clock is wrong", "time is off by a few minutes", "clock keeps drifting", "websites say certificate not valid yet", "pacman signature is invalid", "time doesn't update automatically"]
+source = "https://wiki.archlinux.org/title/System_time#Time_synchronization"
+
+[[when]]
+source = "file"
+path = "/usr/lib/systemd/systemd-timesyncd"
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "systemd-timesyncd.service", state = "enabled" },
+  { source = "service", name = "chronyd.service", state = "enabled" },
+  { source = "service", name = "ntpd.service", state = "enabled" },
+  { source = "service", name = "openntpd.service", state = "enabled" },
+  { source = "service", name = "ntpd-rs.service", state = "enabled" },
+]
+
+[[signals]]
+says = "systemd-timesyncd is disabled and no other time service is enabled"
+weight = 0.6
+source = "service"
+name = "systemd-timesyncd.service"
+state = "disabled"
+
+[[fix]]
+steps = [{ op = "service", names = ["systemd-timesyncd.service"], now = true, says = "Turn on automatic time synchronization (systemd-timesyncd)" }]

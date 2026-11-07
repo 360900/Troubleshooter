@@ -1,0 +1,20 @@
+id = "updates-reboot-after-kernel"
+title = "Updates: new devices don't work until you restart"
+summary = "A kernel update removes the running kernel's modules from disk. Until you restart, anything that needs a module that wasn't already loaded (USB drives, Wi-Fi, file systems) fails."
+categories = ["updates", "drivers", "boot"]
+systems = ["arch-and-based"]
+keywords = ["kernel update", "module not found", "modprobe", "/usr/lib/modules", "kernel-modules-hook", "linux-modules-cleanup", "reboot"]
+symptoms = ["usb drive not recognized after update", "can't mount drive after update", "module not found in directory", "wifi stopped working after kernel update", "devices stopped working until reboot"]
+advice = "Restart the computer after every kernel update. If you often can't restart right away, install kernel-modules-hook and enable linux-modules-cleanup.service, which keeps the old modules around until the next boot."
+reproduce = "Plug in or turn on the device that doesn't work."
+source = "https://wiki.archlinux.org/title/General_troubleshooting#Cannot_use_some_peripherals_after_kernel_upgrade"
+
+[[fixed_when]]
+source = "package"
+names = ["kernel-modules-hook"]
+
+[[signals]]
+says = "A module couldn't be loaded because the running kernel's modules are gone"
+weight = 0.75
+source = "journal"
+regex = 'Module \S+ not found in directory /(usr/)?lib/modules/'

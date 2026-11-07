@@ -1,0 +1,23 @@
+id = "polkit-agent-missing"
+title = "Admin password prompt never appears"
+summary = "Apps ask for administrator rights through a polkit authentication agent. Lightweight window managers don't start one, so those requests fail silently or say no agent was found."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["polkit", "authentication agent", "pkexec", "polkit-gnome", "lxqt-policykit", "mate-polkit", "no authentication agent found", "sway", "i3"]
+symptoms = ["password prompt doesn't show up", "no authentication agent found", "app can't get admin rights", "pkexec doesn't ask for password", "can't mount drive in file manager"]
+advice = "Install a graphical agent such as polkit-gnome, lxqt-policykit or mate-polkit, and start it when you log in, for example with exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 in your sway or i3 config. Full desktops like GNOME, KDE, Xfce and Cinnamon already include one."
+source = "https://wiki.archlinux.org/title/Polkit#Authentication_agents"
+
+[[signals]]
+says = "You're using a window manager that doesn't start a polkit agent by itself"
+weight = 0.3
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(sway|i3|niri|river|bspwm|dwm|qtile|awesome|openbox|labwc|wayfire|herbstluftwm)$'
+
+[[signals]]
+says = "A graphical polkit agent is installed"
+weight = 0.4
+counter = true
+source = "package"
+names = ["polkit-gnome", "lxqt-policykit", "mate-polkit", "polkit-kde-agent", "hyprpolkitagent", "lxsession", "lxsession-gtk3", "pantheon-polkit-agent", "xfce-polkit", "soteria-git"]

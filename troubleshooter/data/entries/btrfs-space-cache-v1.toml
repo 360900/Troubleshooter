@@ -1,0 +1,20 @@
+id = "btrfs-space-cache-v1"
+title = "Btrfs: old space cache format warning"
+summary = "This Btrfs file system still uses the old v1 space cache, which is deprecated and will be removed from the kernel. Converting is a one-time step and keeps your data."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["btrfs", "space_cache=v2", "space cache v1", "free space tree", "fstab", "mount options"]
+symptoms = ["btrfs warning space cache v1 is being deprecated", "btrfs warning at boot", "warning in system log about btrfs"]
+advice = "Add space_cache=v2 to the mount options of this Btrfs file system in /etc/fstab and restart; the kernel converts it on the next mount. You can also convert it by unmounting it and mounting it once with -o space_cache=v2."
+source = "https://wiki.archlinux.org/title/Btrfs#space_cache_v1_is_being_deprecated"
+
+[[when]]
+source = "module"
+names = ["btrfs"]
+
+[[signals]]
+says = "The kernel warned about the deprecated v1 space cache"
+weight = 0.9
+source = "journal"
+kernel = true
+regex = 'BTRFS warning.*space cache v1 is being deprecated'

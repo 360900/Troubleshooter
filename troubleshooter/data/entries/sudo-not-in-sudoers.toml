@@ -1,0 +1,15 @@
+id = "sudo-not-in-sudoers"
+title = "sudo: \"user is not in the sudoers file\""
+summary = "Your account isn't allowed to use sudo. On Arch-based systems, administrators are members of the wheel group, and sudo has to allow that group."
+categories = ["updates", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["sudo", "sudoers", "wheel", "visudo", "usermod", "not in the sudoers file", "administrator"]
+symptoms = ["is not in the sudoers file", "sudo doesn't work", "this incident will be reported", "can't run commands as admin", "asks for root password instead of mine"]
+advice = "Log in as root (or run su -), add your user to the wheel group with usermod -aG wheel yourname, then run EDITOR=nano visudo and make sure the line %wheel ALL=(ALL:ALL) ALL is not commented out. Log out and back in for the change to apply."
+source = "https://wiki.archlinux.org/title/Sudo#Example_entries"
+
+[[signals]]
+says = "sudo refused a user who isn't in sudoers"
+weight = 0.9
+source = "journal"
+regex = 'sudo.*user NOT in sudoers'

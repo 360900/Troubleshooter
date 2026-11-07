@@ -1,0 +1,28 @@
+id = "pacman-mirrorlist-empty"
+title = "Updates: no download mirrors are enabled"
+summary = "The mirror list pacman uses has no active servers, or is missing, so nothing can be downloaded. This often happens after copying mirrorlist.pacnew over it, since every server there is commented out."
+categories = ["updates", "network"]
+systems = ["arch-and-based"]
+keywords = ["mirrorlist", "/etc/pacman.d/mirrorlist", "no servers configured", "reflector", "rate-mirrors", "pacman-mirrors", "mirror"]
+symptoms = ["pacman says no servers configured for repository", "can't download any packages", "mirrorlist could not be read", "updates fail for every package", "pacman can't find mirrors"]
+auto_detect = true
+advice = "Uncomment a few Server lines close to you in /etc/pacman.d/mirrorlist, or generate a fresh list with reflector or rate-mirrors (on Manjaro: sudo pacman-mirrors --fasttrack). Then run sudo pacman -Syyu once."
+source = "https://wiki.archlinux.org/title/Mirrors#Missing_mirrorlist"
+
+[[when]]
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^Include\s*=\s*/etc/pacman\.d/mirrorlist\s*$'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/pacman.d/mirrorlist"
+regex = '^\s*Server\s*='
+
+[[signals]]
+says = "/etc/pacman.d/mirrorlist has no active Server line"
+weight = 0.9
+source = "file"
+path = "/etc/pacman.d/mirrorlist"
+regex = '^\s*Server\s*='
+absent = true

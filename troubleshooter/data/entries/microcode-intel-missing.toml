@@ -1,0 +1,38 @@
+id = "microcode-intel-missing"
+title = "Intel CPU: microcode updates aren't installed"
+summary = "Intel ships stability and security fixes for the processor as microcode, loaded at startup. Without them you can get random crashes or freezes that are hard to trace."
+categories = ["boot", "crashes", "intel"]
+systems = ["arch-and-based"]
+keywords = ["intel-ucode", "microcode", "ucode", "cpu bug", "early microcode", "initramfs"]
+symptoms = ["random freezes", "computer crashes for no reason", "system hangs randomly", "is cpu microcode installed", "random reboots"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Microcode#Installation"
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = '^vendor_id\s*:\s*GenuineIntel'
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = '^flags\s*:.*\bhypervisor\b'
+absent = true
+
+[[fixed_when]]
+source = "package"
+names = ["intel-ucode"]
+
+[[signals]]
+says = "This is an Intel CPU, but intel-ucode isn't installed"
+weight = 0.8
+source = "package"
+names = ["intel-ucode"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install", packages = ["intel-ucode"], says = "Install Intel's CPU microcode updates" },
+  { op = "initramfs" },
+]

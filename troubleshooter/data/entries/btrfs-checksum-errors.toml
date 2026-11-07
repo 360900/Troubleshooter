@@ -1,0 +1,22 @@
+id = "btrfs-checksum-errors"
+title = "Btrfs: data failed its checksum"
+summary = "Btrfs found data or metadata that doesn't match its checksum. That points to a failing drive, a bad cable or faulty RAM, and some files may already be damaged."
+categories = ["boot", "crashes"]
+systems = ["any"]
+keywords = ["btrfs", "csum failed", "checksum error", "corrupt", "btrfs scrub", "btrfs device stats", "smart", "memtest"]
+symptoms = ["btrfs csum failed", "files are corrupted", "input/output error when copying files", "btrfs corruption errors", "can't read some files"]
+auto_detect = true
+advice = "Back up anything important now. Then run sudo btrfs scrub start / and check the result with sudo btrfs scrub status / to see which files are affected. Check the drive's health with smartctl or GNOME Disks, and test your RAM with Memtest86+, since bad memory causes these errors too."
+reproduce = "Open or copy the files that give errors."
+source = "https://wiki.archlinux.org/title/Btrfs#Scrub"
+
+[[when]]
+source = "module"
+names = ["btrfs"]
+
+[[signals]]
+says = "The kernel logged Btrfs checksum or corruption errors"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'BTRFS (warning|error).*(csum failed|checksum error)|BTRFS.*errs: wr \d+, rd \d+, flush \d+, corrupt [1-9]'

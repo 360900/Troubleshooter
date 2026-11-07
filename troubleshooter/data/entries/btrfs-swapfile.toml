@@ -1,0 +1,21 @@
+id = "btrfs-swapfile"
+title = "Btrfs: swap file won't turn on or blocks snapshots"
+summary = "Swap files on Btrfs must be created in a special way and kept out of snapshots. One made like on other file systems is refused, and an active one stops snapshots of its subvolume."
+categories = ["boot", "crashes"]
+systems = ["any"]
+keywords = ["btrfs", "swapfile", "mkswapfile", "nocow", "copy-on-write", "swapon", "snapper", "timeshift", "subvolume"]
+symptoms = ["swapon failed invalid argument", "swap file doesn't work on btrfs", "snapshots fail with active swapfile", "timeshift can't create snapshot", "no swap after creating a swap file"]
+auto_detect = true
+advice = "Create a separate subvolume for swap (for example sudo btrfs subvolume create /swap), then make the file with sudo btrfs filesystem mkswapfile --size 4g --uuid clear /swap/swapfile and point /etc/fstab at it. Remove the old swap file once the new one works."
+source = "https://wiki.archlinux.org/title/Btrfs#Swap_file"
+
+[[when]]
+source = "module"
+names = ["btrfs"]
+
+[[signals]]
+says = "Btrfs refused a swap file or a snapshot because of a swap file"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'BTRFS warning.*(swapfile must|cannot activate swapfile|cannot snapshot subvolume with active swapfile)'

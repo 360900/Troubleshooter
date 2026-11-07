@@ -1,0 +1,16 @@
+id = "updates-missing-shared-library"
+title = "Apps: \"error while loading shared libraries\""
+summary = "A program can't find a library it was built against. This usually follows a partial update, or an AUR package that needs rebuilding after its libraries were updated."
+categories = ["updates", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["error while loading shared libraries", "cannot open shared object file", ".so", "soname", "partial upgrade", "pacman -F", "aur rebuild"]
+symptoms = ["app won't start after update", "cannot open shared object file", "error while loading shared libraries", "program says library not found", "aur app broke after update"]
+advice = "Update the whole system with sudo pacman -Syu, since installing or updating single packages without a full update breaks libraries. If the program comes from the AUR, rebuild and reinstall it. To see which package provides the missing file, run pacman -F followed by the library name."
+reproduce = "Start the program that fails."
+source = "https://wiki.archlinux.org/title/General_troubleshooting#Message:_%22error_while_loading_shared_libraries%22"
+
+[[signals]]
+says = "A program failed to start because a shared library is missing"
+weight = 0.8
+source = "journal"
+regex = 'error while loading shared libraries: \S+: cannot open shared object file'

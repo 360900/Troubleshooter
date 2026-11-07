@@ -1,0 +1,9 @@
+id = "pacman-conflicting-files"
+title = "Updates: \"exists in filesystem\" conflict"
+summary = "pacman won't overwrite a file that isn't owned by the package it's installing, so the update stops. Usually the file was left by a manual install or a broken package record."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["conflicting files", "exists in filesystem", "failed to commit transaction", "pacman -Qo", "--overwrite", "make install"]
+symptoms = ["update fails with exists in filesystem", "failed to commit transaction (conflicting files)", "pacman says file already exists", "can't install package because of conflicting files"]
+advice = "For each file pacman lists, run pacman -Qo /path/to/file. If another package owns it, report a bug to the distribution. If nothing owns it, rename the file (for example add .old), run the update again, and delete the renamed file once everything works. Avoid --overwrite unless you know why the file is there."
+source = "https://wiki.archlinux.org/title/Pacman#%22Failed_to_commit_transaction_(conflicting_files)%22_error"

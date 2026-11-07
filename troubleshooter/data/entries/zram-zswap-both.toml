@@ -1,0 +1,34 @@
+id = "zram-zswap-both"
+title = "Memory: zswap is getting in the way of zram"
+summary = "Swap on zram is set up, but zswap is still on. zswap grabs pages before they reach zram, so zram is barely used and memory compression works worse."
+categories = ["crashes"]
+systems = ["arch-and-based"]
+keywords = ["zram", "zswap", "zswap.enabled=0", "zram-generator", "compressed swap", "swap"]
+symptoms = ["zram isn't being used", "zramctl shows almost no data", "computer slows down when memory is full", "swap on zram doesn't help"]
+source = "https://wiki.archlinux.org/title/Zram#Usage_as_swap"
+
+[[when]]
+source = "file"
+path = "/proc/swaps"
+regex = '^/dev/zram'
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/sys/module/zswap/parameters/enabled", regex = '^N' },
+  { source = "kernel_param", params = ["zswap.enabled=0"] },
+]
+
+[[signals]]
+says = "zswap is enabled while swap is on zram"
+weight = 0.7
+source = "file"
+path = "/sys/module/zswap/parameters/enabled"
+regex = '^Y'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["zswap.enabled=0"], says = "Add a kernel parameter that turns zswap off" },
+  { op = "command", says = "Turn zswap off right away", run = "echo N > /sys/module/zswap/parameters/enabled", undo = "echo Y > /sys/module/zswap/parameters/enabled" },
+  { op = "initramfs" },
+]

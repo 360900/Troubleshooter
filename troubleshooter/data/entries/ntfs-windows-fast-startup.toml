@@ -1,0 +1,23 @@
+id = "ntfs-windows-fast-startup"
+title = "Windows drive won't mount or is read-only"
+summary = "Windows Fast Startup and hibernation don't really shut Windows down, so its drives are left marked as in use. Linux refuses to write to them to avoid corrupting your files."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["ntfs", "ntfs3", "ntfs-3g", "fast startup", "hiberboot", "hibernated", "volume is dirty", "read-only", "powercfg", "dual boot"]
+symptoms = ["can't mount windows drive", "windows partition is read only", "ntfs drive won't open", "windows is hibernated refused to mount", "can't write to my ntfs disk", "windows not found in grub"]
+auto_detect = true
+advice = "Start Windows, turn off Fast Startup (Control Panel, Power Options, Choose what the power buttons do) or run powercfg /H off as administrator, then shut Windows down fully. If the drive is still marked dirty, run chkdsk on it from Windows. Don't force a read-write mount while Windows is hibernated, or you can lose data."
+reproduce = "Try to open the Windows drive in your file manager."
+source = "https://wiki.archlinux.org/title/Dual_boot_with_Windows#Fast_Startup_and_hibernation"
+
+[[when]]
+any_of = [
+  { source = "module", names = ["ntfs3"] },
+  { source = "package", names = ["ntfs-3g"] },
+]
+
+[[signals]]
+says = "Linux refused to mount an NTFS drive that Windows left in use"
+weight = 0.85
+source = "journal"
+regex = 'ntfs3.*volume is dirty|Windows is hibernated, refused to mount|Metadata kept in Windows cache, refused to mount'

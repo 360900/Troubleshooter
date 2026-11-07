@@ -1,0 +1,20 @@
+id = "fstab-missing-device"
+title = "Startup: waiting for a drive that isn't there"
+summary = "/etc/fstab lists a drive or partition that wasn't found, so startup waits 90 seconds for it, or stops in emergency mode. This happens when a disk is unplugged, replaced or reformatted."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["fstab", "a start job is running", "timed out waiting for device", "nofail", "x-systemd.device-timeout", "uuid", "emergency mode", "dependency failed"]
+symptoms = ["boot takes 90 seconds", "a start job is running for dev-disk-by-uuid", "startup hangs waiting for a disk", "booted into emergency mode", "slow boot after removing a drive"]
+auto_detect = true
+advice = "Find the line in /etc/fstab whose UUID or label matches the device in the log. If that drive is gone for good, delete or comment out the line. If it's an external drive that isn't always connected, add nofail,x-systemd.device-timeout=5s to its options."
+source = "https://wiki.archlinux.org/title/Fstab#External_devices"
+
+[[when]]
+source = "file"
+path = "/etc/fstab"
+
+[[signals]]
+says = "Startup timed out waiting for a device"
+weight = 0.8
+source = "journal"
+regex = 'Timed out waiting for device .*(by-uuid|by-label|by-partuuid|by-partlabel|by-id|/dev/sd|/dev/nvme)|dev-disk-by\S*\.device/start timed out'

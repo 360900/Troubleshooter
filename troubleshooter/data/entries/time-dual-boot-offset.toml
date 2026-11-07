@@ -1,0 +1,32 @@
+id = "time-dual-boot-offset"
+title = "Dual boot: clock is off by hours after using Windows"
+summary = "Windows stores local time in the hardware clock while Linux stores UTC, so each one shifts the time for the other. Telling Windows to use UTC fixes it for good."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["realtimeisuniversal", "utc", "localtime", "hardware clock", "rtc", "timedatectl set-local-rtc", "adjtime", "dual boot"]
+symptoms = ["time is wrong after booting windows", "clock is off by one hour", "clock is off by several hours", "windows shows the wrong time after linux", "dual boot time keeps changing"]
+advice = "In Windows, open a Command Prompt as administrator and run: reg add \"HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\TimeZoneInformation\" /v RealTimeIsUniversal /d 1 /t REG_DWORD /f. Then restart and let each system sync the time once. Switching Linux to local time instead (timedatectl set-local-rtc 1) also works but causes problems around daylight saving changes."
+source = "https://wiki.archlinux.org/title/System_time#UTC_in_Microsoft_Windows"
+
+[[when]]
+any_of = [
+  { source = "file", path = "/boot/EFI/Microsoft/Boot/bootmgfw.efi" },
+  { source = "file", path = "/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
+  { source = "file", path = "/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
+]
+
+[[signals]]
+says = "Windows is installed next to Linux, which keeps the hardware clock in UTC"
+weight = 0.3
+any_of = [
+  { source = "file", path = "/etc/adjtime", regex = '^UTC$' },
+  { source = "file", path = "/etc/adjtime", absent = true },
+]
+
+[[signals]]
+says = "Linux is already set to keep the hardware clock in local time"
+weight = 0.8
+counter = true
+source = "file"
+path = "/etc/adjtime"
+regex = '^LOCAL$'

@@ -1,0 +1,38 @@
+id = "microcode-amd-missing"
+title = "AMD CPU: microcode updates aren't installed"
+summary = "AMD ships stability and security fixes for the processor as microcode, loaded at startup. Without them you can get random crashes or freezes that are hard to trace."
+categories = ["boot", "crashes", "amd"]
+systems = ["arch-and-based"]
+keywords = ["amd-ucode", "microcode", "ucode", "cpu bug", "early microcode", "initramfs", "ryzen"]
+symptoms = ["random freezes", "computer crashes for no reason", "system hangs randomly", "is cpu microcode installed", "random reboots"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Microcode#Installation"
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = '^vendor_id\s*:\s*AuthenticAMD'
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = '^flags\s*:.*\bhypervisor\b'
+absent = true
+
+[[fixed_when]]
+source = "package"
+names = ["amd-ucode"]
+
+[[signals]]
+says = "This is an AMD CPU, but amd-ucode isn't installed"
+weight = 0.8
+source = "package"
+names = ["amd-ucode"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install", packages = ["amd-ucode"], says = "Install AMD's CPU microcode updates" },
+  { op = "initramfs" },
+]

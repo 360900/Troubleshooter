@@ -1,0 +1,30 @@
+id = "memory-freeze-earlyoom"
+title = "Memory: desktop freezes for minutes when RAM runs out"
+summary = "When memory fills up, Linux can thrash for a long time before its own out-of-memory killer acts. earlyoom closes the biggest app early so the desktop stays usable, at the cost of losing that app's unsaved work."
+categories = ["crashes"]
+systems = ["arch-and-based"]
+keywords = ["earlyoom", "oom", "out of memory", "thrashing", "systemd-oomd", "nohang", "low memory", "freeze"]
+symptoms = ["computer freezes when memory is full", "system becomes unresponsive with many tabs open", "mouse barely moves when ram is full", "have to hard reset when out of memory", "whole system hangs for minutes"]
+reproduce = "Do whatever usually fills up memory until the system slows down."
+source = "https://wiki.archlinux.org/title/Improving_performance#Improving_system_responsiveness_under_low-memory_conditions"
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "earlyoom.service", state = "enabled" },
+  { source = "service", name = "nohang-desktop.service", state = "enabled" },
+  { source = "service", name = "nohang.service", state = "enabled" },
+  { source = "service", name = "systemd-oomd.service", state = "enabled" },
+]
+
+[[signals]]
+says = "The kernel had to kill processes because memory ran out"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'Out of memory: Killed process|oom-kill:'
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["earlyoom"] },
+  { op = "service", names = ["earlyoom.service"], now = true, says = "Start earlyoom now and at every startup" },
+]

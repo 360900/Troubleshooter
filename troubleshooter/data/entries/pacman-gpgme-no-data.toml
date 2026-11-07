@@ -1,0 +1,9 @@
+id = "pacman-gpgme-no-data"
+title = "Updates: \"GPGME error: No data\""
+summary = "The downloaded package lists are broken, usually because a Wi-Fi login page or a proxy answered instead of the mirror. pacman can't check them and stops."
+categories = ["updates", "network"]
+systems = ["arch-and-based"]
+keywords = ["gpgme error", "no data", "invalid or corrupted database", "failed to synchronize all databases", "captive portal", "/var/lib/pacman/sync"]
+symptoms = ["gpgme error no data", "failed to synchronize all databases", "invalid or corrupted database (pgp signature)", "update fails on hotel wifi", "pacman fails on public wifi"]
+advice = "If you're on a network with a login page (hotel, cafe, campus), sign in first or switch networks. Then delete the broken lists with sudo rm -r /var/lib/pacman/sync and run sudo pacman -Syu. If it keeps happening on a normal network, open your first mirror's address in a browser and comment it out in /etc/pacman.d/mirrorlist if it returns an error."
+source = "https://wiki.archlinux.org/title/Pacman#error:_GPGME_error:_No_data"

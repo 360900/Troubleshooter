@@ -1,0 +1,9 @@
+id = "pacman-target-not-found"
+title = "Updates: package not found or can't be downloaded"
+summary = "pacman can't find a package, or the download fails, when the package lists are out of date, a mirror is broken, or the package lives in a repository that isn't enabled."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["target not found", "not found in sync db", "failed retrieving file", "404", "mirror", "pacman -Syu", "aur"]
+symptoms = ["pacman says target not found", "package not found", "failed retrieving file", "error 404 when installing", "can't download packages", "install fails with not found in sync db"]
+advice = "Check the exact package name first: it may only exist in the AUR, or in a repository like multilib that isn't enabled. Then refresh and update everything with sudo pacman -Syu, since old package lists point to files mirrors have deleted. If downloads still fail, switch to another up-to-date mirror in /etc/pacman.d/mirrorlist and run sudo pacman -Syyu once."
+source = "https://wiki.archlinux.org/title/Pacman#Packages_cannot_be_retrieved_on_installation"

@@ -1,0 +1,18 @@
+id = "pacman-pacnew-files"
+title = "Updates: new config files are waiting to be merged"
+summary = "When you've changed a config file, updates save the new version next to it as .pacnew instead of replacing it. Left alone, old settings can make programs misbehave or stop working."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["pacnew", "pacsave", "pacdiff", "pacman-contrib", "config file", "mirrorlist.pacnew", "pacman.conf.pacnew"]
+symptoms = ["warning installed as pacnew", "what do I do with pacnew files", "program broke after update because of old config", "pacman.conf.pacnew", "mirrorlist.pacnew"]
+advice = "Install pacman-contrib and run sudo DIFFPROG=meld pacdiff (or another diff tool) to compare each .pacnew with your file and merge the changes. Don't just copy a .pacnew over your file: mirrorlist.pacnew, for example, has every mirror commented out."
+source = "https://wiki.archlinux.org/title/Pacman/Pacnew_and_Pacsave#pacdiff"
+
+[[signals]]
+says = "There are unmerged .pacnew files in /etc"
+weight = 0.4
+any_of = [
+  { source = "file", path = "/etc/*.pacnew" },
+  { source = "file", path = "/etc/*/*.pacnew" },
+  { source = "file", path = "/etc/*/*/*.pacnew" },
+]

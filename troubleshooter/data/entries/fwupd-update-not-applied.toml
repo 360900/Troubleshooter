@@ -1,0 +1,13 @@
+id = "fwupd-update-not-applied"
+title = "Firmware: BIOS update doesn't install after restart"
+summary = "fwupd staged a firmware update and asked for a restart, but the computer booted normally and nothing changed. The firmware has to be allowed to boot the updater."
+categories = ["devices", "boot"]
+systems = ["any"]
+keywords = ["fwupd", "fwupdmgr", "bios update", "uefi capsule", "firmware update", "lvfs", "boot order"]
+symptoms = ["bios update doesn't apply", "firmware update did nothing after reboot", "fwupdmgr update says reboot but nothing happens", "firmware update keeps showing up", "gnome software firmware update fails"]
+advice = "In the BIOS or UEFI settings, allow the operating system to change the boot order, then try again. If several updates are pending, install them one at a time with fwupdmgr update followed by the update's ID from fwupdmgr get-updates. If the screen goes black during the update, wait: don't turn the computer off."
+source = "https://wiki.archlinux.org/title/Fwupd#No_error_but_no_upgrade_on_reboot"
+
+[[when]]
+source = "package"
+names = ["fwupd"]

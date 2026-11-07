@@ -1,0 +1,48 @@
+id = "grub-menu-hidden"
+title = "GRUB: boot menu doesn't appear"
+summary = "GRUB is set to skip or hide its menu, so you can't pick another system, an older kernel or recovery options at startup. Showing it for 5 seconds adds that much to boot time."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["GRUB_TIMEOUT", "GRUB_TIMEOUT_STYLE", "hidden menu", "grub-mkconfig", "boot menu", "timeout"]
+symptoms = ["grub menu doesn't show", "no boot menu at startup", "can't choose another kernel", "computer boots straight into linux", "can't get to the grub menu"]
+source = "https://wiki.archlinux.org/title/GRUB#GRUB_is_installed_but_the_menu_is_not_shown_at_boot"
+
+[[when]]
+source = "package"
+names = ["grub"]
+
+[[when]]
+source = "file"
+path = "/etc/default/grub"
+
+# Only when GRUB actually generated a menu, not just installed next to another loader.
+[[when]]
+source = "file"
+path = "/boot/grub/grub.cfg"
+
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/etc/default/grub", regex = "^GRUB_TIMEOUT=[\"']?([1-9]|-1)" },
+  { source = "file", path = "/etc/default/grub", regex = "^GRUB_TIMEOUT_STYLE=[\"']?(hidden|countdown)", absent = true },
+]
+
+[[signals]]
+says = "GRUB_TIMEOUT is 0, so the menu is skipped"
+weight = 0.6
+source = "file"
+path = "/etc/default/grub"
+regex = "^GRUB_TIMEOUT=[\"']?0[\"']?\\s*$"
+
+[[signals]]
+says = "GRUB_TIMEOUT_STYLE hides the menu"
+weight = 0.6
+source = "file"
+path = "/etc/default/grub"
+regex = "^GRUB_TIMEOUT_STYLE=[\"']?(hidden|countdown)"
+
+[[fix]]
+steps = [
+  { op = "replace", path = "/etc/default/grub", pattern = "^GRUB_TIMEOUT=[\"']?0[\"']?[[:space:]]*$", replacement = "GRUB_TIMEOUT=5", says = "Show the menu for 5 seconds" },
+  { op = "replace", path = "/etc/default/grub", pattern = "^GRUB_TIMEOUT_STYLE=.*", replacement = "GRUB_TIMEOUT_STYLE=menu", says = "Stop hiding the menu" },
+  { op = "command", says = "Rebuild the GRUB menu", run = "grub-mkconfig -o /boot/grub/grub.cfg", undo = "grub-mkconfig -o /boot/grub/grub.cfg" },
+]

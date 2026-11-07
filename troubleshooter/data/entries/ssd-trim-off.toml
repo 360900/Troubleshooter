@@ -1,0 +1,41 @@
+id = "ssd-trim-off"
+title = "SSD: weekly TRIM is turned off"
+summary = "SSDs stay fast when the system tells them regularly which blocks are free (TRIM). The weekly TRIM timer isn't enabled and the root file system doesn't trim on its own."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["fstrim", "fstrim.timer", "trim", "discard", "ssd", "nvme", "write speed"]
+symptoms = ["ssd is getting slower", "disk writes are slow", "nvme slow over time", "is trim enabled", "ssd performance dropped"]
+source = "https://wiki.archlinux.org/title/Solid_state_drive#Periodic_TRIM"
+
+[[when]]
+any_of = [
+  { source = "file", path = "/sys/block/nvme*/queue/rotational", regex = '^0$' },
+  { source = "file", path = "/sys/block/sd*/queue/rotational", regex = '^0$' },
+]
+
+[[when]]
+source = "file"
+path = "/usr/lib/systemd/system/fstrim.timer"
+
+[[fixed_when]]
+source = "service"
+name = "fstrim.timer"
+state = "enabled"
+
+[[signals]]
+says = "fstrim.timer is disabled"
+weight = 0.5
+source = "service"
+name = "fstrim.timer"
+state = "disabled"
+
+[[signals]]
+says = "The root file system already trims continuously (discard)"
+weight = 0.7
+counter = true
+source = "file"
+path = "/proc/mounts"
+regex = '^\S+ / \S+ \S*\bdiscard\b'
+
+[[fix]]
+steps = [{ op = "service", names = ["fstrim.timer"], now = true, says = "Turn on weekly TRIM for SSDs (fstrim.timer)" }]

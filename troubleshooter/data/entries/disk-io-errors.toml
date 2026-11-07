@@ -1,0 +1,17 @@
+id = "disk-io-errors"
+title = "Disk: read or write errors"
+summary = "The kernel couldn't read from or write to a drive. That usually means the drive is failing or its cable or port is loose, and data on it is at risk."
+categories = ["boot", "crashes"]
+systems = ["any"]
+keywords = ["i/o error", "blk_update_request", "medium error", "unc", "smart", "smartctl", "bad sectors", "failing drive"]
+symptoms = ["input/output error", "files won't copy", "drive makes clicking noises", "computer freezes when reading files", "usb drive keeps failing", "disk errors in the log"]
+advice = "Back up important data from that drive right away. Check its health with sudo smartctl -a /dev/sdX (from smartmontools) or the SMART view in GNOME Disks. Reseat or replace the cable, try another port, and replace the drive if SMART shows reallocated or pending sectors. Errors on a USB stick or SD card usually mean the card itself is worn out."
+reproduce = "Open or copy files from the drive that gives trouble."
+source = "https://wiki.archlinux.org/title/General_troubleshooting#Debugging_hardware"
+
+[[signals]]
+says = "The kernel logged I/O errors on a drive"
+weight = 0.75
+source = "journal"
+kernel = true
+regex = 'I/O error, dev (sd[a-z]+|nvme\d+n\d+|mmcblk\d+)|critical medium error|ata\d+\.\d+: error: \{ UNC'
