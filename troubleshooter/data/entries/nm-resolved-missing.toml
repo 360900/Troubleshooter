@@ -17,9 +17,10 @@ name = "systemd-resolved.service"
 state = "active"
 
 [[fixed_when]]
-source = "file"
-path = "/etc/NetworkManager/conf.d/*.conf"
-regex = '^\s*systemd-resolved\s*=\s*false'
+any_of = [
+  { source = "file", path = "/etc/NetworkManager/NetworkManager.conf", regex = '^\s*systemd-resolved\s*=\s*false' },
+  { source = "file", path = "/etc/NetworkManager/conf.d/*.conf", regex = '^\s*systemd-resolved\s*=\s*false' },
+]
 
 [[signals]]
 says = "D-Bus failed to start systemd-resolved for NetworkManager"
