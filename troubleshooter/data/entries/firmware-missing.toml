@@ -1,9 +1,10 @@
 id = "firmware-missing"
 title = "A device is missing its firmware"
-summary = "The kernel tried to load firmware for a device and couldn't find it, so that device may not work properly."
+summary = "The kernel tried to load firmware for a device and couldn't find it, so that device may not work properly. Some of these messages are harmless: drivers often try several file names and only need one."
 categories = ["drivers", "network", "sound", "bluetooth"]
 systems = ["arch-and-based", "fedora-and-based"]
 keywords = ["linux-firmware", "firmware", "direct firmware load", "failed to load firmware"]
+advice = "The log line names the missing file. On Arch-based systems, find the package that has it with sudo pacman -Fy once, then pacman -F followed by the file name (for example pacman -F iwlwifi-ty-a0-gf-a0-89.ucode), and install that package. Many firmware files are in split packages such as linux-firmware-marvell or linux-firmware-qcom. If no package has it, the device may need a newer linux-firmware, or the message is a harmless probe for a file the driver doesn't need."
 symptoms = ["device doesn't work", "wifi not detected", "bluetooth adapter is missing", "no sound after update"]
 
 [[signals]]
@@ -12,13 +13,3 @@ weight = 0.7
 source = "journal"
 kernel = true
 regex = 'Direct firmware load for .* failed|firmware: failed to load|failed to load firmware'
-
-[[fix]]
-systems = ["arch-and-based"]
-reboot = true
-steps = [{ op = "install", packages = ["linux-firmware"] }]
-
-[[fix]]
-systems = ["fedora-and-based"]
-reboot = true
-steps = [{ op = "install", packages = ["linux-firmware"] }]

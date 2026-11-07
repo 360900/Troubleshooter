@@ -1,9 +1,9 @@
 id = "power-tlp-ppd-conflict"
 title = "Power: TLP and power-profiles-daemon fight each other"
-summary = "TLP and power-profiles-daemon both manage power settings and can't run together. Your desktop starts power-profiles-daemon whenever its power applet asks, and while it runs it takes the CPU energy policy, turbo boost and platform profile over from TLP. Masking power-profiles-daemon keeps TLP in charge, but the desktop's power mode switch stops working."
+summary = "TLP and power-profiles-daemon both manage power settings and can't run together. Your desktop starts power-profiles-daemon whenever its power applet asks, and while it runs it takes the CPU energy policy, turbo boost and platform profile over from TLP. Replacing it with tlp-pd, TLP's own version of the same service, keeps TLP in charge and keeps the desktop's power mode switch working."
 categories = ["sleep"]
 systems = ["arch-and-based"]
-keywords = ["tlp", "power-profiles-daemon", "ppd", "powerprofilesctl", "mask", "conflict", "battery life"]
+keywords = ["tlp", "power-profiles-daemon", "ppd", "tlp-pd", "tlpctl", "powerprofilesctl", "mask", "conflict", "battery life"]
 symptoms = ["tlp settings don't apply", "battery life got worse", "tlp stops running by itself", "power profiles and tlp conflict", "laptop runs hot with tlp"]
 auto_detect = true
 source = "https://wiki.archlinux.org/title/CPU_frequency_scaling#power-profiles-daemon"
@@ -16,10 +16,12 @@ names = ["tlp"]
 source = "package"
 names = ["power-profiles-daemon"]
 
+# Masked is what older versions of this fix did.
 [[fixed_when]]
-source = "service"
-name = "power-profiles-daemon.service"
-state = "masked"
+any_of = [
+  { source = "package", names = ["tlp-pd"] },
+  { source = "service", name = "power-profiles-daemon.service", state = "masked" },
+]
 
 # TLP only leaves the CPU energy policy, turbo boost and platform profile alone while
 # power-profiles-daemon runs (tlp func.d/10-tlp-func-cpu). Unmasked, D-Bus starts it as soon
@@ -40,6 +42,12 @@ all_of = [
   { source = "service", name = "power-profiles-daemon.service", state = "masked", absent = true },
 ]
 
+# tlp-pd conflicts with power-profiles-daemon and takes over its D-Bus names, so the running
+# daemon has to stop first. Only powerdevil and cachyos-settings list it, as optional.
 [[fix]]
-reboot = true
-steps = [{ op = "service", action = "mask", names = ["power-profiles-daemon.service"], says = "Mask power-profiles-daemon so it can't start and override TLP" }]
+steps = [
+  { op = "command", says = "Stop power-profiles-daemon", run = "systemctl stop power-profiles-daemon.service" },
+  { op = "remove", packages = ["power-profiles-daemon"], force = true, says = "Remove power-profiles-daemon" },
+  { op = "install", packages = ["tlp-pd"], says = "Install tlp-pd, which gives the desktop's power mode switch to TLP" },
+  { op = "service", names = ["tlp-pd.service"], now = true, says = "Start tlp-pd" },
+]

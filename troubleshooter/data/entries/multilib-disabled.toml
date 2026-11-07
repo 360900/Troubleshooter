@@ -26,5 +26,6 @@ regex = '^#\s*\[multilib\]'
 [[fix]]
 steps = [
   { op = "replace", path = "/etc/pacman.conf", address = '/^#[[:space:]]*\[multilib\]/,+1 ', pattern = '^#[[:space:]]*', replacement = '', says = "Turn on the multilib repository in pacman.conf" },
-  { op = "command", says = "Refresh the package lists", run = "pacman -Sy --noconfirm" },
+  # Refreshing without upgrading (-Sy) leaves a partial upgrade, which Arch doesn't support.
+  { op = "command", says = "Download the package lists, multilib's included, and update the system", run = "pacman -Syu --noconfirm" },
 ]
