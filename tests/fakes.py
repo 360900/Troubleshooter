@@ -89,7 +89,7 @@ class FakeMachine:
         return None
 
     def system(self):
-        system = System(root=self.root, home=self.home, env={}, commands=self._commands)
+        system = System(root=self.root, home=self.home, env={}, commands=self._commands, user="tester")
         system.script_path = f"{self.stubs}:/usr/bin:/bin"
         return system
 

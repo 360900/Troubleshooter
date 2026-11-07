@@ -1,8 +1,11 @@
 """Evidence sources. A database entry names a source and how to match it."""
 from __future__ import annotations
 
+import os
 import re
+import time
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from . import boot
 from .system import System
@@ -80,11 +83,33 @@ def _journal(system: System, spec: dict, window: bool = False) -> list[str] | No
     return result.out.splitlines() if result.ok else None
 
 
+_STAMP = re.compile(r"^\[(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d{4})\]")
+
+
+def _recent(lines: list[str], days: float) -> list[str]:
+    """Lines stamped like pacman.log's [2026-11-07T23:01:02+0300] within the last days.
+    Unstamped lines are dropped, since their age is unknown."""
+    oldest = time.time() - days * 86400
+    out = []
+    for line in lines:
+        stamp = _STAMP.match(line)
+        try:
+            if stamp and datetime.strptime(stamp.group(1), "%Y-%m-%dT%H:%M:%S%z").timestamp() >= oldest:
+                out.append(line)
+        except ValueError:
+            continue
+    return out
+
+
 def _file(system: System, spec: dict) -> list[str] | None:
     """Lines of the files, or just their names when there is nothing to match against."""
     paths = system.glob(spec["path"])
     if not paths:
-        return []
+        # Nothing found under a root-only directory says nothing about what's there.
+        return None if system.hidden(spec["path"]) else []
+    if spec.get("broken_link"):
+        return [f"{p} points to {os.readlink(p)}, which doesn't exist" for p in paths
+                if p.is_symlink() and not p.exists()]
     if "regex" not in spec and "contains" not in spec:
         return [str(p) for p in paths]
     lines, readable = [], False
@@ -93,7 +118,9 @@ def _file(system: System, spec: dict) -> list[str] | None:
         if text is not None:
             readable = True
             lines += text.splitlines()[-20000:]
-    return lines if readable else None
+    if not readable:
+        return None
+    return _recent(lines, spec["max_age_days"]) if "max_age_days" in spec else lines
 
 
 def _command(system: System, spec: dict) -> list[str] | None:
@@ -149,7 +176,7 @@ SOURCE_KEYS = {
     "pci": {"vendor", "class", "devices", "driver"},
     "usb": {"vendor", "devices"},
     "journal": {"kernel", "unit", "identifier", "priority", "boot"},
-    "file": {"path"},
+    "file": {"path", "broken_link", "max_age_days"},
     "command": {"argv", "exit"},
     "service": {"name", "state"},
     "kernel_param": {"params"},
@@ -164,9 +191,10 @@ SOURCE_KEYS = {
 MATCH_KEYS = {"regex", "contains", "absent"}
 
 
-def _filter(lines: list[str], spec: dict) -> list[str]:
+def _filter(lines: list[str], spec: dict, system: System) -> list[str]:
     if "regex" in spec:
-        pattern = re.compile(spec["regex"], re.IGNORECASE)
+        # {user} stands for the name of the user running the check.
+        pattern = re.compile(spec["regex"].replace("{user}", re.escape(system.user)), re.IGNORECASE)
         return [line for line in lines if pattern.search(line)]
     if "contains" in spec:
         needle = spec["contains"].lower()
@@ -201,7 +229,7 @@ def probe(system: System, spec: dict) -> Evidence:
         lines = None
     if lines is None:
         return Evidence(False, known=False)
-    hits = _filter(lines, spec)
+    hits = _filter(lines, spec, system)
     if spec.get("absent"):
         return Evidence(not hits, [])
     return Evidence(bool(hits), _excerpts(hits))
@@ -214,5 +242,5 @@ def probe_window(system: System, spec: dict) -> Evidence:
     lines = _journal(system, spec, window=True)
     if lines is None:
         return Evidence(False, known=False)
-    hits = _filter(lines, spec)
+    hits = _filter(lines, spec, system)
     return Evidence(bool(hits), _excerpts(hits), in_window=bool(hits))

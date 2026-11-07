@@ -9,6 +9,7 @@ from __future__ import annotations
 import fnmatch
 import glob
 import os
+import pwd
 import re
 import subprocess
 from dataclasses import dataclass
@@ -55,9 +56,10 @@ class PciDevice:
 
 
 class System:
-    def __init__(self, root="/", home=None, env=None, commands=None):
+    def __init__(self, root="/", home=None, env=None, commands=None, user=None):
         self.root = Path(root)
         self.home = Path(home or Path.home())
+        self.user = user or pwd.getpwuid(os.getuid()).pw_name
         self.env = dict(os.environ if env is None else env)
         self._commands = commands
         self._cache: dict[tuple, Result] = {}
@@ -96,6 +98,22 @@ class System:
 
     def glob(self, pattern: str) -> list[Path]:
         return sorted(Path(m) for m in glob.glob(str(self.path(pattern))))
+
+    def hidden(self, pattern: str) -> bool:
+        """Whether a pattern can't be looked up because a directory on its way isn't readable,
+        like a root-only /boot. Then finding nothing doesn't mean nothing is there."""
+        parts = Path(pattern).parts
+        fixed = next((i for i, part in enumerate(parts) if glob.has_magic(part)), len(parts) - 1)
+        directory = self.path(str(Path(*parts[:fixed]))) if fixed else self.path("/")
+        while True:
+            try:
+                directory.lstat()
+                break
+            except (FileNotFoundError, NotADirectoryError):
+                directory = directory.parent
+            except OSError:
+                return True
+        return directory.is_dir() and not os.access(directory, os.R_OK | os.X_OK)
 
     # Commands
 

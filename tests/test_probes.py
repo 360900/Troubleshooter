@@ -1,4 +1,6 @@
+import os
 import struct
+import time
 import unittest
 
 from tests.fakes import FakeMachine
@@ -49,6 +51,60 @@ class FailedJournalTests(unittest.TestCase):
         evidence = probe(system, {"source": "journal", "boot": -1, "contains": "boot", "absent": True})
         self.assertFalse(evidence.matched)
         self.assertFalse(evidence.known)
+
+
+
+class FileProbeTests(unittest.TestCase):
+    def setUp(self):
+        self.m = FakeMachine()
+        self.addCleanup(self.m.close)
+
+    def check(self, **spec):
+        return probe(self.m.system(), {"source": "file", **spec})
+
+    def test_nothing_found_under_a_root_only_directory_is_unknown(self):
+        boot = self.m.root / "boot"
+        boot.mkdir(mode=0o700)
+        boot.chmod(0)
+        self.addCleanup(boot.chmod, 0o700)
+        if os.access(boot, os.R_OK):
+            self.skipTest("running as root")
+        for path in ("/boot/grub/grub.cfg", "/boot/*.conf"):
+            with self.subTest(path=path):
+                evidence = self.check(path=path, absent=True)
+                self.assertFalse(evidence.known)
+                self.assertFalse(evidence.matched)
+
+    def test_nothing_found_in_a_readable_directory_is_still_absent(self):
+        self.m.write("/etc/os-release", "ID=arch\n")
+        self.assertTrue(self.check(path="/etc/nothing.conf", absent=True).matched)
+        self.assertTrue(self.check(path="/etc/nothing/deeper.conf", absent=True).matched)
+
+    def test_broken_links_are_found(self):
+        # Relative, so the link stays inside the fake root.
+        os.symlink("../run/systemd/resolve/stub-resolv.conf", self.m.root / "etc/resolv.conf")
+        evidence = self.check(path="/etc/resolv.conf", broken_link=True)
+        self.assertTrue(evidence.matched)
+        self.assertIn("stub-resolv.conf", evidence.lines[0])
+        self.m.write("/run/systemd/resolve/stub-resolv.conf", "nameserver 127.0.0.53\n")
+        self.assertFalse(self.check(path="/etc/resolv.conf", broken_link=True).matched)
+
+    def test_max_age_ignores_old_and_unstamped_lines(self):
+        def stamp(days_ago):
+            return time.strftime("[%Y-%m-%dT%H:%M:%S%z]", time.localtime(time.time() - days_ago * 86400))
+        spec = {"path": "/var/log/pacman.log", "regex": "No space left", "max_age_days": 14}
+        self.m.write("/var/log/pacman.log", f"{stamp(400)} [ALPM-SCRIPTLET] cp: No space left on device\n"
+                                            "cp: No space left on device\n")
+        self.assertFalse(self.check(**spec).matched)
+        self.m.write("/var/log/pacman.log", f"{stamp(2)} [ALPM-SCRIPTLET] cp: No space left on device\n")
+        self.assertTrue(self.check(**spec).matched)
+
+    def test_user_placeholder_is_the_current_user(self):
+        self.m.write("/etc/subuid", "someone:100000:65536\n")
+        spec = {"path": "/etc/subuid", "regex": "^{user}:\\d+:\\d+"}
+        self.assertFalse(self.check(**spec).matched)
+        self.m.write("/etc/subuid", "someone:100000:65536\ntester:165536:65536\n")
+        self.assertTrue(self.check(**spec).matched)
 
 
 class PackageListTests(unittest.TestCase):
