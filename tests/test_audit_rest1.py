@@ -123,3 +123,21 @@ class BluetoothTests(EngineCase):
                 result = run_script(m, plan_for(m, entry_id).script)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(engine.diagnose_entry(DB.entries[entry_id], m.system()).status, engine.FIXED)
+
+
+class RateMirrorsTests(EngineCase):
+    def mirrors(self, timer):
+        m = self.machine()
+        m.packages = {"cachyos-rate-mirrors"}
+        m.outputs["services"] = {"cachyos-rate-mirrors.timer": timer}
+        m.journal("systemd[1]: cachyos-rate-mirrors.service: Consumed 4.1s CPU time over 32.5s wall clock time.\n")
+        return engine.diagnose_entry(DB.entries["cachyos-rate-mirrors-slow-boot"], m.system())
+
+    def test_a_turned_off_timer_counts_as_fixed(self):
+        self.assertEqual(self.mirrors("masked").status, engine.FIXED)
+        self.assertEqual(self.mirrors("disabled").status, engine.FIXED)
+
+    def test_a_long_run_with_the_timer_on_is_found(self):
+        d = self.mirrors("enabled")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertTrue(d.found)

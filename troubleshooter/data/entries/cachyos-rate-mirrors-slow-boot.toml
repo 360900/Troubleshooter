@@ -12,10 +12,12 @@ source = "https://wiki.cachyos.org/cachyos_basic/faq/#recently-my-system-is-taki
 source = "package"
 names = ["cachyos-rate-mirrors"]
 
+# Masked as CachyOS suggests, or the timer simply turned off.
 [[fixed_when]]
-source = "service"
-name = "cachyos-rate-mirrors.timer"
-state = "masked"
+any_of = [
+  { source = "service", name = "cachyos-rate-mirrors.timer", state = "masked" },
+  { source = "service", name = "cachyos-rate-mirrors.timer", state = "disabled" },
+]
 
 [[signals]]
 says = "Mirror ranking ran for 10 seconds or more during this boot"
