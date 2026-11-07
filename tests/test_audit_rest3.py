@@ -156,10 +156,27 @@ class TlpEthernetTests(EngineCase):
                 m.write("/etc/tlp.d/01-mine.conf", line)
                 self.assertEqual(self.evaluate(m).status, engine.FIXED)
 
-    def test_settings_tlp_ignores_do_not(self):
+    def test_settings_tlp_ignores_do_not_count(self):
         # tlp-readconfs only accepts NAME=value at the start of a line.
         for line in ('#USB_DENYLIST="0bda:8156"\n', ' USB_DENYLIST = "0bda:8156"\n', "USB_AUTOSUSPEND=1\n"):
             with self.subTest(line=line):
                 m = self.machine_with_card()
                 m.write("/etc/tlp.d/01-mine.conf", line)
                 self.assertEqual(self.evaluate(m).status, engine.APPLIES)
+
+
+class SambaUsershareTests(EngineCase):
+    def evaluate(self, smb_conf):
+        m = self.machine()
+        m.packages = {"samba", "kdenetwork-filesharing"}
+        m.write("/etc/samba/smb.conf", smb_conf)
+        return engine.evaluate(DB.entries["samba-usershares-disabled"], m.system())
+
+    def test_a_path_alone_leaves_them_off(self):
+        # usershare max shares defaults to 0, which ignores every usershare.
+        d = self.evaluate("[global]\n  usershare path = /var/lib/samba/usershares\n")
+        self.assertEqual(d.status, engine.APPLIES)
+
+    def test_a_share_limit_turns_them_on(self):
+        self.assertEqual(self.evaluate("[global]\n  usershare max shares = 100\n").status, engine.FIXED)
+        self.assertEqual(self.evaluate("[global]\n  usershare max shares = 0\n").status, engine.APPLIES)

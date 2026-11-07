@@ -16,10 +16,12 @@ names = ["samba"]
 source = "package"
 names = ["kdenetwork-filesharing", "nautilus-share", "nemo-share", "thunar-shares-plugin"]
 
+# usershare path already defaults to /var/lib/samba/usershares. What turns usershares on is
+# usershare max shares, which defaults to 0 (smb.conf(5)). Samba ignores spaces in names.
 [[fixed_when]]
 source = "file"
 path = "/etc/samba/smb.conf"
-regex = '^\s*usershare path\s*='
+regex = '^\s*usershare\s*max\s*shares\s*=\s*0*[1-9]'
 
 [[signals]]
 says = "The usershares directory doesn't exist"
