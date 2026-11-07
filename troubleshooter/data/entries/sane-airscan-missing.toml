@@ -1,0 +1,26 @@
+id = "sane-airscan-missing"
+title = "Scanner: network or driverless scanners aren't found"
+summary = "Most recent scanners and multifunction printers work without a vendor driver through sane-airscan, which isn't installed. Without it, scanning apps don't see them."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["sane-airscan", "airscan", "escl", "wsd", "driverless", "network scanner", "scanimage -L"]
+symptoms = ["scanner not found", "network scanner not detected", "document scanner says no scanners", "wifi printer scanner not showing", "scanimage -L finds no scanners"]
+source = "https://wiki.archlinux.org/title/SANE#Scanner_drivers"
+
+[[when]]
+source = "package"
+names = ["sane", "simple-scan", "skanlite", "skanpage", "xsane", "naps2*", "gscan2pdf"]
+
+[[fixed_when]]
+source = "package"
+names = ["sane-airscan"]
+
+[[signals]]
+says = "sane-airscan isn't installed"
+weight = 0.35
+source = "package"
+names = ["sane-airscan"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["sane-airscan"] }]

@@ -1,0 +1,42 @@
+id = "vbox-driver-not-loaded"
+title = "VirtualBox: the kernel driver isn't loaded"
+summary = "VirtualBox needs its vboxdrv kernel module before any virtual machine can start, and it isn't loaded right now. This usually happens right after installing VirtualBox, before the first restart."
+categories = ["vms", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vboxdrv", "vboxnetadp", "vboxnetflt", "virtualbox-host-dkms", "rc=-1908", "modprobe", "modules-load.d"]
+symptoms = ["kernel driver not installed rc=-1908", "virtualbox vm won't start", "virtualbox says the kernel module is not loaded", "virtualbox error after install", "failed to create the host-only network interface"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/VirtualBox#Load_the_VirtualBox_kernel_modules"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[fixed_when]]
+source = "module"
+names = ["vboxdrv"]
+
+[[signals]]
+says = "VirtualBox is installed but vboxdrv isn't loaded"
+weight = 0.7
+source = "module"
+names = ["vboxdrv"]
+absent = true
+
+[[signals]]
+says = "The kernel refused an unsigned module, so loading it by hand won't help"
+weight = 0.6
+counter = true
+source = "journal"
+kernel = true
+regex = 'Loading of unsigned module is rejected|unsigned module loading is restricted'
+
+[[signals]]
+says = "The running kernel's modules are gone after an update, so a restart is needed first"
+weight = 0.5
+counter = true
+source = "journal"
+regex = 'Module \S+ not found in directory /(usr/)?lib/modules/'
+
+[[fix]]
+steps = [{ op = "command", says = "Load the VirtualBox kernel modules", run = "modprobe -a vboxdrv vboxnetadp vboxnetflt" }]

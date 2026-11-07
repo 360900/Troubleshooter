@@ -1,0 +1,26 @@
+id = "docker-buildx-missing"
+title = "Docker: \"the legacy builder is deprecated\""
+summary = "docker build falls back to the old, deprecated builder because the current one, buildx, isn't installed. Some Dockerfile features only work with buildx."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["docker-buildx", "buildx", "buildkit", "legacy builder", "docker build"]
+symptoms = ["deprecated the legacy builder is deprecated", "install the buildx component", "docker build buildkit not available", "docker buildx is not a docker command", "docker build fails with --mount"]
+source = "https://wiki.archlinux.org/title/Docker#Installation"
+
+[[when]]
+source = "package"
+names = ["docker"]
+
+[[fixed_when]]
+source = "package"
+names = ["docker-buildx"]
+
+[[signals]]
+says = "docker-buildx isn't installed"
+weight = 0.4
+source = "package"
+names = ["docker-buildx"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["docker-buildx"] }]

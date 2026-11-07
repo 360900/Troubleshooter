@@ -1,0 +1,25 @@
+id = "virt-hardware-virtualization-off"
+title = "Virtual machines: hardware virtualization is turned off in the firmware"
+summary = "Your processor can run virtual machines at full speed, but the feature (Intel VT-x or AMD-V/SVM) is switched off in the BIOS or UEFI setup. VirtualBox only offers 32-bit guests and QEMU, GNOME Boxes or virt-manager fall back to very slow emulation."
+categories = ["vms", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vt-x", "amd-v", "svm", "vmx", "kvm", "/dev/kvm", "disabled by bios", "hardware virtualization", "intel virtualization technology"]
+symptoms = ["virtualbox only shows 32-bit guest options", "no 64-bit option in virtualbox", "virtual machine is very slow", "kvm not available", "vt-x is disabled in the bios", "windows vm won't boot in qemu"]
+auto_detect = true
+advice = "Restart into your BIOS or UEFI setup and turn on the virtualization option (often called Intel Virtualization Technology, VT-x, SVM Mode or AMD-V, usually under CPU or Advanced settings). Save and restart; nothing else needs to change on Linux."
+source = "https://wiki.archlinux.org/title/VirtualBox#No_64-bit_operating_system_client_options"
+
+[[when]]
+source = "package"
+names = ["virtualbox", "qemu-system-x86", "libvirt", "gnome-boxes"]
+
+[[fixed_when]]
+source = "file"
+path = "/dev/kvm"
+
+[[signals]]
+says = "The kernel reports that the firmware has turned off hardware virtualization"
+weight = 0.9
+source = "journal"
+kernel = true
+regex = 'VMX \(outside TXT\) disabled by BIOS|VMX not enabled \(by BIOS\)|SVM disabled \(by BIOS\)|kvm: disabled by bios'

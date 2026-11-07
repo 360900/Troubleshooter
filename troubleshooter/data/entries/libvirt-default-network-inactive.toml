@@ -1,0 +1,26 @@
+id = "libvirt-default-network-inactive"
+title = "libvirt: \"network 'default' is not active\""
+summary = "Virtual machines connected to libvirt's default network can't start because that network is stopped and isn't set to start at boot."
+categories = ["vms", "network"]
+systems = ["arch-and-based"]
+keywords = ["virsh net-start", "virsh net-autostart", "default network", "virbr0", "requested operation is not valid"]
+symptoms = ["network default is not active", "error starting domain requested operation is not valid", "virt-manager vm won't start", "vm has no network after reboot", "virbr0 not there"]
+auto_detect = true
+reproduce = "Try to start the virtual machine that fails."
+source = "https://wiki.archlinux.org/title/Libvirt#Error_starting_domain:_Requested_operation_is_not_valid:_network_'default'_is_not_active"
+
+[[when]]
+source = "package"
+names = ["libvirt"]
+
+[[signals]]
+says = "libvirt refused to start a machine because the default network is down"
+weight = 0.85
+source = "journal"
+regex = "network 'default' is not active"
+
+[[fix]]
+steps = [
+  { op = "command", says = "Start the default network at every boot", run = "virsh net-autostart default", undo = "virsh net-autostart --disable default" },
+  { op = "command", says = "Start the default network now", run = "virsh net-list --name | grep -qx default || virsh net-start default" },
+]

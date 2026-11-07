@@ -1,0 +1,19 @@
+id = "vbox-kvm-conflict"
+title = "VirtualBox: machines fail while another hypervisor is running"
+summary = "VirtualBox can't use hardware virtualization while KVM is in use, for example by the Android Studio emulator, GNOME Boxes or virt-manager. Its machines then fail with a critical error until the other one is stopped."
+categories = ["vms", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["virtualbox", "kvm", "kvm_intel", "kvm_amd", "android emulator", "vboxreload", "critical error", "vmx root mode"]
+symptoms = ["virtualbox a critical error has occurred", "virtualbox fails after using android emulator", "virtualbox and kvm at the same time", "virtualbox vm won't start while qemu runs", "virtualbox vt-x is being used by another hypervisor"]
+advice = "Shut down every QEMU, GNOME Boxes, virt-manager or Android emulator machine completely before starting VirtualBox. If VirtualBox still fails, run vboxreload as root; if it says a module is in use, close the process holding it and run it again."
+source = "https://wiki.archlinux.org/title/VirtualBox#Failed_to_start_VirtualBox_machine_after_using_Android_Studio_emulator"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[signals]]
+says = "The KVM module is loaded next to VirtualBox"
+weight = 0.2
+source = "module"
+names = ["kvm_intel", "kvm_amd"]

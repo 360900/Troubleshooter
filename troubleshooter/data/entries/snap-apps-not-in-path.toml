@@ -1,0 +1,21 @@
+id = "snap-apps-not-in-path"
+title = "Snap: installed apps don't show up in the menu or terminal"
+summary = "snapd adds its app folder to your PATH and menu through /etc/profile.d/snapd.sh, which only applies after you log in again. Until then installed snaps seem to be missing."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["snapd.sh", "/etc/profile.d", "/var/lib/snapd/snap/bin", "PATH", "XDG_DATA_DIRS", "desktop entry"]
+symptoms = ["snap app not in menu", "installed snap command not found", "snap apps don't appear", "snap installed but can't find it", "snap app icon missing"]
+advice = "Log out and back in, or restart once after installing snapd. If you use a shell that doesn't read /etc/profile (fish, for example), add /var/lib/snapd/snap/bin to your PATH yourself."
+source = "https://wiki.archlinux.org/title/Snap#Installation"
+
+[[when]]
+source = "package"
+names = ["snapd"]
+
+[[signals]]
+says = "Snaps are installed but their folder isn't in your PATH"
+weight = 0.6
+all_of = [
+  { source = "file", path = "/var/lib/snapd/desktop/applications/*.desktop" },
+  { source = "env", name = "PATH", regex = 'snapd/snap/bin', absent = true },
+]

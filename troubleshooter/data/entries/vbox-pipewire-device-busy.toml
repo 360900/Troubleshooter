@@ -1,0 +1,24 @@
+id = "vbox-pipewire-device-busy"
+title = "VirtualBox: host sound stops while a virtual machine runs"
+summary = "On PipeWire systems VirtualBox often falls back to its ALSA audio driver and takes the sound card for itself, so other apps go silent until the virtual machine is shut down."
+categories = ["vms", "sound"]
+systems = ["arch-and-based"]
+keywords = ["virtualbox", "pipewire", "alsa", "device or resource busy", "audio-driver pulse", "VBoxManage modifyvm", "pipewire-pulse"]
+symptoms = ["no sound while virtualbox is running", "virtualbox takes over audio device", "sound stops when vm starts", "playback open failed device or resource busy", "no audio on host with virtualbox open"]
+advice = "Switch each virtual machine to the PulseAudio audio driver, which PipeWire handles through pipewire-pulse: shut the machine down and run VBoxManage modifyvm \"machine name\" --audio-driver pulse --audio-controller hda (or pick PulseAudio under Settings, Audio)."
+reproduce = "Start a virtual machine, then play a sound on the host."
+source = "https://wiki.archlinux.org/title/VirtualBox#VirtualBox_is_taking_exclusive_control_of_an_audio_device,_preventing_PipeWire_from_accessing_it_while_the_virtual_machine_is_running"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[when]]
+source = "package"
+names = ["pipewire"]
+
+[[signals]]
+says = "PipeWire couldn't open the sound card because something else holds it"
+weight = 0.45
+source = "journal"
+regex = 'spa\.alsa: .*open failed: Device or resource busy'

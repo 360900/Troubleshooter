@@ -1,0 +1,37 @@
+id = "sane-ipp-usb-missing"
+title = "Scanner: a USB printer-scanner needs ipp-usb"
+summary = "A connected USB device speaks IPP over USB, the driverless protocol most modern printer-scanners use. Without ipp-usb and sane-airscan its scanner isn't found. A restart is needed after installing."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["ipp-usb", "sane-airscan", "ipp over usb", "driverless", "escl", "airscan", "scanimage -L"]
+symptoms = ["scanner not found", "scanimage -L finds no scanners", "usb scanner not detected", "document scanner says no scanners", "printer works but scanner doesn't"]
+source = "https://wiki.archlinux.org/title/SANE#Scanner_drivers"
+
+[[when]]
+source = "file"
+path = "/sys/bus/usb/devices/*/modalias"
+regex = 'ic07isc01ip04'
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["ipp-usb"] },
+  { source = "package", names = ["sane-airscan"] },
+]
+
+[[signals]]
+says = "ipp-usb isn't installed"
+weight = 0.5
+source = "package"
+names = ["ipp-usb"]
+absent = true
+
+[[signals]]
+says = "sane-airscan isn't installed"
+weight = 0.3
+source = "package"
+names = ["sane-airscan"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["ipp-usb", "sane-airscan"], says = "Install ipp-usb and the driverless scanner backend" }]

@@ -1,0 +1,26 @@
+id = "snap-classic-symlink"
+title = "Snap: classic snaps can't be installed"
+summary = "Snaps with classic confinement (PyCharm, Julia and others) expect to live under /snap. Arch's snapd keeps them in /var/lib/snapd/snap and doesn't create /snap, so a link is needed."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["classic confinement", "--classic", "/snap", "/var/lib/snapd/snap", "symlink"]
+symptoms = ["classic confinement requires snaps under /snap or symlink from /snap to /var/lib/snapd/snap", "snap install --classic fails", "can't install pycharm snap", "classic snap error", "snap install code --classic doesn't work"]
+source = "https://wiki.archlinux.org/title/Snap#Classic_snaps"
+
+[[when]]
+source = "package"
+names = ["snapd"]
+
+[[fixed_when]]
+source = "file"
+path = "/snap"
+
+[[signals]]
+says = "There is no /snap link"
+weight = 0.4
+source = "file"
+path = "/snap"
+absent = true
+
+[[fix]]
+steps = [{ op = "command", says = "Link /snap to /var/lib/snapd/snap", run = "[ -e /snap ] || ln -s /var/lib/snapd/snap /snap", undo = "if [ -L /snap ]; then rm /snap; fi" }]

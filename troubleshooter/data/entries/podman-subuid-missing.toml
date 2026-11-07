@@ -1,0 +1,22 @@
+id = "podman-subuid-missing"
+title = "Podman: rootless containers have no subordinate user IDs"
+summary = "Rootless Podman needs a range of spare user and group IDs for your account in /etc/subuid and /etc/subgid. Nobody has one, which happens for accounts created before 2022 or managed by systemd-homed, so many images fail to unpack or run."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["subuid", "subgid", "rootless", "usermod --add-subuids", "podman system migrate", "newuidmap", "user namespace"]
+symptoms = ["no subuid ranges found for user", "using rootless single mapping into the namespace", "potentially insufficient uids or gids available in user namespace", "podman pull fails lchown invalid argument", "rootless podman doesn't work"]
+auto_detect = true
+advice = "As root, give your account a range with usermod --add-subuids 100000-165535 --add-subgids 100000-165535 yourname (check /etc/subuid first and pick a free range if another user already has it), then run podman system migrate as yourself."
+source = "https://wiki.archlinux.org/title/Podman#Set_subuid_and_subgid"
+
+[[when]]
+source = "package"
+names = ["podman"]
+
+[[signals]]
+says = "/etc/subuid has no entries for any user"
+weight = 0.6
+source = "file"
+path = "/etc/subuid"
+regex = '^[^:#\s]+:\d+:\d+'
+absent = true

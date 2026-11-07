@@ -1,0 +1,29 @@
+id = "libvirt-swtpm-missing"
+title = "libvirt: Windows 11 says the PC doesn't meet the requirements"
+summary = "Windows 11 needs UEFI firmware and a TPM 2.0 chip. libvirt can give a virtual machine an emulated TPM, but only with swtpm installed. Afterwards, choose UEFI firmware and add an emulated TPM 2.0 in the machine's settings."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["swtpm", "tpm", "tpm 2.0", "windows 11", "uefi", "ovmf", "edk2-ovmf", "secure boot"]
+symptoms = ["windows 11 this pc can't run windows 11", "can't add tpm in virt-manager", "windows 11 vm requirements", "windows 11 install fails in virt-manager", "tpm emulator missing"]
+source = "https://wiki.archlinux.org/title/Libvirt#TPM_support"
+
+[[when]]
+source = "package"
+names = ["libvirt"]
+
+[[fixed_when]]
+source = "package"
+names = ["swtpm"]
+
+[[signals]]
+says = "swtpm isn't installed"
+weight = 0.3
+source = "package"
+names = ["swtpm"]
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["swtpm"], says = "Install swtpm, the TPM emulator" },
+  { op = "command", says = "Restart libvirt so it finds swtpm", run = "systemctl try-restart libvirtd.service" },
+]

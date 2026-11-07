@@ -1,0 +1,15 @@
+id = "vbox-vboxconfig-prompt"
+title = "VirtualBox: asks you to run /sbin/vboxconfig"
+summary = "The VirtualBox modules loaded in the kernel don't match the installed version, usually after an update of VirtualBox or the kernel. The command the message suggests doesn't exist on Arch; reloading the modules fixes it."
+categories = ["vms", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vboxconfig", "vboxreload", "vboxdrv", "module version", "virtualbox update"]
+symptoms = ["please run sudo /sbin/vboxconfig", "vboxconfig command not found", "virtualbox stopped working after update", "virtualbox module version mismatch", "a critical error has occurred in virtualbox"]
+source = "https://wiki.archlinux.org/title/VirtualBox#Being_prompted_to_run_sudo_/sbin/vboxconfig"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[fix]]
+steps = [{ op = "command", says = "Reload the VirtualBox kernel modules (close all virtual machines first)", run = "vboxreload" }]

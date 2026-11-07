@@ -1,0 +1,36 @@
+id = "docker-service-off"
+title = "Docker: \"Cannot connect to the Docker daemon\""
+summary = "Docker is installed but neither its service nor its socket is enabled, so every docker command fails. Enabling the socket starts Docker the first time you use it, without slowing down boot."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["docker", "dockerd", "docker.service", "docker.socket", "docker.sock", "docker info"]
+symptoms = ["cannot connect to the docker daemon at unix:///var/run/docker.sock", "is the docker daemon running", "docker doesn't work after install", "docker compose can't connect", "docker run fails"]
+source = "https://wiki.archlinux.org/title/Docker#Installation"
+
+[[when]]
+source = "package"
+names = ["docker"]
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "docker.service", state = "enabled" },
+  { source = "service", name = "docker.socket", state = "enabled" },
+]
+
+[[signals]]
+says = "Neither docker.service nor docker.socket is enabled"
+weight = 0.75
+all_of = [
+  { source = "service", name = "docker.service", state = "disabled" },
+  { source = "service", name = "docker.socket", state = "disabled" },
+]
+
+[[signals]]
+says = "Rootless Docker is installed, which runs as a user service instead"
+weight = 0.8
+counter = true
+source = "package"
+names = ["docker-rootless-extras*"]
+
+[[fix]]
+steps = [{ op = "service", names = ["docker.socket"], now = true, says = "Enable the Docker socket so Docker starts when needed" }]

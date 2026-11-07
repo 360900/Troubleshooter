@@ -1,0 +1,19 @@
+id = "sane-device-busy-usblp"
+title = "Scanner: USB scanner reports \"Device busy\""
+summary = "The scanner is listed but every scan fails with Device busy. On multifunction printers the usblp kernel driver can hold the device; scanning apps and CUPS don't need it."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["usblp", "device busy", "blacklist", "pixma", "scanimage", "modprobe.d"]
+symptoms = ["scanner says device busy", "scanimage device busy", "canon scanner device busy", "scan fails device busy", "scanner found but can't scan"]
+advice = "Create /etc/modprobe.d/no-usblp.conf containing blacklist usblp and restart. Some Canon printers also report busy while their scan mode is set to Computer; switch it to Remote Scanner on the printer."
+source = "https://wiki.archlinux.org/title/SANE#Device_busy"
+
+[[when]]
+source = "package"
+names = ["sane"]
+
+[[signals]]
+says = "The usblp driver is loaded"
+weight = 0.3
+source = "module"
+names = ["usblp"]

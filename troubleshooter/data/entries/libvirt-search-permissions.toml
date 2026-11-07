@@ -1,0 +1,13 @@
+id = "libvirt-search-permissions"
+title = "virt-manager: \"doesn't have search permissions\" for an ISO or disk"
+summary = "With the system connection, virtual machines run as a separate libvirt-qemu user, which can't read files inside your home folder. The machine can't open its installer ISO or disk image there."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["libvirt-qemu", "search permissions", "/var/lib/libvirt/images", "permission denied", "iso", "qcow2", "chown"]
+symptoms = ["the emulator may not have search permissions for the path", "virt-manager permission denied iso", "vm can't open disk image in home folder", "could not open iso permission denied", "virt-manager search permissions"]
+advice = "Move the ISO and disk images to /var/lib/libvirt/images, which the virtual machines can always read. To keep them elsewhere, give the libvirt-qemu group access to that folder and every folder above it (for example chown -R yourname:libvirt-qemu on the folder plus read and search permission for the group)."
+source = "https://wiki.archlinux.org/title/Libvirt#Virt_Manager_Error_'Virt_Manager_doesn't_have_search_permissions'"
+
+[[when]]
+source = "package"
+names = ["libvirt"]

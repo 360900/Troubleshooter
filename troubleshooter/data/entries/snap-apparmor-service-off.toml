@@ -1,0 +1,45 @@
+id = "snap-apparmor-service-off"
+title = "Snap: apps won't start because their AppArmor profiles aren't loaded"
+summary = "AppArmor is active, so snapd confines every snap with an AppArmor profile. The service that loads those profiles at boot is off, and snaps fail to launch."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["snapd.apparmor.service", "apparmor.service", "apparmor", "snap-confine", "confinement", "profile"]
+symptoms = ["snap app won't start", "cannot change profile for the next exec call", "snap apps stopped working after reboot", "snap-confine permission denied", "snap apparmor error"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Snap#Installation"
+
+[[when]]
+source = "package"
+names = ["snapd"]
+
+[[when]]
+source = "package"
+names = ["apparmor"]
+
+[[when]]
+source = "file"
+path = "/sys/kernel/security/lsm"
+regex = 'apparmor'
+
+[[fixed_when]]
+all_of = [
+  { source = "service", name = "snapd.apparmor.service", state = "enabled" },
+  { source = "service", name = "apparmor.service", state = "enabled" },
+]
+
+[[signals]]
+says = "snapd.apparmor.service isn't enabled"
+weight = 0.8
+source = "service"
+name = "snapd.apparmor.service"
+state = "disabled"
+
+[[signals]]
+says = "apparmor.service isn't enabled"
+weight = 0.5
+source = "service"
+name = "apparmor.service"
+state = "disabled"
+
+[[fix]]
+steps = [{ op = "service", names = ["apparmor.service", "snapd.apparmor.service"], now = true, says = "Enable AppArmor and the service that loads snap profiles" }]

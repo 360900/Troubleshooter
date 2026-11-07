@@ -1,0 +1,17 @@
+id = "sane-hp-io-error"
+title = "Scanner: HP scanner fails with \"Error during device I/O\""
+summary = "Many HP scanners need HP's closed-source plugin on top of hplip. Without it, scanning starts and then fails with an I/O error."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["hplip", "hplip-plugin", "hpaio", "error during device i/o", "code=9", "hp scanner"]
+symptoms = ["error during device i/o code=9", "hp scanner doesn't work", "hp scan fails", "hpaio scanner error", "hp printer scans fail"]
+advice = "Install hplip-plugin from the AUR (it must match your hplip version), then try scanning again."
+source = "https://wiki.archlinux.org/title/SANE#Error_during_device_I/O"
+
+[[when]]
+source = "package"
+names = ["hplip"]
+
+[[fixed_when]]
+source = "package"
+names = ["hplip-plugin"]

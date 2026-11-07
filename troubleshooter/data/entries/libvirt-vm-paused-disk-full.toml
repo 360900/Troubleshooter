@@ -1,0 +1,13 @@
+id = "libvirt-vm-paused-disk-full"
+title = "virt-manager: a virtual machine is paused and won't resume"
+summary = "qcow2 disk images grow as the guest writes. When the drive holding them fills up, libvirt pauses the machine and it can't continue until there is free space again."
+categories = ["vms", "boot"]
+systems = ["arch-and-based"]
+keywords = ["qcow2", "paused", "no space left", "df -h", "/var/lib/libvirt/images", "i/o error"]
+symptoms = ["virtual machine paused by itself", "virt-manager can't resume vm", "vm frozen paused", "i/o error when starting vm", "vm stops when disk is full"]
+advice = "Check free space with df -h on the drive that holds the disk images (by default /var/lib/libvirt/images). Free some space, for example by clearing the package cache or old snapshots, then resume the machine."
+source = "https://wiki.archlinux.org/title/Libvirt#Virtual_machine_cannot_be_un-paused_on_virt-manager"
+
+[[when]]
+source = "package"
+names = ["libvirt"]

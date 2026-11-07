@@ -1,0 +1,29 @@
+id = "podman-userns-disabled"
+title = "Podman: unprivileged user namespaces are turned off"
+summary = "Your kernel (linux-hardened does this by default) doesn't let normal users create user namespaces, so rootless Podman can't run at all. Turning them on undoes part of that kernel's hardening."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["unprivileged_userns_clone", "kernel.unprivileged_userns_clone", "user namespace", "linux-hardened", "rootless", "sysctl"]
+symptoms = ["rootless podman doesn't work", "podman cannot clone operation not permitted", "user namespaces are not enabled", "podman fails on linux-hardened", "podman newuidmap operation not permitted"]
+advice = "If you want rootless containers, set kernel.unprivileged_userns_clone = 1 in a file under /etc/sysctl.d and run sysctl --system. This widens what unprivileged programs can reach in the kernel, so on a hardened setup consider running Podman as root instead."
+source = "https://wiki.archlinux.org/title/Podman#Enable_kernel.unprivileged_userns_clone"
+
+[[when]]
+source = "package"
+names = ["podman"]
+
+[[when]]
+source = "file"
+path = "/proc/sys/kernel/unprivileged_userns_clone"
+
+[[fixed_when]]
+source = "file"
+path = "/proc/sys/kernel/unprivileged_userns_clone"
+regex = '^1'
+
+[[signals]]
+says = "kernel.unprivileged_userns_clone is 0"
+weight = 0.8
+source = "file"
+path = "/proc/sys/kernel/unprivileged_userns_clone"
+regex = '^0'

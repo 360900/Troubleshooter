@@ -1,0 +1,36 @@
+id = "libvirt-daemon-off"
+title = "virt-manager: can't connect because libvirt isn't running"
+summary = "virt-manager talks to the libvirt daemon, which is installed but not enabled, so it can't list or start any virtual machine. Enabling the service fixes it and starts it at every boot."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["libvirtd", "libvirtd.service", "libvirtd.socket", "virtqemud", "qemu:///system", "libvirt-sock", "virt-manager"]
+symptoms = ["virt-manager unable to connect to libvirt", "failed to connect socket to /var/run/libvirt/libvirt-sock", "virt-manager says qemu/kvm not connected", "virsh error failed to connect to the hypervisor", "virt-manager shows no connection"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Libvirt#Daemon"
+
+[[when]]
+source = "package"
+names = ["libvirt"]
+
+[[when]]
+source = "package"
+names = ["virt-manager"]
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "libvirtd.service", state = "enabled" },
+  { source = "service", name = "libvirtd.socket", state = "enabled" },
+  { source = "service", name = "virtqemud.service", state = "enabled" },
+  { source = "service", name = "virtqemud.socket", state = "enabled" },
+]
+
+[[signals]]
+says = "Neither libvirtd.service nor libvirtd.socket is enabled"
+weight = 0.8
+all_of = [
+  { source = "service", name = "libvirtd.service", state = "disabled" },
+  { source = "service", name = "libvirtd.socket", state = "disabled" },
+]
+
+[[fix]]
+steps = [{ op = "service", names = ["libvirtd.service"], now = true, says = "Enable and start the libvirt daemon" }]

@@ -1,0 +1,13 @@
+id = "sane-slow-startup"
+title = "Scanner: scanning apps take a long time to find the scanner"
+summary = "SANE asks every installed backend to look for devices, and some unused ones are slow to answer. Turning off the backends you don't need makes scanner detection fast."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["dll.conf", "/etc/sane.d", "backend", "scanimage -L", "net autodiscovery", "epson2"]
+symptoms = ["scanner app slow to start", "scanimage -L takes forever", "xsane takes minutes to open", "searching for scanners takes long", "scan app hangs looking for devices"]
+advice = "Run scanimage -L and note the part before the first colon of your scanner's device name; that's the backend you need. Comment out the other backends in /etc/sane.d/dll.conf (and in files under /etc/sane.d/dll.d). For Epson USB scanners, commenting out net autodiscovery in /etc/sane.d/epson2.conf can also help."
+source = "https://wiki.archlinux.org/title/SANE#Slow_startup"
+
+[[when]]
+source = "package"
+names = ["sane"]

@@ -1,0 +1,26 @@
+id = "vbox-wayland-segfault"
+title = "VirtualBox: crashes on start in a Wayland session"
+summary = "VirtualBox's interface can crash with a segmentation fault when Qt picks Wayland. Starting it through X11 (XWayland) avoids the crash, and can also fix mouse and keyboard trouble inside the virtual machine."
+categories = ["vms", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["virtualbox", "wayland", "segfault", "QT_QPA_PLATFORM", "xcb", "xwayland", "desktop entry"]
+symptoms = ["virtualbox won't open on wayland", "virtualbox segmentation fault", "virtualbox crashes on start", "virtualbox mouse doesn't work on wayland", "virtualbox keyboard not captured on wayland"]
+advice = "Start VirtualBox with QT_QPA_PLATFORM=xcb set only for it: run env QT_QPA_PLATFORM=xcb VirtualBox, or copy its desktop entry to ~/.local/share/applications and change the Exec line to start with env QT_QPA_PLATFORM=xcb. Don't set it globally, since other Qt apps work fine on Wayland."
+reproduce = "Start VirtualBox from the menu."
+source = "https://wiki.archlinux.org/title/VirtualBox#Cannot_launch_VirtualBox_with_Wayland:_Segmentation_fault"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = 'wayland'
+
+[[signals]]
+says = "VirtualBox crashed with a segmentation fault"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'VirtualBox(VM)?\[\d+\]: segfault at'

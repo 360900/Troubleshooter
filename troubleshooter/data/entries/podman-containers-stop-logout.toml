@@ -1,0 +1,13 @@
+id = "podman-containers-stop-logout"
+title = "Podman: containers stop when you log out"
+summary = "Rootless containers live in your user session, and systemd ends that session when you log out, taking the containers with it. Lingering keeps your user services running without a login."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["linger", "loginctl enable-linger", "rootless", "user session", "quadlet", "systemd user"]
+symptoms = ["podman containers stop after logout", "containers die when ssh session ends", "podman container stops when i log out", "rootless container doesn't keep running", "podman container not running after reboot"]
+advice = "Run loginctl enable-linger yourname so your user services keep running after you log out and start at boot. For containers that should always run, manage them as user services (for example with Quadlet)."
+source = "https://wiki.archlinux.org/title/Podman#Containers_terminate_on_shell_logout"
+
+[[when]]
+source = "package"
+names = ["podman"]

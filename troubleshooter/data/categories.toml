@@ -118,3 +118,10 @@ title = "Printers, webcams and more"
 icon = "printer"
 blurb = "Printers, scanners, webcams, sensors and firmware updates."
 keywords = ["printer", "printing", "scanner", "webcam", "camera", "sensor", "fan", "firmware update", "usb"]
+
+[[category]]
+id = "vms"
+title = "Virtual machines"
+icon = "computer"
+blurb = "VirtualBox, QEMU and virt-manager, Docker and Podman."
+keywords = ["virtual machine", "vm", "virtualbox", "qemu", "kvm", "libvirt", "virt-manager", "docker", "podman", "container"]

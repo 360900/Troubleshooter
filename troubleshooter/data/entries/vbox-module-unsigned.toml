@@ -1,0 +1,26 @@
+id = "vbox-module-unsigned"
+title = "VirtualBox: the kernel refuses its unsigned driver"
+summary = "Your kernel only accepts signed modules (for example because Secure Boot is on), and the VirtualBox modules built on your machine aren't signed. vboxdrv can't load, so no virtual machine starts."
+categories = ["vms", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vboxdrv", "required key not available", "module signing", "secure boot", "lockdown", "mokutil", "sign-file", "CONFIG_MODULE_SIG_FORCE"]
+symptoms = ["failed to insert vboxdrv required key not available", "virtualbox doesn't work with secure boot", "modprobe vboxdrv fails", "kernel driver not installed rc=-1908", "virtualbox stopped working after enabling secure boot"]
+auto_detect = true
+advice = "Either sign vboxdrv, vboxnetadp and vboxnetflt with a key your kernel trusts (with the kernel's sign-file script, and enroll your own key with mokutil --import if you made one), or turn off Secure Boot or forced module signing. Signing has to be redone whenever the modules are rebuilt."
+source = "https://wiki.archlinux.org/title/VirtualBox#Failed_to_insert_module"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[fixed_when]]
+source = "module"
+names = ["vboxdrv"]
+
+[[signals]]
+says = "vboxdrv isn't loaded and the kernel rejected an unsigned module"
+weight = 0.8
+all_of = [
+  { source = "module", names = ["vboxdrv"], absent = true },
+  { source = "journal", kernel = true, regex = 'Loading of unsigned module is rejected|unsigned module loading is restricted' },
+]

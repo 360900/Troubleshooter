@@ -1,0 +1,40 @@
+id = "libvirt-dnsmasq-missing"
+title = "libvirt: the default network can't start without dnsmasq"
+summary = "libvirt's default NAT network hands out addresses with dnsmasq, which isn't installed. Virtual machines that use the default network won't start or get no internet."
+categories = ["vms", "network"]
+systems = ["arch-and-based"]
+keywords = ["dnsmasq", "default network", "virbr0", "nat", "dhcp", "net-start", "Cannot check dnsmasq binary"]
+symptoms = ["virtual machine has no internet", "cannot check dnsmasq binary", "network default is not active", "virt-manager vm won't start network error", "virbr0 missing"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Libvirt#Server"
+
+[[when]]
+source = "package"
+names = ["libvirt"]
+
+[[when]]
+source = "package"
+names = ["virt-manager"]
+
+[[fixed_when]]
+source = "package"
+names = ["dnsmasq"]
+
+[[signals]]
+says = "dnsmasq isn't installed"
+weight = 0.6
+source = "package"
+names = ["dnsmasq"]
+absent = true
+
+[[signals]]
+says = "libvirt looked for dnsmasq and couldn't find it"
+weight = 0.85
+source = "journal"
+regex = 'Cannot check dnsmasq binary'
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["dnsmasq"], says = "Install dnsmasq for libvirt's default network" },
+  { op = "command", says = "Restart libvirt so it picks up dnsmasq", run = "systemctl try-restart libvirtd.service" },
+]

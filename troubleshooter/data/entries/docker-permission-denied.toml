@@ -1,0 +1,20 @@
+id = "docker-permission-denied"
+title = "Docker: permission denied unless you use sudo"
+summary = "Only root and members of the docker group may talk to the Docker daemon. Nobody is in that group, so docker commands fail for your account. Joining it is effectively the same as having root access."
+categories = ["vms"]
+systems = ["arch-and-based"]
+keywords = ["docker group", "docker.sock", "permission denied", "usermod", "rootless", "root equivalent"]
+symptoms = ["permission denied while trying to connect to the docker daemon socket", "docker only works with sudo", "got permission denied docker.sock", "docker permission denied", "docker compose permission denied"]
+advice = "Add yourself with sudo usermod -aG docker yourname, log out and back in, then restart docker.service. Anyone in this group can get full root access through Docker; if that's a concern, use rootless Docker or Podman instead."
+source = "https://wiki.archlinux.org/title/Docker#Installation"
+
+[[when]]
+source = "package"
+names = ["docker"]
+
+[[signals]]
+says = "The docker group has no members"
+weight = 0.4
+source = "file"
+path = "/etc/group"
+regex = '^docker:[^:]*:\d+:$'

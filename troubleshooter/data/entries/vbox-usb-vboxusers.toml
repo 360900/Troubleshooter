@@ -1,0 +1,20 @@
+id = "vbox-usb-vboxusers"
+title = "VirtualBox: USB devices can't be passed to the virtual machine"
+summary = "Only members of the vboxusers group may hand the computer's USB devices to a virtual machine. Nobody is in that group yet, so the USB menu stays empty or greyed out."
+categories = ["vms", "devices"]
+systems = ["arch-and-based"]
+keywords = ["vboxusers", "usb passthrough", "user group", "gpasswd", "usb filter"]
+symptoms = ["virtualbox no usb devices available", "usb device not showing in virtualbox", "can't attach usb to virtualbox vm", "virtualbox usb greyed out", "usb stick not detected in virtual machine"]
+advice = "Add your account to the group with sudo gpasswd -a yourname vboxusers, then log out and back in (or restart). Also check that the machine's USB controller (USB 2 or 3) is enabled in its settings."
+source = "https://wiki.archlinux.org/title/VirtualBox#Accessing_host_USB_devices_in_guest"
+
+[[when]]
+source = "package"
+names = ["virtualbox"]
+
+[[signals]]
+says = "The vboxusers group has no members"
+weight = 0.5
+source = "file"
+path = "/etc/group"
+regex = '^vboxusers:[^:]*:\d+:$'

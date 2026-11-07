@@ -1,0 +1,30 @@
+id = "snap-socket-off"
+title = "Snap: \"cannot communicate with server\""
+summary = "snapd is installed but its socket isn't enabled, so the snap command can't reach the daemon and snaps can't be installed or updated."
+categories = ["desktop", "updates"]
+systems = ["arch-and-based"]
+keywords = ["snapd", "snapd.socket", "snap", "/run/snapd.socket", "snap install"]
+symptoms = ["error cannot communicate with server", "dial unix /run/snapd.socket connect no such file or directory", "snap install doesn't work", "snap command fails", "snaps don't update"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Snap#Configuration"
+
+[[when]]
+source = "package"
+names = ["snapd"]
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "snapd.socket", state = "enabled" },
+  { source = "service", name = "snapd.service", state = "enabled" },
+]
+
+[[signals]]
+says = "Neither snapd.socket nor snapd.service is enabled"
+weight = 0.8
+all_of = [
+  { source = "service", name = "snapd.socket", state = "disabled" },
+  { source = "service", name = "snapd.service", state = "disabled" },
+]
+
+[[fix]]
+steps = [{ op = "service", names = ["snapd.socket"], now = true, says = "Enable the snapd socket" }]
