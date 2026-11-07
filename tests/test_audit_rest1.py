@@ -188,3 +188,20 @@ class DiskErrorTests(EngineCase):
                                      "phys_seg 1 prio class 0"))
         self.assertFalse(self.errors("kernel: I/O error, dev sdb, sector 0 op 0x9:(WRITE_ZEROES) flags 0x800 "
                                      "phys_seg 0 prio class 0"))
+
+
+class DnsDelayTests(EngineCase):
+    def test_resolved_stub_is_not_affected(self):
+        m = self.machine()
+        m.write("/etc/resolv.conf", "# This is /run/systemd/resolve/stub-resolv.conf\nnameserver 127.0.0.53\n"
+                                    "options edns0 trust-ad\n")
+        d = engine.diagnose_entry(DB.entries["dns-lookup-delay-ipv6"], m.system())
+        self.assertEqual(d.status, engine.NOT_APPLICABLE)
+
+    def test_router_dns_applies_until_single_request_is_set(self):
+        m = self.machine()
+        m.write("/etc/resolv.conf", "nameserver 192.168.1.1\n")
+        entry = DB.entries["dns-lookup-delay-ipv6"]
+        self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.APPLIES)
+        m.write("/etc/resolv.conf", "nameserver 192.168.1.1\noptions single-request-reopen\n")
+        self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.FIXED)

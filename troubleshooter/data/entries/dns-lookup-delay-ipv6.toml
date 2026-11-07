@@ -8,6 +8,13 @@ symptoms = ["websites take 5 seconds to load", "slow dns lookups", "every page l
 advice = "Add the line options single-request to /etc/resolv.conf. If NetworkManager writes that file, set it on the connection instead with nmcli connection modify NAME +ipv4.dns-options single-request and reconnect. This doesn't apply when systemd-resolved does the lookups."
 source = "https://wiki.archlinux.org/title/Domain_name_resolution#Hostname_lookup_delayed_with_IPv6"
 
+# With systemd-resolved's stub in resolv.conf, resolved sends the lookups, not glibc.
+[[when]]
+source = "file"
+path = "/etc/resolv.conf"
+regex = '^nameserver\s+127\.0\.0\.53\b'
+absent = true
+
 [[fixed_when]]
 source = "file"
 path = "/etc/resolv.conf"
