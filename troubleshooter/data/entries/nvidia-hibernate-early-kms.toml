@@ -12,10 +12,25 @@ source = "https://wiki.archlinux.org/title/NVIDIA#Early_loading"
 source = "module"
 names = ["nvidia"]
 
+# Hibernation needs swap on disk. Many setups (CachyOS by default) only have zram, which
+# can't hold a hibernation image, so early loading costs nothing there.
+[[when]]
+source = "file"
+path = "/proc/swaps"
+regex = '^/(?!dev/zram)'
+
 [[signals]]
 says = "NVIDIA modules are loaded from the initramfs"
 weight = 0.3
 any_of = [
-  { source = "file", path = "/etc/mkinitcpio.conf", regex = '^\s*MODULES=\(.*\bnvidia' },
-  { source = "file", path = "/etc/mkinitcpio.conf.d/*.conf", regex = '^\s*MODULES(\+)?=\(.*\bnvidia' },
+  { source = "file", path = "/etc/mkinitcpio.conf", regex = '^\s*MODULES\+?=\(.*\bnvidia' },
+  { source = "file", path = "/etc/mkinitcpio.conf.d/*.conf", regex = '^\s*MODULES\+?=\(.*\bnvidia' },
+]
+
+[[signals]]
+says = "The computer tried to hibernate in this or the previous boot"
+weight = 0.3
+any_of = [
+  { source = "journal", kernel = true, regex = 'PM: hibernation: hibernation entry' },
+  { source = "journal", kernel = true, boot = -1, regex = 'PM: hibernation: hibernation entry' },
 ]
