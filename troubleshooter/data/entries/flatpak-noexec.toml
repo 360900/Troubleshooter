@@ -1,0 +1,27 @@
+id = "flatpak-noexec"
+title = "Flatpak: apps won't run because of a noexec mount"
+summary = "Flatpak apps live in /var/lib/flatpak (system-wide) or in your home folder (per-user). If that filesystem is mounted with noexec, no Flatpak app can start."
+categories = ["desktop"]
+systems = ["any"]
+keywords = ["flatpak", "noexec", "fstab", "bwrap", "ldconfig", "permission denied", "/var/lib/flatpak"]
+symptoms = ["flatpak apps won't start", "flatpak says permission denied", "bwrap execvp ldconfig permission denied", "ldconfig failed exit status 256", "nothing happens when I open a flatpak app"]
+advice = "Remove the noexec option from the mount that holds /var/lib/flatpak (or your home folder for per-user installs) in /etc/fstab, then reboot. If you want to keep noexec there, move Flatpak's install location to a filesystem that allows running programs."
+source = "https://wiki.archlinux.org/title/Flatpak#Permission_denied_error_when_running_Flatpak_applications"
+
+[[when]]
+source = "package"
+names = ["flatpak"]
+
+[[signals]]
+says = "The filesystem holding /var/lib/flatpak is mounted noexec"
+weight = 0.85
+source = "file"
+path = "/proc/mounts"
+regex = '^\S+ /var(/lib(/flatpak)?)? \S+ \S*\bnoexec\b'
+
+[[signals]]
+says = "/home is mounted noexec, which breaks per-user Flatpak installs"
+weight = 0.4
+source = "file"
+path = "/proc/mounts"
+regex = '^\S+ /home \S+ \S*\bnoexec\b'

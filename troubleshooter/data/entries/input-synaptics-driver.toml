@@ -1,0 +1,32 @@
+id = "input-synaptics-driver"
+title = "Touchpad: old Synaptics driver overrides libinput"
+summary = "xf86-input-synaptics is installed and takes over the touchpad on X11. It is no longer maintained, and GNOME and Plasma touchpad settings only work with libinput."
+categories = ["input"]
+systems = ["arch-and-based"]
+keywords = ["xf86-input-synaptics", "xf86-input-libinput", "synaptics", "libinput", "70-synaptics.conf", "xorg"]
+symptoms = ["touchpad settings don't work", "touchpad settings missing in gnome", "can't enable tap to click", "kde touchpad settings have no effect", "two finger scrolling doesn't work"]
+source = "https://wiki.archlinux.org/title/Libinput#Installation"
+
+[[when]]
+source = "package"
+names = ["xf86-input-synaptics"]
+
+[[signals]]
+says = "A desktop whose touchpad settings need libinput is installed"
+weight = 0.4
+source = "package"
+names = ["gnome-shell", "plasma-workspace", "cinnamon"]
+
+[[signals]]
+says = "This session runs on X11, where the Synaptics driver applies"
+weight = 0.3
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '^x11$'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install", packages = ["xf86-input-libinput"], says = "Make sure the libinput X driver is installed" },
+  { op = "remove", packages = ["xf86-input-synaptics"], says = "Remove the old Synaptics driver" },
+]

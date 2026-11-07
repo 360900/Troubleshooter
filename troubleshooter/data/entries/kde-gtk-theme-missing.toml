@@ -1,0 +1,40 @@
+id = "kde-gtk-theme-missing"
+title = "KDE Plasma: GTK apps look out of place"
+summary = "Plasma can't style GTK apps like Firefox or GIMP without kde-gtk-config and the Breeze GTK theme. They then look plain and may lack minimize and maximize buttons."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["kde-gtk-config", "breeze-gtk", "gtk theme", "plasma", "application style", "minimize button"]
+symptoms = ["gtk apps look ugly on kde", "firefox has no minimize button on plasma", "gtk apps don't follow dark theme on kde", "gnome apps look different on plasma", "can't change gtk theme in kde settings"]
+source = "https://wiki.archlinux.org/title/KDE#GTK_application_appearance"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "package"
+names = ["plasma-workspace"]
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["kde-gtk-config"] },
+  { source = "package", names = ["breeze-gtk"] },
+]
+
+[[signals]]
+says = "kde-gtk-config isn't installed"
+weight = 0.55
+source = "package"
+names = ["kde-gtk-config"]
+absent = true
+
+[[signals]]
+says = "The Breeze GTK theme isn't installed"
+weight = 0.3
+source = "package"
+names = ["breeze-gtk"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["kde-gtk-config", "breeze-gtk"], says = "Install Plasma's GTK settings module and the Breeze GTK theme" }]

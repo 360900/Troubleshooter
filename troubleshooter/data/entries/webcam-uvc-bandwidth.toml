@@ -1,0 +1,29 @@
+id = "webcam-uvc-bandwidth"
+title = "Webcam: fails to start because of USB bandwidth"
+summary = "The webcam asked for more USB bandwidth than was free, so the video stream couldn't start. A uvcvideo driver option makes it ask for less."
+categories = ["devices"]
+systems = ["any"]
+keywords = ["uvcvideo", "quirks=0x80", "usb bandwidth", "failed to submit urb", "lifecam", "v4l2"]
+symptoms = ["webcam doesn't work", "camera shows black screen", "webcam works only sometimes", "no video from usb camera", "webcam stops after a few seconds"]
+reproduce = "Open an app that uses the webcam, like a video call or a camera app."
+source = "https://wiki.archlinux.org/title/Webcam_setup#Microsoft_Lifecam_Studio/Cinema"
+
+[[when]]
+source = "module"
+names = ["uvcvideo"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/uvcvideo/parameters/quirks"
+regex = '^128$'
+
+[[signals]]
+says = "The webcam driver couldn't get enough USB bandwidth"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'uvcvideo.*Failed to submit URB \d+ \(-28\)'
+
+[[fix]]
+reboot = true
+steps = [{ op = "module_options", module = "uvcvideo", options = ["quirks=0x80"], says = "Make the webcam driver request less USB bandwidth" }]

@@ -1,0 +1,44 @@
+id = "kde-printers-settings"
+title = "KDE Plasma: no printer settings"
+summary = "The Printers page in Plasma's System Settings needs print-manager, CUPS and system-config-printer. Without them you can't add or manage printers from the desktop."
+categories = ["devices", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["print-manager", "cups", "system-config-printer", "plasma", "printers kcm", "cups.service"]
+symptoms = ["no printers page in kde settings", "can't add a printer on plasma", "printer settings missing in kde", "print service not available on kde"]
+source = "https://wiki.archlinux.org/title/KDE#Printing"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "package"
+names = ["plasma-workspace"]
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["print-manager"] },
+  { source = "package", names = ["cups"] },
+  { source = "service", name = "cups.service", state = "enabled" },
+]
+
+[[signals]]
+says = "print-manager isn't installed"
+weight = 0.6
+source = "package"
+names = ["print-manager"]
+absent = true
+
+[[signals]]
+says = "CUPS isn't installed"
+weight = 0.4
+source = "package"
+names = ["cups"]
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["print-manager", "cups", "system-config-printer"], says = "Install Plasma's printer settings, CUPS and system-config-printer" },
+  { op = "service", names = ["cups.service"], now = true, says = "Enable and start the printing service" },
+]

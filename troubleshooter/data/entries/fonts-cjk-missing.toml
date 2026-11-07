@@ -1,0 +1,26 @@
+id = "fonts-cjk-missing"
+title = "Fonts: Chinese, Japanese and Korean text shows as boxes"
+summary = "No font covering Chinese, Japanese or Korean is installed, so that text appears as empty squares. The Noto CJK fonts cover all three, at the cost of a few hundred MB of disk space."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["noto-fonts-cjk", "cjk", "source han sans", "adobe-source-han-sans-otc-fonts", "tofu", "fontconfig"]
+symptoms = ["japanese text shows as boxes", "chinese characters are squares", "korean text not displaying", "asian characters missing on websites", "square boxes instead of letters"]
+source = "https://wiki.archlinux.org/title/Fonts#Pan-CJK"
+
+[[when]]
+source = "package"
+names = ["fontconfig"]
+
+[[fixed_when]]
+source = "package"
+names = ["noto-fonts-cjk", "adobe-source-han-sans-*", "adobe-source-han-serif-*", "wqy-*", "ttf-sarasa-gothic"]
+
+[[signals]]
+says = "No font for Chinese, Japanese or Korean is installed"
+weight = 0.45
+source = "package"
+names = ["noto-fonts-cjk", "adobe-source-han-sans-*", "adobe-source-han-serif-*", "wqy-*", "ttf-sarasa-gothic"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["noto-fonts-cjk"], says = "Install the Noto CJK fonts" }]

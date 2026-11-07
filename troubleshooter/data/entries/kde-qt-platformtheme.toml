@@ -1,0 +1,21 @@
+id = "kde-qt-platformtheme"
+title = "KDE Plasma: theme, icon and font settings have no effect"
+summary = "QT_QPA_PLATFORMTHEME is set to qt5ct or qt6ct, which makes Qt apps follow those tools instead of Plasma. Theme, icon, font and color changes in System Settings then don't apply, and many icons go missing."
+categories = ["desktop"]
+systems = ["any"]
+keywords = ["QT_QPA_PLATFORMTHEME", "qt5ct", "qt6ct", "plasma", "icons missing", "environment variable"]
+symptoms = ["can't change theme in kde", "icons are missing on plasma", "kde settings don't change fonts", "color scheme doesn't apply", "dolphin has no icons"]
+advice = "Remove QT_QPA_PLATFORMTHEME from wherever it is set (often /etc/environment, ~/.profile or a file in ~/.config/environment.d), or uninstall qt5ct and qt6ct, then log out and back in."
+source = "https://wiki.archlinux.org/title/KDE#Cannot_change_theme,_icons,_fonts,_or_colors_in_system_settings;_most_icons_are_not_displayed"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = 'KDE'
+
+[[signals]]
+says = "QT_QPA_PLATFORMTHEME points Qt apps at qt5ct or qt6ct"
+weight = 0.75
+source = "env"
+name = "QT_QPA_PLATFORMTHEME"
+regex = 'qt[56]ct'

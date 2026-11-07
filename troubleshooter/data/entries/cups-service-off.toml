@@ -1,0 +1,29 @@
+id = "cups-service-off"
+title = "Printing: the CUPS service isn't running"
+summary = "CUPS, the printing system, is installed but neither its service nor its socket is enabled, so nothing can print and printer settings can't reach it."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["cups", "cups.service", "cups.socket", "printing", "scheduler not responding", "localhost:631"]
+symptoms = ["printer doesn't print", "can't add a printer", "print service not available", "lp says scheduler not responding", "localhost 631 doesn't open"]
+source = "https://wiki.archlinux.org/title/CUPS#Installation"
+
+[[when]]
+source = "package"
+names = ["cups"]
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "cups.service", state = "enabled" },
+  { source = "service", name = "cups.socket", state = "enabled" },
+]
+
+[[signals]]
+says = "Neither cups.service nor cups.socket is enabled"
+weight = 0.85
+all_of = [
+  { source = "service", name = "cups.service", state = "disabled" },
+  { source = "service", name = "cups.socket", state = "disabled" },
+]
+
+[[fix]]
+steps = [{ op = "service", names = ["cups.service"], now = true, says = "Enable and start the printing service" }]

@@ -1,0 +1,26 @@
+id = "fonts-emoji-missing"
+title = "Fonts: no emoji font installed"
+summary = "No color emoji font is installed, so emoji show up as empty boxes or plain symbols in apps and on websites. Installing Noto Color Emoji fixes this."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["noto-fonts-emoji", "emoji font", "fontconfig", "tofu", "color emoji", "unicode"]
+symptoms = ["emoji show as boxes", "emojis don't display", "squares instead of emoji", "emoji are black and white", "missing emoji in browser"]
+source = "https://wiki.archlinux.org/title/Fonts#Emoji_and_symbols"
+
+[[when]]
+source = "package"
+names = ["fontconfig"]
+
+[[fixed_when]]
+source = "package"
+names = ["noto-fonts-emoji", "ttf-joypixels", "ttf-twemoji", "ttf-twemoji-color", "otf-openmoji"]
+
+[[signals]]
+says = "No emoji font package is installed"
+weight = 0.6
+source = "package"
+names = ["noto-fonts-emoji", "ttf-joypixels", "ttf-twemoji", "ttf-twemoji-color", "otf-openmoji"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["noto-fonts-emoji"], says = "Install the Noto Color Emoji font" }]

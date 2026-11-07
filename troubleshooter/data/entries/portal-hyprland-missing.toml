@@ -1,0 +1,26 @@
+id = "portal-hyprland-missing"
+title = "Hyprland: screen sharing portal is missing"
+summary = "Hyprland's own portal backend isn't installed, so apps can't share your screen or take screenshots through the portal."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["xdg-desktop-portal-hyprland", "xdph", "xdg-desktop-portal", "screencast", "pipewire", "hyprland"]
+symptoms = ["screen sharing doesn't work on hyprland", "can't share my screen in discord", "obs can't capture the screen", "screen share shows nothing"]
+source = "https://wiki.archlinux.org/title/XDG_Desktop_Portal#List_of_backends_and_interfaces"
+
+[[when]]
+source = "package"
+names = ["hyprland", "hyprland-git"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-desktop-portal-hyprland", "xdg-desktop-portal-hyprland-git"]
+
+[[signals]]
+says = "Hyprland is installed, but its portal backend isn't"
+weight = 0.8
+source = "package"
+names = ["xdg-desktop-portal-hyprland", "xdg-desktop-portal-hyprland-git"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-desktop-portal-hyprland", "xdg-desktop-portal-gtk"], says = "Install the Hyprland portal, plus the GTK portal for file dialogs" }]

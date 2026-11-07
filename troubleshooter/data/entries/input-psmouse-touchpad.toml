@@ -1,0 +1,21 @@
+id = "input-psmouse-touchpad"
+title = "Touchpad: stops working after sleep or the cursor jumps"
+summary = "The kernel's PS/2 touchpad driver logged that it lost contact with the touchpad. That usually shows up as a touchpad that dies after waking from sleep, or a cursor that jumps around."
+categories = ["input", "sleep"]
+systems = ["any"]
+keywords = ["psmouse", "synaptics_intertouch", "i8042.nomux", "lost sync", "elantech", "ps/2"]
+symptoms = ["touchpad stops working after sleep", "touchpad dead after resume", "cursor jumps around", "mouse pointer jumps randomly", "touchpad freezes for a moment"]
+advice = "To get it back right away, run sudo modprobe -r psmouse && sudo modprobe psmouse. For a lasting fix, try the kernel parameter psmouse.synaptics_intertouch=0 if it dies after sleep, or i8042.nomux=1 if the cursor jumps. Test one at a time and remove it if it doesn't help."
+reproduce = "Put the laptop to sleep, wake it, and try the touchpad."
+source = "https://wiki.archlinux.org/title/Touchpad_Synaptics#Touchpad_does_not_work_after_resuming_from_hibernate/suspend"
+
+[[when]]
+source = "module"
+names = ["psmouse"]
+
+[[signals]]
+says = "The PS/2 touchpad driver lost sync with the touchpad"
+weight = 0.75
+source = "journal"
+kernel = true
+regex = 'psmouse .*(lost sync at byte|resync failed|issuing reconnect request)'

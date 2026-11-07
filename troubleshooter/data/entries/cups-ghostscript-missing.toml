@@ -1,0 +1,33 @@
+id = "cups-ghostscript-missing"
+title = "Printing: jobs fail with \"Filter failed\""
+summary = "CUPS needs Ghostscript to turn documents into something most printers understand. It isn't installed, so print jobs stop with a \"Filter failed\" error."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["ghostscript", "gstoraster", "filter failed", "cups-filters", "error_log"]
+symptoms = ["printer says filter failed", "print job stopped", "printing doesn't work", "jobs stay in the queue and fail"]
+source = "https://wiki.archlinux.org/title/CUPS/Troubleshooting#Missing_ghostscript"
+
+[[when]]
+source = "package"
+names = ["cups"]
+
+[[fixed_when]]
+source = "package"
+names = ["ghostscript"]
+
+[[signals]]
+says = "Ghostscript isn't installed"
+weight = 0.6
+source = "package"
+names = ["ghostscript"]
+absent = true
+
+[[signals]]
+says = "The CUPS log shows the Ghostscript filter failing"
+weight = 0.7
+source = "file"
+path = "/var/log/cups/error_log"
+regex = 'gstoraster.*(not available|No such file|failed)'
+
+[[fix]]
+steps = [{ op = "install", packages = ["ghostscript"] }]

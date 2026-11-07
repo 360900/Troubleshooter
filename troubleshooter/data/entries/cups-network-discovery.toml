@@ -1,0 +1,41 @@
+id = "cups-network-discovery"
+title = "Printing: network printers aren't found"
+summary = "CUPS finds network and AirPrint printers through Avahi, and reaches them by their .local names through nss-mdns. One or both aren't set up, so printers don't show up or can't be located when printing."
+categories = ["devices", "network"]
+systems = ["arch-and-based"]
+keywords = ["avahi", "avahi-daemon", "nss-mdns", "mdns_minimal", "nsswitch.conf", "airprint", "ipp everywhere", "dnssd", "unable to locate printer"]
+symptoms = ["network printer not found", "wifi printer doesn't show up", "unable to locate printer", "can't find my printer on the network", "airprint printer not detected"]
+source = "https://wiki.archlinux.org/title/CUPS/Troubleshooting#Unable_to_locate_printer"
+
+[[when]]
+source = "package"
+names = ["cups"]
+
+[[fixed_when]]
+all_of = [
+  { source = "service", name = "avahi-daemon.service", state = "enabled" },
+  { source = "file", path = "/etc/nsswitch.conf", regex = '^hosts:.*\bmdns' },
+]
+
+[[signals]]
+says = "The Avahi service isn't enabled, so CUPS can't discover printers"
+weight = 0.6
+source = "service"
+name = "avahi-daemon.service"
+state = "disabled"
+
+[[signals]]
+says = ".local names aren't resolved, so discovered printers can't be reached"
+weight = 0.35
+source = "file"
+path = "/etc/nsswitch.conf"
+regex = '^hosts:.*\bmdns'
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["avahi", "nss-mdns"], says = "Install Avahi and its .local name resolver" },
+  { op = "replace", path = "/etc/nsswitch.conf", address = '/^hosts:/', pattern = '^(hosts:[[:space:]]+(mymachines[[:space:]]+)?)(mdns_minimal \[NOTFOUND=return\] )?', replacement = '\1mdns_minimal [NOTFOUND=return] ', says = "Let the system resolve .local printer names" },
+  { op = "service", names = ["avahi-daemon.service"], now = true, says = "Enable and start the Avahi service" },
+  { op = "command", says = "Restart CUPS so it picks up Avahi", run = "systemctl try-restart cups.service" },
+]

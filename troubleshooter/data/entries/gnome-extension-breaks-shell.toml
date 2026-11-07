@@ -1,0 +1,20 @@
+id = "gnome-extension-breaks-shell"
+title = "GNOME: an extension is breaking the desktop"
+summary = "GNOME Shell logged errors from extensions. A broken or outdated extension, often after a GNOME update, can make the desktop crash, freeze or lose panels and menus."
+categories = ["desktop", "crashes"]
+systems = ["any"]
+keywords = ["gnome-shell", "extensions", "JS ERROR", "shell-version", "gnome-extensions", "extension manager"]
+symptoms = ["gnome keeps crashing", "gnome shell freezes", "top bar disappeared", "gnome broke after an update", "extensions stopped working after gnome update", "logged out back to the login screen"]
+advice = "Turn off all extensions in the Extensions app (or run gsettings set org.gnome.shell disable-user-extensions true) and log in again. If that fixes it, turn them back on one at a time to find the broken one, then update or remove it."
+reproduce = "Use the desktop until it freezes or the problem shows up."
+source = "https://wiki.archlinux.org/title/GNOME/Troubleshooting#When_an_extension_breaks_the_shell"
+
+[[when]]
+source = "package"
+names = ["gnome-shell"]
+
+[[signals]]
+says = "GNOME Shell logged errors from an extension"
+weight = 0.55
+source = "journal"
+regex = 'gnome-shell\[\d+\]: (JS ERROR: )?Extension \S+@\S+: '

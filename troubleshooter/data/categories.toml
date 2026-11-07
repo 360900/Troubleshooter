@@ -106,6 +106,13 @@ blurb = "Fonts, screen sharing, browsers, Flatpak apps and the desktop itself."
 keywords = ["desktop", "app", "font", "emoji", "browser", "firefox", "chrome", "flatpak", "screen sharing", "gnome", "kde", "plasma"]
 
 [[category]]
+id = "input"
+title = "Mouse and keyboard"
+icon = "input-mouse"
+blurb = "Touchpads, mice, keyboards and controllers that misbehave."
+keywords = ["touchpad", "trackpad", "mouse", "keyboard", "controller", "gamepad", "input", "click", "scroll"]
+
+[[category]]
 id = "devices"
 title = "Printers, webcams and more"
 icon = "printer"

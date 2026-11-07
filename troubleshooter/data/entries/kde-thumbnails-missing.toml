@@ -1,0 +1,40 @@
+id = "kde-thumbnails-missing"
+title = "KDE Plasma: no previews for videos and documents"
+summary = "Dolphin and the desktop need extra plugins to show thumbnails for videos, PDFs and other documents, and they aren't installed. After installing them, turn on the preview types in Dolphin's settings."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["dolphin", "kdegraphics-thumbnailers", "ffmpegthumbs", "thumbnails", "previews", "kio"]
+symptoms = ["dolphin doesn't show video thumbnails", "no pdf previews in dolphin", "file manager shows generic icons instead of previews", "no thumbnails on kde desktop"]
+source = "https://wiki.archlinux.org/title/KDE#Thumbnail_generation"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "package"
+names = ["dolphin"]
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["kdegraphics-thumbnailers"] },
+  { source = "package", names = ["ffmpegthumbs"] },
+]
+
+[[signals]]
+says = "The video thumbnail plugin isn't installed"
+weight = 0.45
+source = "package"
+names = ["ffmpegthumbs"]
+absent = true
+
+[[signals]]
+says = "The document thumbnail plugin isn't installed"
+weight = 0.45
+source = "package"
+names = ["kdegraphics-thumbnailers"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["kdegraphics-thumbnailers", "ffmpegthumbs"], says = "Install thumbnail plugins for documents and videos" }]

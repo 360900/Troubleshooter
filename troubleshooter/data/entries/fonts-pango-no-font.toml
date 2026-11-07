@@ -1,0 +1,25 @@
+id = "fonts-pango-no-font"
+title = "Fonts: apps can't find any usable font"
+summary = "GTK apps logged that they couldn't pick a font at all, which happens when almost no fonts are installed. Text then looks broken or turns into boxes. Installing a basic font family and refreshing the font cache fixes it."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["pango", "Pango-WARNING", "failed to choose a font", "fc-cache", "ttf-liberation", "fontconfig"]
+symptoms = ["text shows as boxes in every app", "fonts look ugly everywhere", "no fonts installed", "apps show squares instead of text"]
+reproduce = "Open an app where the text looks wrong."
+source = "https://wiki.archlinux.org/title/Fonts#Pango_warnings"
+
+[[when]]
+source = "package"
+names = ["pango"]
+
+[[signals]]
+says = "An app logged that Pango couldn't choose a font"
+weight = 0.8
+source = "journal"
+regex = 'Pango-WARNING.*failed to choose a font'
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["ttf-liberation", "noto-fonts"], says = "Install the Liberation and Noto font families" },
+  { op = "command", says = "Rebuild the system font cache", run = "fc-cache -f" },
+]

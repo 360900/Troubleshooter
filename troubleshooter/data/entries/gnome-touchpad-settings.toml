@@ -1,0 +1,20 @@
+id = "gnome-touchpad-settings"
+title = "GNOME: touchpad off, or tapping and right click don't work"
+summary = "GNOME applies its own touchpad settings on top of libinput. The touchpad can be turned off there, tapping is off by default, and right click on buttonless touchpads defaults to a two-finger tap."
+categories = ["input", "desktop"]
+systems = ["any"]
+keywords = ["gnome", "libinput", "touchpad", "tap-to-click", "click-method", "send-events", "gsettings", "natural scrolling"]
+symptoms = ["touchpad not working in gnome", "tap to click doesn't work", "right click doesn't work on touchpad", "clicking bottom right corner does a left click", "touchpad scrolls the wrong way"]
+advice = "Check Settings, Mouse and Touchpad, and make sure the touchpad is on and Tap to Click is set the way you want. For right click in the bottom right corner, run gsettings set org.gnome.desktop.peripherals.touchpad click-method areas (two-finger tap is the default). If the touchpad still does nothing, run gsettings set org.gnome.desktop.peripherals.touchpad send-events enabled."
+source = "https://wiki.archlinux.org/title/Libinput#Touchpad_not_working_in_GNOME"
+
+[[when]]
+source = "package"
+names = ["gnome-shell"]
+
+[[signals]]
+says = "This is a laptop"
+weight = 0.15
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'

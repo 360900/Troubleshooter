@@ -1,0 +1,26 @@
+id = "portal-wlr-no-fallback"
+title = "Sway and wlroots: links and file dialogs fail in sandboxed apps"
+summary = "The wlroots portal only handles screen sharing and screenshots. With no second portal next to it, Flatpak apps can't open links or show file dialogs. The GTK portal fills that gap."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["xdg-desktop-portal-gtk", "xdg-desktop-portal-wlr", "OpenURI", "file chooser", "flatpak", "wlroots"]
+symptoms = ["links don't open from flatpak apps", "clicking a link does nothing", "file dialog doesn't open", "can't save files in flatpak app on sway", "download dialog never appears"]
+source = "https://wiki.archlinux.org/title/Flatpak#Links_fail_to_open_on_wlroots-based_compositors"
+
+[[when]]
+source = "package"
+names = ["xdg-desktop-portal-wlr"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-desktop-portal-gtk", "xdg-desktop-portal-gnome", "xdg-desktop-portal-kde", "xdg-desktop-portal-lxqt", "xdg-desktop-portal-termfilechooser*", "xdg-desktop-portal-shana"]
+
+[[signals]]
+says = "Only the wlroots portal is installed, with nothing to handle links and file dialogs"
+weight = 0.7
+source = "package"
+names = ["xdg-desktop-portal-gtk", "xdg-desktop-portal-gnome", "xdg-desktop-portal-kde", "xdg-desktop-portal-lxqt", "xdg-desktop-portal-termfilechooser*", "xdg-desktop-portal-shana"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-desktop-portal-gtk"], says = "Install the GTK desktop portal" }]

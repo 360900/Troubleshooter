@@ -1,0 +1,19 @@
+id = "appstore-no-arch-packages"
+title = "Software centers don't show Arch packages or updates"
+summary = "GNOME Software and KDE Discover manage packages through PackageKit, which Arch doesn't support for system packages. They show Flatpak apps fine, but repository packages and updates may be missing."
+categories = ["updates", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["gnome-software", "discover", "packagekit", "packagekit-qt6", "db.lck", "flatpak", "app store"]
+symptoms = ["gnome software shows no apps", "discover doesn't show any applications", "discover stopped showing updates", "software center has no updates", "app store is empty"]
+advice = "Install and update system packages with pacman (or your distro's update tool) rather than the software center. Discover can show repository packages with packagekit-qt6, but Arch's maintainers advise against updating through it. If Discover with PackageKit stops showing updates, close it, delete /var/lib/PackageKit/alpm/db.lck and press Refresh."
+source = "https://wiki.archlinux.org/title/KDE#Discover_does_not_show_any_applications"
+
+[[when]]
+source = "package"
+names = ["gnome-software", "discover"]
+
+[[signals]]
+says = "A stale PackageKit lock file is present"
+weight = 0.4
+source = "file"
+path = "/var/lib/PackageKit/alpm/db.lck"

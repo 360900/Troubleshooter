@@ -1,0 +1,32 @@
+id = "kde-powerdevil-missing"
+title = "KDE Plasma: power management is missing"
+summary = "Plasma's power service, PowerDevil, isn't installed. Without it there are no sleep or hibernate options, no battery settings and often no screen brightness control."
+categories = ["desktop", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["powerdevil", "power management", "plasma", "brightness", "suspend options", "power profiles"]
+symptoms = ["no sleep option in kde", "suspend is missing from the menu", "can't change screen brightness on plasma", "no battery settings in kde", "no power profiles in plasma"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/KDE#No_Suspend/Hibernate_Options"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "package"
+names = ["plasma-workspace"]
+
+[[fixed_when]]
+source = "package"
+names = ["powerdevil"]
+
+[[signals]]
+says = "Plasma is installed, but PowerDevil isn't"
+weight = 0.85
+source = "package"
+names = ["powerdevil"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["powerdevil"], says = "Install Plasma's power management service" }]

@@ -1,0 +1,22 @@
+id = "cups-gutenprint-ppd"
+title = "Printing: printer stopped working after a Gutenprint update"
+summary = "When Gutenprint is updated, printers set up with it keep their old driver files and stop printing until those files are regenerated."
+categories = ["devices", "updates"]
+systems = ["arch-and-based"]
+keywords = ["gutenprint", "cups-genppdupdate", "ppd", "foomatic-db-gutenprint-ppds", "epson", "canon"]
+symptoms = ["printer stopped working after update", "ppd version is not compatible with gutenprint", "epson printer won't print after upgrade", "canon printer stopped printing"]
+source = "https://wiki.archlinux.org/title/CUPS/Troubleshooting#The_PPD_version_is_not_compatible_with_gutenprint"
+
+[[when]]
+source = "package"
+names = ["gutenprint"]
+
+[[signals]]
+says = "CUPS reports a PPD that doesn't match the installed Gutenprint"
+weight = 0.85
+source = "file"
+path = "/var/log/cups/error_log"
+regex = 'PPD version .* is not compatible with Gutenprint'
+
+[[fix]]
+steps = [{ op = "command", says = "Update the printer driver files and restart CUPS", run = "cups-genppdupdate && systemctl try-restart cups.service" }]

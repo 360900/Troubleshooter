@@ -1,0 +1,26 @@
+id = "portal-wlr-missing"
+title = "Sway and wlroots: screen sharing portal is missing"
+summary = "Your wlroots-based compositor has no portal backend for screen sharing, so video calls and recording apps can't capture the screen."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["xdg-desktop-portal-wlr", "xdg-desktop-portal", "wlroots", "sway", "screencast", "pipewire"]
+symptoms = ["screen sharing doesn't work on sway", "can't share my screen in a browser", "obs can't capture the screen on wayland", "screen share shows nothing"]
+source = "https://wiki.archlinux.org/title/XDG_Desktop_Portal#List_of_backends_and_interfaces"
+
+[[when]]
+source = "package"
+names = ["sway", "sway-git", "swayfx", "river", "labwc", "wayfire", "dwl"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-desktop-portal-wlr", "xdg-desktop-portal-hyprland", "xdg-desktop-portal-luminous"]
+
+[[signals]]
+says = "No screen sharing portal for wlroots compositors is installed"
+weight = 0.75
+source = "package"
+names = ["xdg-desktop-portal-wlr", "xdg-desktop-portal-hyprland", "xdg-desktop-portal-luminous"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-desktop-portal-wlr", "xdg-desktop-portal-gtk"], says = "Install the wlroots portal, plus the GTK portal for file dialogs and links" }]

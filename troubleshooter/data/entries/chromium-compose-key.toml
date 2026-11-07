@@ -1,0 +1,13 @@
+id = "chromium-compose-key"
+title = "Chromium: Compose and AltGr characters can't be typed"
+summary = "A bug in Chromium's GTK input handling stops the Compose key and AltGr combinations from working, so you can't type characters like @ or umlauts in the browser."
+categories = ["desktop", "input"]
+systems = ["any"]
+keywords = ["chromium", "chrome", "compose key", "altgr", "--disable-gtk-ime", "chromium-flags.conf", "dead keys"]
+symptoms = ["can't type @ in chrome", "altgr doesn't work in chromium", "compose key doesn't work in the browser", "umlauts don't work in chrome", "special characters can't be typed in chromium"]
+advice = "Add the line --disable-gtk-ime to ~/.config/chromium-flags.conf (or chrome-flags.conf for Google Chrome) and restart the browser."
+source = "https://wiki.archlinux.org/title/Chromium#Compose_key_does_not_work:_Typing_special_characters_with_keyboard_not_possible"
+
+[[when]]
+source = "package"
+names = ["chromium", "google-chrome", "google-chrome-*", "brave-bin", "vivaldi", "ungoogled-chromium*"]

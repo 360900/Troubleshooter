@@ -1,0 +1,32 @@
+id = "kde-plasma-pa-missing"
+title = "KDE Plasma: no volume control"
+summary = "Plasma's audio volume applet, plasma-pa, isn't installed. Without it there is no volume icon in the tray and the volume keys do nothing."
+categories = ["desktop", "sound"]
+systems = ["arch-and-based"]
+keywords = ["plasma-pa", "volume applet", "system tray", "volume keys", "pipewire", "pulseaudio"]
+symptoms = ["no volume icon in kde tray", "volume keys don't work on plasma", "can't change volume in kde", "sound icon missing from taskbar"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/KDE#No_volume_control_icon_in_tray_and_cannot_adjust_sound_by_function_key"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "package"
+names = ["plasma-workspace"]
+
+[[fixed_when]]
+source = "package"
+names = ["plasma-pa"]
+
+[[signals]]
+says = "Plasma is installed, but its volume applet isn't"
+weight = 0.85
+source = "package"
+names = ["plasma-pa"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["plasma-pa"], says = "Install Plasma's volume control" }]

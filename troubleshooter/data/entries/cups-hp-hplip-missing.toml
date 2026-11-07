@@ -1,0 +1,32 @@
+id = "cups-hp-hplip-missing"
+title = "Printing: HP printer jobs stop with foomatic-rip errors"
+summary = "The HP printer queue uses a driver from HPLIP, which isn't installed. Jobs look like they're processing and then stop."
+categories = ["devices"]
+systems = ["arch-and-based"]
+keywords = ["hplip", "foomatic-rip", "hp printer", "stopped with status 3", "hpcups", "error_log"]
+symptoms = ["hp printer doesn't print", "print job stopped on hp printer", "hp printer shows processing then stops", "foomatic-rip not available"]
+source = "https://wiki.archlinux.org/title/CUPS/Troubleshooting#CUPS:_'\"foomatic-rip\"_not_available/stopped_with_status_3'"
+
+[[when]]
+source = "package"
+names = ["cups"]
+
+[[fixed_when]]
+source = "package"
+names = ["hplip"]
+
+[[signals]]
+says = "The CUPS log shows foomatic-rip missing or failing"
+weight = 0.75
+source = "file"
+path = "/var/log/cups/error_log"
+regex = 'foomatic-rip.*(not available|stopped with status 3)'
+
+[[signals]]
+says = "An HP USB device is connected"
+weight = 0.2
+source = "usb"
+vendor = "03f0"
+
+[[fix]]
+steps = [{ op = "install", packages = ["hplip"], says = "Install HP's printer drivers (HPLIP)" }]

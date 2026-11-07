@@ -1,0 +1,31 @@
+id = "kde-gtk-portal-missing"
+title = "KDE Plasma: GTK apps have blurry fonts or the wrong cursor"
+summary = "Some GTK apps on Plasma read font and cursor settings through the GTK portal, which isn't installed. Without it their text can render poorly and they show the wrong cursor on Wayland."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["xdg-desktop-portal-gtk", "gtk", "font rendering", "cursor theme", "plasma", "wayland"]
+symptoms = ["gtk apps have blurry fonts on kde", "fonts look bad in firefox on plasma", "wrong mouse cursor in some apps", "cursor changes over gtk windows", "gnome apps look wrong on kde"]
+source = "https://wiki.archlinux.org/title/XDG_Desktop_Portal#Poor_font_rendering_in_GTK_applications_on_KDE_Plasma"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "package"
+names = ["plasma-workspace"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-desktop-portal-gtk"]
+
+[[signals]]
+says = "Plasma is installed without the GTK portal"
+weight = 0.5
+source = "package"
+names = ["xdg-desktop-portal-gtk"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-desktop-portal-gtk"], says = "Install the GTK desktop portal" }]

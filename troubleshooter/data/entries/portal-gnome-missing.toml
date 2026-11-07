@@ -1,0 +1,32 @@
+id = "portal-gnome-missing"
+title = "GNOME: desktop portal is missing"
+summary = "GNOME's portal backend isn't installed. Without it, screen sharing, screenshots from apps, file dialogs in Flatpak apps and the dark style setting for apps don't work properly."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["xdg-desktop-portal-gnome", "xdg-desktop-portal", "portal", "screencast", "pipewire", "file chooser"]
+symptoms = ["screen sharing doesn't work on gnome", "can't share my screen in a video call", "file dialog doesn't open in flatpak app", "flatpak apps ignore dark mode", "links don't open from flatpak apps"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/XDG_Desktop_Portal#List_of_backends_and_interfaces"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?GNOME(:|$)'
+
+[[when]]
+source = "package"
+names = ["gnome-shell"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-desktop-portal-gnome"]
+
+[[signals]]
+says = "GNOME is installed, but its portal backend isn't"
+weight = 0.85
+source = "package"
+names = ["xdg-desktop-portal-gnome"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-desktop-portal-gnome"], says = "Install the GNOME desktop portal" }]

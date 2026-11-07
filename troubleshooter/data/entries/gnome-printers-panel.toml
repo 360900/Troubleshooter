@@ -1,0 +1,44 @@
+id = "gnome-printers-panel"
+title = "GNOME: printer settings don't work"
+summary = "The Printers page in GNOME Settings needs CUPS and system-config-printer. Without them it stays empty or can't add a printer."
+categories = ["devices", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["gnome-control-center", "cups", "system-config-printer", "printers panel", "cups.service"]
+symptoms = ["can't add a printer in gnome", "printers page is empty", "gnome settings printers doesn't work", "printer settings say print service not available", "add printer button does nothing"]
+source = "https://wiki.archlinux.org/title/GNOME/Troubleshooting#Printers_configuration_does_not_work_in_GNOME_settings"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?GNOME(:|$)'
+
+[[when]]
+source = "package"
+names = ["gnome-control-center"]
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["cups"] },
+  { source = "package", names = ["system-config-printer"] },
+  { source = "service", name = "cups.service", state = "enabled" },
+]
+
+[[signals]]
+says = "CUPS isn't installed"
+weight = 0.6
+source = "package"
+names = ["cups"]
+absent = true
+
+[[signals]]
+says = "system-config-printer isn't installed"
+weight = 0.4
+source = "package"
+names = ["system-config-printer"]
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["cups", "system-config-printer"], says = "Install CUPS and system-config-printer" },
+  { op = "service", names = ["cups.service"], now = true, says = "Enable and start the printing service" },
+]

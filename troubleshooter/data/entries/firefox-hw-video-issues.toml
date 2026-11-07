@@ -1,0 +1,13 @@
+id = "firefox-hw-video-issues"
+title = "Firefox: videos freeze or show corrupted graphics"
+summary = "Firefox's hardware video decoding can freeze playback or garble the picture with some drivers. Turning it off in Firefox moves decoding to the CPU, which uses a bit more power."
+categories = ["desktop"]
+systems = ["any"]
+keywords = ["firefox", "vaapi", "va-api", "media.hardware-video-decoding.enabled", "hardware acceleration", "about:config"]
+symptoms = ["youtube freezes in firefox", "videos are corrupted in firefox", "green or garbled video in browser", "firefox video playback stutters and freezes", "firefox freezes when playing video"]
+advice = "First start Firefox in Troubleshoot Mode (Help, Troubleshoot Mode) to confirm the problem goes away. If it does, open about:config, set media.hardware-video-decoding.enabled to false and restart Firefox."
+source = "https://wiki.archlinux.org/title/Firefox#Hardware_video_acceleration_issues"
+
+[[when]]
+source = "package"
+names = ["firefox", "firefox-esr", "firefox-developer-edition", "firefox-nightly", "librewolf", "librewolf-bin"]
