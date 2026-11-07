@@ -38,3 +38,22 @@ class AmdGfxoffTests(EngineCase):
     def test_no_mask_applies(self):
         self.assertEqual(self.gfxoff()[1].status, engine.APPLIES)
 
+
+class AmdAbmTests(EngineCase):
+    def abm(self, savings=None, packages=()):
+        m = self.machine()
+        m.modules("amdgpu")
+        m.write("/sys/class/dmi/id/chassis_type", "10\n")
+        m.packages = set(packages)
+        if savings is not None:
+            m.write("/sys/class/drm/card1-eDP-1/amdgpu/panel_power_savings", f"{savings}\n")
+        return engine.diagnose_entry(DB.entries["amd-abm-washed-out"], m.system())
+
+    def test_panel_power_savings_in_use_is_evidence(self):
+        self.assertGreaterEqual(self.abm(3).confidence, engine.RECOMMEND_AT)
+
+    def test_power_profiles_daemon_alone_is_not_evidence(self):
+        # Its amdgpu_panel_power action is off by default since 0.30.
+        d = self.abm(0, {"power-profiles-daemon"})
+        self.assertFalse(d.found)
+        self.assertLess(d.confidence, engine.RECOMMEND_AT)

@@ -1,6 +1,6 @@
 id = "amd-abm-washed-out"
 title = "AMD laptop: colors look washed out on power saving"
-summary = "Power tools such as power-profiles-daemon and tuned turn on Panel Power Savings, which lowers color accuracy on AMD laptops to save power. Turning it off restores normal colors at a small battery cost."
+summary = "Panel Power Savings lowers color accuracy and contrast on AMD laptops to save power. TuneD's battery profiles turn it on, and so does power-profiles-daemon when its amdgpu_panel_power action is enabled. Turning it off restores normal colors at a small battery cost."
 categories = ["amd", "display", "sleep"]
 systems = ["arch-and-based"]
 keywords = ["amdgpu.abmlevel", "abm", "panel power savings", "pps", "power-profiles-daemon", "tuned", "washed out colors"]
@@ -20,11 +20,21 @@ regex = '^(8|9|10|14|31|32)$'
 source = "kernel_param"
 params = ["amdgpu.abmlevel=0"]
 
+# The driver only offers this file while abmlevel is left on auto. It reads 0 on AC power,
+# so it shows the problem only while it's happening.
 [[signals]]
-says = "A power tool that turns on Panel Power Savings is installed"
+says = "Panel Power Savings is on right now"
+weight = 0.6
+source = "file"
+path = "/sys/class/drm/card*-eDP-*/amdgpu/panel_power_savings"
+regex = '^[1-4]$'
+
+# power-profiles-daemon 0.30 leaves its panel power action off unless you enable it.
+[[signals]]
+says = "TuneD is installed, and its battery profiles turn on Panel Power Savings"
 weight = 0.3
 source = "package"
-names = ["power-profiles-daemon", "tuned", "tuned-ppd"]
+names = ["tuned", "tuned-ppd"]
 
 [[fix]]
 reboot = true
