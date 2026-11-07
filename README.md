@@ -73,6 +73,8 @@ steps = [
 
 Search synonyms are in `troubleshooter/data/lexicon.toml`.
 
+Many entries are based on the [ArchWiki](https://wiki.archlinux.org/) (GFDL 1.3), written in our own words. Their `source` links to the page they come from.
+
 ## License
 
 GPL-3.0-or-later. Inter and Geist Mono (OFL), Adwaita icons (CC-BY-SA / LGPL).
