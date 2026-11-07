@@ -1,4 +1,5 @@
 """Drives the real window headlessly against a fake machine. Scripts run with stub binaries."""
+import gc
 import os
 import stat
 import tempfile
@@ -72,6 +73,13 @@ class UiTest(unittest.TestCase):
         self.window.check_entry(self.db.entries[entry_id])
         self.wait_until(lambda: hasattr(self.window.fix, "diagnosis") and not self.window.tasks
                         and self.window.fix.diagnosis.entry.id == entry_id)
+
+    def test_garbage_is_only_collected_on_the_gui_thread(self):
+        self.assertFalse(gc.isenabled())
+        for _ in range(gc.get_threshold()[0] * 2):
+            cycle = []
+            cycle.append(cycle)
+        self.wait_until(lambda: gc.get_count()[0] <= gc.get_threshold()[0])
 
     def test_recommendations_appear_on_launch_without_asking(self):
         ids = [d.entry.id for d in self.window.home.scan_results]
