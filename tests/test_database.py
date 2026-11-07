@@ -22,9 +22,20 @@ class DatabaseTests(unittest.TestCase):
         for category in self.db.categories:
             self.assertTrue(self.db.in_category(category), category)
 
-    def test_mbp132_patches_are_not_in_the_database_yet(self):
-        for entry in self.db.entries.values():
-            self.assertNotIn("mbp132", entry.id)
+    def test_mbp132_setup_fixes_each_install_and_undo_one_part(self):
+        parts = {"audio", "touchbar", "sleep", "wifi", "grub", "keyboard"}
+        steps = [step for entry in self.db.entries.values() for fix in entry.fixes for step in fix.steps
+                 if step["op"] == "run_from_repo" and step["repo"].endswith("/mbp132-setup")]
+        self.assertGreaterEqual(len(steps), 9)
+        # One pinned version for all of them, so the parts always come from the same tree.
+        self.assertEqual({(s["commit"], s["script"]) for s in steps}, {(steps[0]["commit"], "mbp132-setup-cli.sh")})
+        for step in steps:
+            with self.subTest(says=step["says"]):
+                kept = parts - {a.removeprefix("--no-") for a in step["args"] if a.startswith("--no-")}
+                self.assertLessEqual(len(kept), 1)
+                if "undo_args" in step:
+                    self.assertEqual(step["undo_args"][0], "--uninstall")
+                    self.assertEqual(parts - {a.removeprefix("--no-") for a in step["undo_args"][1:]}, kept)
 
     def test_probes_only_run_read_only_commands(self):
         def commands(spec):

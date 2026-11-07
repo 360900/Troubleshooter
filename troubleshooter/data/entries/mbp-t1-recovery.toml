@@ -1,0 +1,27 @@
+id = "mbp-t1-recovery"
+title = "MacBook Pro 2016-2017: Touch Bar chip has no firmware"
+summary = "The T1 chip loads its firmware from EFI/APPLE/EMBEDDEDOS on the macOS EFI partition at every power-on. It's in recovery mode, so that folder is missing or damaged, and the Touch Bar, camera, Touch ID and light sensor can't work."
+categories = ["input", "devices"]
+systems = ["any"]
+keywords = ["t1", "embeddedos", "05ac:1281", "recovery mode", "efi partition", "touch bar firmware"]
+symptoms = ["touch bar and camera stopped working after installing linux", "touch bar gone after formatting the efi partition", "camera not detected on macbook pro"]
+auto_detect = true
+source = "https://github.com/360900/mbp132-setup#readme"
+advice = "Copy the EFI/APPLE/EMBEDDEDOS folder back onto the macOS EFI partition, from /var/lib/mbp132-setup/t1-firmware if mbp132-setup backed it up, or from another backup, then shut down fully and start again. Without a backup, only reinstalling macOS writes it again. Never delete or reformat that EFI partition."
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[when]]
+source = "usb"
+vendor = "05ac"
+devices = ["1281"]
+
+[[signals]]
+says = "The T1 chip is in recovery mode (USB 05ac:1281)"
+weight = 0.9
+source = "usb"
+vendor = "05ac"
+devices = ["1281"]

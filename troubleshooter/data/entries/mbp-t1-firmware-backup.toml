@@ -1,0 +1,34 @@
+id = "mbp-t1-firmware-backup"
+title = "MacBook Pro 2016-2017: Touch Bar firmware isn't backed up"
+summary = "The only copy of the T1 chip's firmware is on the macOS EFI partition. If that partition is ever deleted or reformatted, the Touch Bar, camera, Touch ID and light sensor stop working until macOS is reinstalled. mbp132-setup keeps a copy in /var/lib/mbp132-setup."
+categories = ["input", "devices"]
+systems = ["arch-and-based"]
+keywords = ["t1", "embeddedos", "backup", "efi partition", "touch bar firmware", "mbp132-setup"]
+symptoms = ["back up the touch bar firmware", "can i delete the macos efi partition", "save t1 firmware before reinstalling"]
+source = "https://github.com/360900/mbp132-setup#readme"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[when]]
+source = "usb"
+vendor = "05ac"
+devices = ["8600"]
+
+[[fixed_when]]
+source = "file"
+path = "/var/lib/mbp132-setup/t1-firmware"
+
+[[signals]]
+says = "There's no backup of the T1 firmware in /var/lib/mbp132-setup"
+weight = 0.5
+source = "file"
+path = "/var/lib/mbp132-setup/t1-firmware"
+absent = true
+
+[[fix]]
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--no-keyboard"], says = "Back up the Touch Bar firmware with mbp132-setup (it also installs its build tools and rebuilds the boot images)" },
+]

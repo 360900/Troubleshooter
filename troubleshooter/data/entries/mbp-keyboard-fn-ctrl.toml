@@ -1,0 +1,31 @@
+id = "mbp-keyboard-fn-ctrl"
+title = "MacBook Pro 2016-2017: swap Fn and the left Ctrl key"
+summary = "MacBooks put Fn where most keyboards have Ctrl. mbp132-setup can swap the two. Undo removes all keyboard settings made by mbp132-setup."
+categories = ["input"]
+systems = ["arch-and-based"]
+keywords = ["fn", "ctrl", "fnremap", "applespi", "swap fn and control", "mbp132-setup"]
+symptoms = ["swap fn and ctrl on macbook", "fn key is where ctrl should be", "i keep pressing fn instead of control"]
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+# Rewriting the options file would drop the ISO layout fix; that case is for the CLI.
+[[when]]
+source = "file"
+path = "/etc/modprobe.d/mbp132-applespi.conf"
+regex = 'iso_layout'
+absent = true
+
+[[fixed_when]]
+source = "file"
+path = "/etc/modprobe.d/*.conf"
+regex = '^options applespi.*fnremap=1'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--fn-ctrl-swap"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub"], says = "Swap Fn and the left Ctrl key with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

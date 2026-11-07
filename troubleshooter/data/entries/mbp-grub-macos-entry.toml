@@ -1,0 +1,43 @@
+id = "mbp-grub-macos-entry"
+title = "MacBook Pro 2016-2017: macOS is missing from the GRUB menu"
+summary = "GRUB can't read macOS's APFS disk, so it can't start macOS itself. mbp132-setup adds a macOS entry that asks the firmware to start macOS once. It needs GRUB 2.16."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["grub", "macos", "bootnext", "apfs", "dual boot", "41_mbp132-macos", "mbp132-setup"]
+symptoms = ["macos not in grub menu", "how do i boot macos from grub", "can't start macos after installing linux", "hold option key to boot macos"]
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[when]]
+source = "package"
+names = ["grub"]
+
+[[when]]
+source = "file"
+path = "/etc/default/grub"
+
+# A firmware boot entry for Apple's boot.efi (the path is stored as UTF-16).
+[[when]]
+source = "file"
+path = "/sys/firmware/efi/efivars/Boot[0-9A-F][0-9A-F][0-9A-F][0-9A-F]-8be4df61-93ca-11d2-aa0d-00e098032b8c"
+regex = 'C\x00o\x00r\x00e\x00S\x00e\x00r\x00v\x00i\x00c\x00e\x00s\x00\\\x00b\x00o\x00o\x00t\x00\.\x00e\x00f\x00i'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/grub.d/41_mbp132-macos"
+
+[[signals]]
+says = "The firmware has a macOS boot entry, but GRUB's menu doesn't offer it"
+weight = 0.5
+source = "file"
+path = "/etc/grub.d/41_mbp132-macos"
+absent = true
+
+[[fix]]
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-keyboard"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-keyboard"], says = "Add a macOS entry to the GRUB menu with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

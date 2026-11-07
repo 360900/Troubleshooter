@@ -104,6 +104,66 @@ class AutoDetectTests(EngineCase):
         self.assertEqual(self.scan_ids(m), set())
 
 
+class MacBookProTests(EngineCase):
+    """mbp132-setup's parts on a 2016-2017 MacBook Pro, each found on its own."""
+    NVRAM = "/usr/lib/firmware/brcm/brcmfmac43602-pcie.Apple Inc.-MacBookPro13,2.txt"
+    MBP = {"mbp-audio-driver", "mbp-touchbar-driver", "mbp-sleep-fixes", "mbp-wifi-bcm43602"}
+
+    def mac(self, model="MacBookPro13,2", t1="8600"):
+        m = self.machine()
+        m.write("/sys/class/dmi/id/sys_vendor", "Apple Inc.\n")
+        m.write("/sys/class/dmi/id/product_name", model + "\n")
+        m.write("/sys/bus/usb/devices/1-3/idVendor", "05ac\n")
+        m.write("/sys/bus/usb/devices/1-3/idProduct", t1 + "\n")
+        m.pci("0000:02:00.0", "14e4", "43ba", "028000", "brcmfmac")
+        m.write("/sys/class/net/wlp2s0/address", "00:90:4c:0d:f4:3e\n")
+        m.write("/proc/asound/card0/codec#0", "Codec: Cirrus Logic CS8409\nAddress: 0\n")
+        m.modules("applespi", "brcmfmac", "snd_hda_intel")
+        return m
+
+    def test_each_part_is_recommended_on_its_own(self):
+        found = self.scan_ids(self.mac())
+        self.assertEqual(found & {e for e in DB.entries if e.startswith("mbp-")}, self.MBP)
+
+    def test_parts_already_set_up_are_not_recommended(self):
+        m = self.mac()
+        for path in ("/var/lib/dkms/snd_hda_macbookpro/0.1/source", "/etc/systemd/system/mbp132-volume.service",
+                     "/etc/udev/rules.d/40-mbp132-ibridge.rules", "/usr/lib/systemd/system-sleep/mbp132-sleep-fix",
+                     "/etc/NetworkManager/dispatcher.d/99-mbp132-wifi-powersave", self.NVRAM):
+            m.write(path, "")
+        m.write("/sys/class/net/wlp2s0/address", "02:11:22:33:44:55\n")
+        m.modules("applespi", "brcmfmac", "snd_hda_intel", "apple_ib_tb")
+        system = m.system()
+        for entry_id in self.MBP:
+            with self.subTest(entry=entry_id):
+                self.assertEqual(engine.evaluate(DB.entries[entry_id], system).status, engine.FIXED)
+
+    def test_t1_in_recovery_gets_advice_instead_of_the_driver(self):
+        found = self.scan_ids(self.mac(t1="1281"))
+        self.assertIn("mbp-t1-recovery", found)
+        self.assertNotIn("mbp-touchbar-driver", found)
+
+    def test_wifi_calibration_is_only_required_on_the_13_2(self):
+        m = self.mac(model="MacBookPro14,1")
+        m.write("/etc/NetworkManager/dispatcher.d/99-mbp132-wifi-powersave", "")
+        m.write("/sys/class/net/wlp2s0/address", "02:11:22:33:44:55\n")
+        self.assertEqual(engine.evaluate(DB.entries["mbp-wifi-bcm43602"], m.system()).status, engine.FIXED)
+
+    def test_other_computers_are_left_alone(self):
+        m = self.machine()
+        m.write("/sys/class/dmi/id/product_name", "ThinkPad X1 Carbon\n")
+        m.pci("0000:02:00.0", "14e4", "43ba", "028000", "brcmfmac")
+        system = m.system()
+        for entry in DB.entries.values():
+            if entry.id.startswith("mbp-"):
+                with self.subTest(entry=entry.id):
+                    self.assertEqual(engine.evaluate(entry, system).status, engine.NOT_APPLICABLE)
+
+    def test_generic_bcm43602_fix_stays_off_macs(self):
+        self.assertEqual(engine.evaluate(DB.entries["wifi-broadcom-bcm43602"], self.mac().system()).status,
+                         engine.NOT_APPLICABLE)
+
+
 class ConfidenceTests(EngineCase):
     def setUp(self):
         self.m = self.machine()

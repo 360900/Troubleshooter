@@ -1,0 +1,45 @@
+id = "mbp-audio-driver"
+title = "MacBook Pro 2016-2017: no sound from the speakers"
+summary = "The built-in Cirrus CS8409 sound chip needs a separate driver for its speaker amplifiers. mbp132-setup builds it through DKMS, sets it up again after sleep, and gives the volume slider even, audible steps."
+categories = ["sound", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["snd_hda_macbookpro", "cs8409", "cirrus", "macbook pro", "mbp132-setup", "speaker amplifier", "mbp132-volume"]
+symptoms = ["no sound from the macbook speakers", "speakers are silent on my macbook pro", "headphones work but speakers don't", "sound stops after sleep on macbook", "volume is inaudible below 20 percent"]
+auto_detect = true
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[when]]
+source = "file"
+path = "/proc/asound/card*/codec#*"
+regex = '^Codec: Cirrus Logic CS8409'
+
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/var/lib/dkms/snd_hda_macbookpro" },
+  { source = "file", path = "/etc/systemd/system/mbp132-volume.service" },
+]
+
+[[signals]]
+says = "The MacBook speaker driver (snd_hda_macbookpro) isn't installed"
+weight = 0.85
+source = "file"
+path = "/var/lib/dkms/snd_hda_macbookpro"
+absent = true
+
+[[signals]]
+says = "The volume curve for the built-in speakers isn't set up"
+weight = 0.5
+source = "file"
+path = "/etc/systemd/system/mbp132-volume.service"
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--no-keyboard"], undo_args = ["--uninstall", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--no-keyboard"], says = "Install the speaker driver and volume curve with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

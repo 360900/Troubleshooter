@@ -1,0 +1,54 @@
+id = "mbp-wifi-bcm43602"
+title = "MacBook Pro 2016-2017: Wi-Fi is slow, 2.4 GHz only or dies after sleep"
+summary = "The BCM43602 Wi-Fi chip runs on placeholder defaults without its calibration file: 2.4 GHz only and the same MAC address on every Mac. mbp132-setup installs the calibration (MacBookPro13,2), turns off power saving and reloads the driver around sleep."
+categories = ["network", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["bcm43602", "brcmfmac", "nvram", "calibration", "5 ghz", "00:90:4c:0d:f4:3e", "power saving", "mbp132-setup"]
+symptoms = ["no 5 ghz networks on my macbook", "wifi is very slow on macbook pro", "wifi doesn't work after sleep on macbook", "all macbooks have the same wifi mac address"]
+auto_detect = true
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[when]]
+source = "pci"
+vendor = "14e4"
+devices = ["43ba"]
+
+# Fixed once power saving is off, and on the 13,2 also the calibration file is in place.
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/etc/NetworkManager/dispatcher.d/99-mbp132-wifi-powersave" },
+  { any_of = [{ source = "file", path = "/usr/lib/firmware/brcm/brcmfmac43602-pcie.Apple Inc.-MacBookPro13,2.txt" }, { source = "file", path = "/sys/class/dmi/id/product_name", regex = '^MacBookPro13,2$', absent = true }] },
+]
+
+[[signals]]
+says = "The Wi-Fi chip uses Broadcom's placeholder MAC address, so its calibration is missing"
+weight = 0.8
+source = "file"
+path = "/sys/class/net/wl*/address"
+regex = '^00:90:4c:0d:f4:3e$'
+
+[[signals]]
+says = "This MacBookPro13,2 has no Wi-Fi calibration file"
+weight = 0.7
+all_of = [
+  { source = "file", path = "/sys/class/dmi/id/product_name", regex = '^MacBookPro13,2$' },
+  { source = "file", path = "/usr/lib/firmware/brcm/brcmfmac43602-pcie.Apple Inc.-MacBookPro13,2.txt", absent = true },
+]
+
+[[signals]]
+says = "Wi-Fi power saving is still on, which makes this chip slow and laggy"
+weight = 0.3
+source = "file"
+path = "/etc/NetworkManager/dispatcher.d/99-mbp132-wifi-powersave"
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-grub", "--no-keyboard"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-sleep", "--no-grub", "--no-keyboard"], says = "Install the Wi-Fi calibration and settings with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

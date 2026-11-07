@@ -1,0 +1,31 @@
+id = "mbp-keyboard-iso"
+title = "MacBook Pro 2016-2017: keys swapped on an ISO keyboard"
+summary = "On European (ISO) MacBook keyboards the key left of 1 and the key next to the left Shift come out swapped. mbp132-setup sets the keyboard driver's ISO layout option. Undo removes all keyboard settings made by mbp132-setup."
+categories = ["input"]
+systems = ["arch-and-based"]
+keywords = ["iso layout", "applespi", "iso_layout", "section key", "grave", "less than key", "mbp132-setup"]
+symptoms = ["< and ^ keys are swapped on my macbook", "key next to shift types the wrong character", "the key left of 1 is wrong on macbook", "german macbook keyboard wrong keys"]
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+# Rewriting the options file would drop an Fn swap made earlier; that case is for the CLI.
+[[when]]
+source = "file"
+path = "/etc/modprobe.d/mbp132-applespi.conf"
+regex = 'fnremap'
+absent = true
+
+[[fixed_when]]
+source = "file"
+path = "/etc/modprobe.d/*.conf"
+regex = '^options applespi.*iso_layout=1'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--iso"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub"], says = "Turn on the ISO keyboard layout fix with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

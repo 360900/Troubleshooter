@@ -1,0 +1,38 @@
+id = "mbp-sleep-fixes"
+title = "MacBook Pro 2016-2017: sleep wakes up at once or doesn't resume"
+summary = "On these MacBook Pros the SSD and the USB-C controllers fail to come back from deep power saving, and the lid, USB and Wi-Fi wake the computer right after it sleeps. mbp132-setup sets up deep sleep with hooks for all of that, and hides hibernation, which doesn't resume here."
+categories = ["sleep"]
+systems = ["arch-and-based"]
+keywords = ["suspend", "s3", "deep sleep", "d3cold", "wake sources", "thunderbolt", "usb-c", "apple-tb-sxfp", "mbp132-sleep-fix", "mbp132-setup"]
+symptoms = ["macbook wakes up right after closing the lid", "macbook pro won't wake from sleep", "usb-c ports dead after sleep", "ssd disappears after suspend", "laptop freezes when waking up"]
+auto_detect = true
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/systemd/system-sleep/mbp132-sleep-fix"
+
+[[signals]]
+says = "This MacBook Pro model needs the mbp132-setup sleep fixes to sleep and wake reliably"
+weight = 0.6
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[signals]]
+says = "The Apple SSD failed to come back from a power-saving state"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'nvme nvme\d+: .*(CSTS=0x|timeout)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-wifi", "--no-grub", "--no-keyboard"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-wifi", "--no-grub", "--no-keyboard"], says = "Install the sleep fixes with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

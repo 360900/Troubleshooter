@@ -52,6 +52,11 @@ QUERIES = {
     "yay fails to build anything": {"aur-base-devel-missing"},
     "scanner is not found": {"sane-airscan-missing", "sane-ipp-usb-missing"},
     "the login screen theme is broken": {"sddm-theme-qt-version"},
+    "my macbook pro speakers make no sound": {"mbp-audio-driver"},
+    "touch bar stays black": {"mbp-touchbar-driver", "mbp-t1-recovery"},
+    "macbook doesn't wake up after closing the lid": {"mbp-sleep-fixes"},
+    "macbook wifi can't see 5ghz": {"mbp-wifi-bcm43602"},
+    "boot into macos from grub": {"mbp-grub-macos-entry"},
 }
 
 

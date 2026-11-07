@@ -1,0 +1,46 @@
+id = "mbp-touchbar-driver"
+title = "MacBook Pro 2016-2017: Touch Bar is dark"
+summary = "The Touch Bar, its function keys and the ambient light sensor need the iBridge driver. mbp132-setup builds a patched version through DKMS, avoids a boot hang, and stops usbmuxd from switching the Touch Bar off."
+categories = ["input", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["touch bar", "touchbar", "apple-ibridge", "apple-ib-tb", "apple-ib-als", "t1", "ibridge", "usbmuxd", "05ac:8600", "mbp132-setup"]
+symptoms = ["touch bar is black", "touch bar doesn't work", "no escape key on my macbook", "function keys missing on touch bar", "brightness doesn't adjust to the room", "touch bar turned off after connecting my iphone"]
+auto_detect = true
+source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^MacBookPro1(3,[123]|4,[123])$'
+
+[[when]]
+source = "usb"
+vendor = "05ac"
+devices = ["8600"]
+
+[[fixed_when]]
+all_of = [
+  { source = "module", names = ["apple_ib_tb"] },
+  { source = "file", path = "/etc/udev/rules.d/40-mbp132-ibridge.rules" },
+]
+
+[[signals]]
+says = "The Touch Bar driver (apple-ib-tb) isn't loaded"
+weight = 0.85
+source = "module"
+names = ["apple_ib_tb"]
+absent = true
+
+[[signals]]
+says = "usbmuxd is installed without the rule that keeps it from turning the Touch Bar off"
+weight = 0.6
+all_of = [
+  { source = "package", names = ["usbmuxd"] },
+  { source = "file", path = "/etc/udev/rules.d/40-mbp132-ibridge.rules", absent = true },
+]
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-sleep", "--no-wifi", "--no-grub", "--no-keyboard"], undo_args = ["--uninstall", "--no-audio", "--no-sleep", "--no-wifi", "--no-grub", "--no-keyboard"], says = "Install the Touch Bar and light sensor driver with mbp132-setup (pinned version, downloaded from GitHub)" },
+]

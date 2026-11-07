@@ -136,4 +136,7 @@ groups = [
   ["base-devel", "makepkg", "fakeroot", "aur", "aur helper", "yay", "paru"],
   ["downgrade", "roll back", "rollback", "older version", "ignorepkg"],
   ["paccache", "package cache", "pacman cache"],
+  ["macbook", "macbook pro", "mbp", "apple laptop", "mbp132-setup"],
+  ["touch bar", "touchbar", "t1 chip", "ibridge"],
+  ["5 ghz", "5ghz", "5g wifi", "802.11ac"],
 ]

@@ -12,6 +12,13 @@ source = "pci"
 vendor = "14e4"
 devices = ["43ba"]
 
+# Apple's BCM43602 needs its calibration file instead (mbp-wifi-bcm43602).
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Apple'
+absent = true
+
 [[fixed_when]]
 source = "kernel_param"
 params = ["brcmfmac.feature_disable=0x82000"]
