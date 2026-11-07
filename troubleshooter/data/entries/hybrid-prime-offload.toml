@@ -1,0 +1,44 @@
+id = "hybrid-prime-offload"
+title = "Hybrid graphics: games run on the integrated GPU"
+summary = "On laptops with an NVIDIA chip next to an Intel or AMD one, apps use the integrated GPU unless told otherwise. This installs prime-run and the service that adds a run-on-discrete-GPU option to your desktop."
+categories = ["nvidia", "games", "display"]
+systems = ["arch-and-based"]
+keywords = ["prime-run", "nvidia-prime", "prime render offload", "switcheroo-control", "optimus", "hybrid graphics", "dgpu", "__NV_PRIME_RENDER_OFFLOAD"]
+symptoms = ["games use intel graphics instead of nvidia", "nvidia gpu not used in games", "low fps on gaming laptop", "how to run a game on the dedicated gpu", "steam uses the wrong gpu"]
+source = "https://wiki.archlinux.org/title/PRIME#PRIME_render_offload"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+any_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "pci", vendor = "1002", class = "03", driver = "amdgpu" },
+]
+
+[[fixed_when]]
+all_of = [
+  { source = "package", names = ["nvidia-prime"] },
+  { source = "service", name = "switcheroo-control.service", state = "enabled" },
+]
+
+[[signals]]
+says = "prime-run isn't installed"
+weight = 0.4
+source = "package"
+names = ["nvidia-prime"]
+absent = true
+
+[[signals]]
+says = "The GPU switching service isn't enabled"
+weight = 0.2
+source = "service"
+name = "switcheroo-control.service"
+state = "disabled"
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["nvidia-prime", "switcheroo-control"], says = "Install prime-run and switcheroo-control" },
+  { op = "service", names = ["switcheroo-control.service"], now = true, says = "Enable switcheroo-control so the desktop can launch apps on the NVIDIA GPU" },
+]

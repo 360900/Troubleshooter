@@ -1,0 +1,21 @@
+id = "nvidia-gsp-timeout"
+title = "NVIDIA: freezes from GSP firmware timeouts"
+summary = "The GPU's GSP firmware stopped answering the driver (Xid 119), which shows up as a freeze when the screen turns off, on resume, or under load. The workarounds cost some idle power or need the closed driver."
+categories = ["nvidia", "crashes", "display"]
+systems = ["arch-and-based"]
+keywords = ["gsp", "gsp firmware", "xid 119", "GSP Timeout", "NVreg_EnableGpuFirmware", "nvidia-smi", "lock clocks", "dpms"]
+symptoms = ["pc freezes when the screen turns off", "system hangs after waking up on nvidia", "nvidia freezes when monitor goes to sleep", "vulkan stops working on nvidia", "random freezes with nvidia-open"]
+advice = "First try locking a higher minimum clock with `nvidia-smi -lgc` and `nvidia-smi -lmc` (pick values from `nvidia-smi -q -d SUPPORTED_CLOCKS`) and see if the freezes stop. If they don't, and your card is older than Blackwell (RTX 50), switch from nvidia-open to the closed nvidia-580xx-dkms driver and set the nvidia module option NVreg_EnableGpuFirmware=0, which turns GSP off."
+reproduce = "Let the screen turn off, or put the computer to sleep and wake it, until it freezes. Then restart and run this again."
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#System_freeze_when_the_display_powers_off_or_on_resume"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[signals]]
+says = "The kernel log shows GSP firmware timeouts"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'NVRM: .*GSP Timeout|NVRM: Xid \([^)]*\): 119\b|kgspLogXid119'

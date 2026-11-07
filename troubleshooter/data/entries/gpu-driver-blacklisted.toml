@@ -1,0 +1,33 @@
+id = "gpu-driver-blacklisted"
+title = "Graphics: Intel or AMD driver is blocked from loading"
+summary = "A file in /etc/modprobe.d stops the Intel or AMD graphics driver from loading. On a laptop that can mean no internal screen, and on a desktop no use of that GPU."
+categories = ["display", "drivers", "intel"]
+systems = ["any"]
+keywords = ["blacklist", "modprobe.d", "i915", "xe", "amdgpu", "install /usr/bin/false", "integrated graphics"]
+symptoms = ["laptop screen stays black", "integrated graphics not detected", "intel graphics driver not loading", "amdgpu not loaded", "black screen after following an nvidia guide"]
+advice = "Open the files in /etc/modprobe.d and remove the lines that blacklist i915, xe or amdgpu (or redirect them to /usr/bin/false), then run `mkinitcpio -P` and reboot. Leave them if you blocked the integrated GPU on purpose, for example on a desktop that uses only an NVIDIA card."
+source = "https://wiki.archlinux.org/title/AMDGPU#Loading"
+
+[[when]]
+any_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "pci", vendor = "1002", class = "03" },
+]
+
+[[signals]]
+says = "The Intel graphics driver is blacklisted and not loaded"
+weight = 0.6
+all_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "module", names = ["i915", "xe"], absent = true },
+  { source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*(blacklist\s+(i915|xe)\b|install\s+(i915|xe)\s+/(usr/)?bin/(false|true)\b)' },
+]
+
+[[signals]]
+says = "The AMD graphics driver is blacklisted and not loaded"
+weight = 0.6
+all_of = [
+  { source = "pci", vendor = "1002", class = "03" },
+  { source = "module", names = ["amdgpu", "radeon"], absent = true },
+  { source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*(blacklist\s+amdgpu\b|install\s+amdgpu\s+/(usr/)?bin/(false|true)\b)' },
+]

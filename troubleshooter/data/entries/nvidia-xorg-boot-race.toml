@@ -1,0 +1,36 @@
+id = "nvidia-xorg-boot-race"
+title = "NVIDIA: login screen fails at boot but works later"
+summary = "On fast-booting machines the login screen can start before the NVIDIA driver is ready, so Xorg fails once at boot. Making the display manager wait for the graphics device fixes it."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["display manager", "xorg", "Failed to initialize the NVIDIA kernel module", "dev-dri-card0.device", "udev", "sddm", "lightdm"]
+symptoms = ["black screen at boot with nvidia", "login screen doesn't appear the first time", "have to restart the display manager after boot", "xorg fails at startup but works after restarting"]
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#Xorg_fails_during_boot,_but_otherwise_starts_fine"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf"
+
+[[signals]]
+says = "The Xorg log shows the NVIDIA driver wasn't ready"
+weight = 0.6
+source = "file"
+path = "/var/log/Xorg.*.log*"
+regex = 'NVIDIA\(\d+\): Failed to initialize the NVIDIA kernel module'
+
+[[signals]]
+says = "The journal shows Xorg couldn't reach the NVIDIA driver"
+weight = 0.6
+source = "journal"
+regex = 'NVIDIA\(\d+\): Failed to initialize the NVIDIA kernel module'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "write_file", path = "/etc/udev/rules.d/99-systemd-dri-devices.rules", content = "ACTION==\"add\", KERNEL==\"card*\", SUBSYSTEM==\"drm\", TAG+=\"systemd\"\n", says = "Let systemd track graphics devices" },
+  { op = "write_file", path = "/etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf", content = "[Unit]\nWants=dev-dri-card0.device\nAfter=dev-dri-card0.device\n", says = "Make the login screen wait for the graphics device" },
+]

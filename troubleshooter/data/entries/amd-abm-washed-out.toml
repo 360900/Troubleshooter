@@ -1,0 +1,34 @@
+id = "amd-abm-washed-out"
+title = "AMD laptop: colors look washed out on power saving"
+summary = "Power tools such as power-profiles-daemon and tuned turn on Panel Power Savings, which lowers color accuracy on AMD laptops to save power. Turning it off restores normal colors at a small battery cost."
+categories = ["amd", "display", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["amdgpu.abmlevel", "abm", "panel power savings", "pps", "power-profiles-daemon", "tuned", "washed out colors"]
+symptoms = ["colors look washed out on my amd laptop", "screen looks dim and faded on battery", "contrast drops in power saver mode", "colors change when unplugging the charger"]
+source = "https://wiki.archlinux.org/title/AMDGPU#Colors_appear_washed_out_and_dim_on_laptops"
+
+[[when]]
+source = "module"
+names = ["amdgpu"]
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.abmlevel=0"]
+
+[[signals]]
+says = "A power tool that turns on Panel Power Savings is installed"
+weight = 0.3
+source = "package"
+names = ["power-profiles-daemon", "tuned", "tuned-ppd"]
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.abmlevel=0"], says = "Add a kernel parameter that turns off Panel Power Savings" },
+  { op = "initramfs" },
+]

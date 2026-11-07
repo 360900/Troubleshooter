@@ -1,0 +1,32 @@
+id = "amd-runpm-dgpu"
+title = "AMD hybrid laptop: discrete GPU disappears"
+summary = "The driver powers the discrete AMD GPU down when it's idle, and on some laptops it then isn't available to games or drops out while in use. Keeping it powered fixes that, but uses more battery."
+categories = ["amd", "display", "games"]
+systems = ["arch-and-based"]
+keywords = ["amdgpu.runpm", "runtime power management", "dgpu", "DRI_PRIME", "hybrid graphics", "switchable graphics"]
+symptoms = ["games don't see my dedicated amd gpu", "discrete gpu disappears on my laptop", "dri_prime doesn't use the radeon card", "dedicated gpu turns off while gaming"]
+source = "https://wiki.archlinux.org/title/AMDGPU#Issues_with_power_management_/_dynamic_re-activation_of_a_discrete_amdgpu_graphics_card"
+
+[[when]]
+source = "pci"
+vendor = "1002"
+class = "03"
+driver = "amdgpu"
+
+# A second GPU: an Intel one, or an AMD display controller (how many laptop dGPUs show up).
+[[when]]
+any_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "pci", vendor = "1002", class = "0380", driver = "amdgpu" },
+]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.runpm=0"]
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.runpm=0"], says = "Add a kernel parameter that keeps the discrete GPU powered on" },
+  { op = "initramfs" },
+]

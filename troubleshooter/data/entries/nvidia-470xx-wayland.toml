@@ -1,0 +1,19 @@
+id = "nvidia-470xx-wayland"
+title = "NVIDIA 470xx: Wayland sessions don't work"
+summary = "Kepler cards (GTX 600 and 700) need the legacy 470xx driver, which lacks the GBM support that GNOME and KDE Wayland now require. Wayland can't run on it."
+categories = ["nvidia", "display", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["nvidia-470xx-dkms", "470xx", "kepler", "gbm", "eglstreams", "wayland", "gtx 760", "gtx 680"]
+symptoms = ["wayland session doesn't start on my old nvidia", "no wayland option at the login screen", "plasma wayland black screen on gtx 700", "gnome only offers xorg"]
+advice = "Use an Xorg session with a desktop that still supports X11, or switch to the nouveau driver, which does run Wayland but with lower performance."
+source = "https://wiki.archlinux.org/title/Wayland#Requirements"
+
+[[when]]
+source = "package"
+names = ["nvidia-470xx-utils"]
+
+[[signals]]
+says = "The legacy 470xx driver is installed"
+weight = 0.6
+source = "package"
+names = ["nvidia-470xx-utils"]

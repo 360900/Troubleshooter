@@ -1,0 +1,33 @@
+id = "hybrid-bumblebee"
+title = "Hybrid graphics: Bumblebee blocks the NVIDIA driver"
+summary = "Bumblebee is an old GPU switching tool. It stops nvidia_drm from loading, which breaks PRIME offloading and Wayland on the NVIDIA GPU. Removing it lets the modern method work."
+categories = ["nvidia", "display", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["bumblebee", "optirun", "primusrun", "bbswitch", "nvidia_drm", "prime render offload"]
+symptoms = ["prime-run doesn't work", "nvidia gpu not detected on laptop", "optirun is slow", "nvidia_drm not loaded"]
+source = "https://wiki.archlinux.org/title/PRIME#Troubleshooting"
+
+[[when]]
+source = "package"
+names = ["bumblebee"]
+
+[[when]]
+source = "pci"
+vendor = "10de"
+
+[[signals]]
+says = "Bumblebee is installed"
+weight = 0.5
+source = "package"
+names = ["bumblebee"]
+
+[[signals]]
+says = "nvidia_drm isn't loaded"
+weight = 0.4
+source = "module"
+names = ["nvidia_drm"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "remove", packages = ["bumblebee"], says = "Remove Bumblebee (use prime-run instead of optirun)" }]

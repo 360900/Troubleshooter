@@ -1,0 +1,21 @@
+id = "nvidia-hibernate-early-kms"
+title = "NVIDIA: hibernation fails with the driver in the initramfs"
+summary = "When the NVIDIA modules load from the initramfs, the driver can't reach the place where it saves video memory, so hibernation breaks. Taking them out of the initramfs fixes hibernation."
+categories = ["nvidia", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["hibernate", "early kms", "early loading", "mkinitcpio", "MODULES", "NVreg_TemporaryFilePath", "initramfs"]
+symptoms = ["hibernate doesn't work with nvidia", "black screen after resuming from hibernation", "laptop won't hibernate", "computer reboots instead of resuming from hibernate"]
+advice = "If you use hibernation, remove nvidia, nvidia_modeset, nvidia_uvm and nvidia_drm from the MODULES line in /etc/mkinitcpio.conf (and any file in /etc/mkinitcpio.conf.d), then run `mkinitcpio -P` and reboot. Leave them in if you don't hibernate and early loading fixed a startup problem for you."
+source = "https://wiki.archlinux.org/title/NVIDIA#Early_loading"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[signals]]
+says = "NVIDIA modules are loaded from the initramfs"
+weight = 0.3
+any_of = [
+  { source = "file", path = "/etc/mkinitcpio.conf", regex = '^\s*MODULES=\(.*\bnvidia' },
+  { source = "file", path = "/etc/mkinitcpio.conf.d/*.conf", regex = '^\s*MODULES(\+)?=\(.*\bnvidia' },
+]

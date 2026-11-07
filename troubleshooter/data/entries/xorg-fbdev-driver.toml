@@ -1,0 +1,29 @@
+id = "xorg-fbdev-driver"
+title = "Xorg: fbdev driver stops X from starting"
+summary = "The generic xf86-video-fbdev driver can make Xorg fail with \"Cannot run in framebuffer mode\". Modern systems don't need it, and removing it lets Xorg pick the right driver."
+categories = ["display", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["xf86-video-fbdev", "fbdev", "Cannot run in framebuffer mode", "xorg", "busid"]
+symptoms = ["xorg won't start", "black screen at login", "startx fails", "login screen doesn't appear"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Xorg#Frame-buffer_mode_problems"
+
+[[when]]
+source = "package"
+names = ["xf86-video-fbdev"]
+
+[[signals]]
+says = "The Xorg log shows it couldn't run in framebuffer mode"
+weight = 0.85
+source = "file"
+path = "/var/log/Xorg.*.log*"
+regex = 'Cannot run in framebuffer mode'
+
+[[signals]]
+says = "The journal shows Xorg couldn't run in framebuffer mode"
+weight = 0.85
+source = "journal"
+regex = 'Cannot run in framebuffer mode'
+
+[[fix]]
+steps = [{ op = "remove", packages = ["xf86-video-fbdev"], says = "Remove the generic fbdev Xorg driver" }]

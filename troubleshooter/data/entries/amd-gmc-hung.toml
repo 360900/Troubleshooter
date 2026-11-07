@@ -1,0 +1,31 @@
+id = "amd-gmc-hung"
+title = "AMD: freezes with \"gmc_v8_0 is hung\""
+summary = "On older AMD cards (RX 400 and 500 era), the memory controller can hang during heavy GPU work. Letting the CPU update the GPU page tables avoids it, at some cost in performance."
+categories = ["amd", "crashes", "games"]
+systems = ["arch-and-based"]
+keywords = ["gmc_v8_0", "amdgpu.vm_update_mode", "ip block hung", "polaris", "rx 580", "rx 480"]
+symptoms = ["game freezes on rx 580", "pc hangs while gaming on old radeon", "kernel crash during gpu load", "screen freezes in games on amd"]
+reproduce = "Open the game or app that goes wrong and use it until the problem happens."
+source = "https://wiki.archlinux.org/title/AMDGPU#Freezes_with_%22[drm]_IP_block:gmc_v8_0_is_hung!%22_kernel_error"
+
+[[when]]
+source = "module"
+names = ["amdgpu"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.vm_update_mode=3"]
+
+[[signals]]
+says = "The kernel log shows the GPU memory controller hung"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'IP block:gmc_v8_0 is hung'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.vm_update_mode=3"], says = "Add a kernel parameter that has the CPU update GPU page tables" },
+  { op = "initramfs" },
+]

@@ -1,0 +1,25 @@
+id = "vulkan-leftover-nvidia"
+title = "Leftover NVIDIA driver slows down app startup"
+summary = "The NVIDIA driver is installed but there's no NVIDIA card. Vulkan tries it first, which can make Chromium, Electron and other apps hang for about 30 seconds when they start."
+categories = ["drivers", "desktop", "nvidia"]
+systems = ["arch-and-based"]
+keywords = ["nvidia-utils", "nvidia_icd.json", "VK_DRIVER_FILES", "vulkan icd", "30 second delay", "electron", "chromium"]
+symptoms = ["chrome takes 30 seconds to open", "apps are slow to start after changing graphics card", "electron apps hang at launch", "vulkan apps start slowly"]
+advice = "If you no longer have an NVIDIA card, remove the NVIDIA driver packages (nvidia-utils, lib32-nvidia-utils and the nvidia kernel module package). If you keep them for CUDA, set `VK_DRIVER_FILES` in /etc/environment to your real GPU's file in /usr/share/vulkan/icd.d, such as radeon_icd.json or intel_icd.json."
+source = "https://wiki.archlinux.org/title/Vulkan#Vulkan_applications_launch_slowly_(30_second_delay)"
+
+[[when]]
+source = "package"
+names = ["nvidia-utils", "nvidia-*-utils"]
+
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+absent = true
+
+[[signals]]
+says = "NVIDIA's Vulkan driver is installed without an NVIDIA card"
+weight = 0.6
+source = "file"
+path = "/usr/share/vulkan/icd.d/nvidia_icd.json"

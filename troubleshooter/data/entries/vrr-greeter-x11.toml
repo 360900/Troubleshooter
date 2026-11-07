@@ -1,0 +1,32 @@
+id = "vrr-greeter-x11"
+title = "VRR: monitor isn't shown as VRR capable on Wayland"
+summary = "If the SDDM login screen runs on Xorg while your desktop runs on Wayland, the desktop may not detect VRR (FreeSync or G-SYNC) on a display that supports it. Running SDDM on Wayland fixes it."
+categories = ["display", "games"]
+systems = ["any"]
+keywords = ["vrr", "variable refresh rate", "freesync", "adaptive sync", "g-sync", "sddm", "DisplayServer", "greeter"]
+symptoms = ["adaptive sync option missing", "freesync not available on wayland", "vrr option greyed out in plasma", "laptop screen doesn't show variable refresh rate"]
+advice = "Set SDDM to run on Wayland: create /etc/sddm.conf.d/10-wayland.conf with `[General]` and `DisplayServer=wayland`, and on KDE also set `CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts` under `[Wayland]`. Then reboot."
+source = "https://wiki.archlinux.org/title/Variable_refresh_rate#Monitor_does_not_show_up_as_VRR_capable_in_Wayland,_despite_supporting_it"
+
+[[when]]
+source = "package"
+names = ["sddm"]
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/sddm.conf", regex = '^\s*DisplayServer\s*=\s*wayland' },
+  { source = "file", path = "/etc/sddm.conf.d/*.conf", regex = '^\s*DisplayServer\s*=\s*wayland' },
+  { source = "file", path = "/usr/lib/sddm/sddm.conf.d/*.conf", regex = '^\s*DisplayServer\s*=\s*wayland' },
+]
+
+[[signals]]
+says = "SDDM runs on Xorg while your desktop runs on Wayland"
+weight = 0.4
+source = "service"
+name = "sddm.service"
+state = "enabled"

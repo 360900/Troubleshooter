@@ -1,0 +1,31 @@
+id = "nvidia-stale-xorg-conf"
+title = "NVIDIA: old xorg.conf breaks monitors"
+summary = "The NVIDIA driver works without an Xorg config file. An old /etc/X11/xorg.conf can leave monitors disabled or black after hardware or driver changes."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["xorg.conf", "nvidia-xconfig", "multi-monitor", "disabled monitor", "xorg"]
+symptoms = ["second monitor not working on nvidia", "monitor shows as disabled in nvidia settings", "only one screen works", "external monitor black on xorg"]
+advice = "Rename the file with `sudo mv /etc/X11/xorg.conf /etc/X11/xorg.conf.old`, do the same for NVIDIA files in /etc/X11/xorg.conf.d, and restart. Xorg only reads files ending in .conf. Keep the file if a tool such as optimus-manager or a reverse PRIME setup created it on purpose."
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#One_or_more_monitors_not_working_in_multi-monitor_setup_in_Xorg"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+source = "file"
+path = "/etc/X11/xorg.conf"
+
+[[signals]]
+says = "/etc/X11/xorg.conf sets the NVIDIA driver by hand"
+weight = 0.4
+source = "file"
+path = "/etc/X11/xorg.conf"
+regex = 'Driver\s+"nvidia"'
+
+[[signals]]
+says = "You're on an Xorg session, which reads this file"
+weight = 0.2
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=x11$'

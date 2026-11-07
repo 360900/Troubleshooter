@@ -1,0 +1,27 @@
+id = "vdpau-mesa-removed"
+title = "Video: VDPAU no longer works on AMD or nouveau"
+summary = "Mesa 25.3 dropped VDPAU from its open drivers, but VDPAU_DRIVER still points at one of them, so players report \"Failed to open VDPAU backend\"."
+categories = ["display", "amd", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["vdpau", "VDPAU_DRIVER", "radeonsi", "nouveau", "va-api", "libvdpau-va-gl", "va_gl", "Failed to open VDPAU backend"]
+symptoms = ["failed to open vdpau backend", "hardware video decoding stopped working", "vlc says vdpau failed", "video player falls back to cpu decoding"]
+advice = "Remove the VDPAU_DRIVER line from /etc/environment (or wherever you set it) and switch your player to VA-API, for example `hwdec=vaapi` in mpv. For apps that only speak VDPAU, install libvdpau-va-gl and set `VDPAU_DRIVER=va_gl`."
+source = "https://wiki.archlinux.org/title/Hardware_video_acceleration#Failed_to_open_VDPAU_backend"
+
+[[when]]
+source = "package"
+names = ["mesa"]
+
+[[signals]]
+says = "VDPAU_DRIVER points at a Mesa driver that no longer has VDPAU"
+weight = 0.7
+source = "env"
+name = "VDPAU_DRIVER"
+regex = '=(radeonsi|nouveau|r600|d3d12|virtio_gpu)$'
+
+[[signals]]
+says = "/etc/environment sets VDPAU_DRIVER to a Mesa driver"
+weight = 0.7
+source = "file"
+path = "/etc/environment"
+regex = '^\s*VDPAU_DRIVER=(radeonsi|nouveau|r600|d3d12|virtio_gpu)\s*$'

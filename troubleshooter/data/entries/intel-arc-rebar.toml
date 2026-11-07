@@ -1,0 +1,15 @@
+id = "intel-arc-rebar"
+title = "Intel Arc B-series: apps crash with \"bus error\""
+summary = "Programs such as mpv, vainfo or browsers crash with a bus error on Intel Arc B580 and similar cards. The likely cause is Resizable BAR being off in the firmware settings."
+categories = ["intel", "crashes", "drivers"]
+systems = ["any"]
+keywords = ["rebar", "resizable bar", "bus error", "battlemage", "b580", "b570", "arc", "csm"]
+symptoms = ["bus error when opening apps", "mpv crashes with bus error", "vainfo bus error", "apps crash on intel arc b580"]
+advice = "Enter your BIOS or UEFI setup and turn on Resizable BAR (sometimes called Re-Size BAR or Smart Access Memory). Many boards only offer it with CSM or legacy boot turned off, so make sure you boot in UEFI mode first."
+source = "https://wiki.archlinux.org/title/Intel_graphics#Unable_to_run_some_programs,_%22bus_error%22_with_B580"
+
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "03"
+devices = ["e200-e2ff"]

@@ -1,0 +1,13 @@
+id = "nvidia-hdmi-deepcolor"
+title = "NVIDIA: high refresh rates won't apply over HDMI"
+summary = "Newer NVIDIA drivers can use extra bandwidth for deep color on HDMI, which pushes modes above about 120 Hz out of reach. Turning deep color off frees it up, but HDR needs deep color."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["hdmi", "deep color", "nvidia-modeset.hdmi_deepcolor", "refresh rate", "144hz", "165hz", "120hz"]
+symptoms = ["can't set 144hz on nvidia", "monitor stuck at 120hz over hdmi", "higher refresh rate missing in display settings", "refresh rate won't apply on hdmi"]
+advice = "If you don't use HDR, add `nvidia_modeset.hdmi_deepcolor=0` to your kernel parameters and reboot. If you do need HDR, use DisplayPort instead if your monitor has it."
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#Refresh-rate_limited_to_120Hz"
+
+[[when]]
+source = "module"
+names = ["nvidia_modeset"]

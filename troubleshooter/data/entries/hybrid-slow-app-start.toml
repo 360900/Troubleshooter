@@ -1,0 +1,26 @@
+id = "hybrid-slow-app-start"
+title = "Hybrid graphics: apps take seconds to open"
+summary = "Apps probe every GPU when they start, which wakes the sleeping NVIDIA chip and can add a delay of a second or more, up to 30 seconds for some Chromium and Electron apps. Pointing them at the integrated GPU avoids it."
+categories = ["nvidia", "display", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["VK_DRIVER_FILES", "__EGL_VENDOR_LIBRARY_FILENAMES", "__GLX_VENDOR_LIBRARY_NAME", "rtd3", "vulkan icd", "slow startup", "electron", "chromium"]
+symptoms = ["apps are slow to open on my laptop", "chrome takes 30 seconds to start", "electron apps open slowly", "discord takes forever to launch", "nvidia gpu wakes up when opening apps"]
+advice = "Add `__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json`, `__GLX_VENDOR_LIBRARY_NAME=mesa` and `VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.json` (radeon_icd.json for AMD) to /etc/environment and log in again. Apps you want on the NVIDIA GPU then need those variables overridden, for example with prime-run."
+source = "https://wiki.archlinux.org/title/PRIME#Some_programs_have_a_delay_when_opening_under_Wayland"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+any_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "pci", vendor = "1002", class = "03", driver = "amdgpu" },
+]
+
+[[signals]]
+says = "VK_DRIVER_FILES points at the NVIDIA driver"
+weight = 0.3
+source = "env"
+name = "VK_DRIVER_FILES"
+regex = 'nvidia'

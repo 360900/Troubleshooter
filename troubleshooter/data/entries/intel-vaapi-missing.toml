@@ -1,0 +1,43 @@
+id = "intel-vaapi-missing"
+title = "Intel: no hardware video decoding"
+summary = "Intel graphics from Broadwell onward decode video through intel-media-driver, which isn't installed. Videos are decoded on the CPU, which uses more power and can stutter."
+categories = ["intel", "display", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["intel-media-driver", "iHD", "va-api", "vaapi", "vainfo", "libva-intel-driver", "hardware decoding"]
+symptoms = ["youtube uses a lot of cpu", "videos stutter on my intel laptop", "no hardware acceleration in firefox", "vainfo fails", "battery drains fast when watching videos"]
+auto_detect = false
+source = "https://wiki.archlinux.org/title/Hardware_video_acceleration#Intel"
+
+[[when]]
+source = "module"
+names = ["i915", "xe"]
+
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "03"
+devices = ["1600-163f", "1900-193f", "3184-3185", "3e90-3eff", "4500-457f", "4600-46ff", "4900-490f", "4c80-4c9f", "4e50-4e7f", "5690-56ff", "5900-593f", "5a84-5a85", "6420-64ff", "7d40-7dff", "87c0-87ca", "8a50-8a7f", "9840-9841", "9a40-9aff", "9b00-9bff", "a780-a7ff", "b080-b0ff", "e200-e2ff"]
+
+[[fixed_when]]
+source = "package"
+names = ["intel-media-driver", "intel-media-driver-legacy"]
+
+[[signals]]
+says = "Intel's VA-API video driver isn't installed"
+weight = 0.7
+source = "package"
+names = ["intel-media-driver", "intel-media-driver-legacy"]
+absent = true
+
+# Broadwell to Coffee Lake also work with the older i965 driver.
+[[signals]]
+says = "The older libva-intel-driver is installed and supports this GPU"
+weight = 0.6
+counter = true
+all_of = [
+  { source = "package", names = ["libva-intel-driver"] },
+  { source = "pci", vendor = "8086", class = "03", devices = ["1600-163f", "1900-193f", "3184-3185", "3e90-3eff", "5900-593f", "5a84-5a85", "87c0-87ca", "9b00-9bff"] },
+]
+
+[[fix]]
+steps = [{ op = "install", packages = ["intel-media-driver"], says = "Install Intel's VA-API video driver" }]

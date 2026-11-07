@@ -1,0 +1,39 @@
+id = "nvidia-vaapi-missing"
+title = "NVIDIA: no hardware video decoding in browsers"
+summary = "Browsers and many players decode video through VA-API, which the NVIDIA driver doesn't provide by itself, so videos are decoded on the CPU. A translation driver adds it, though it may draw more power than CPU decoding."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["libva-nvidia-driver", "nvidia-vaapi-driver", "va-api", "vaapi", "nvdec", "hardware decoding", "CUDA_DISABLE_PERF_BOOST"]
+symptoms = ["youtube uses a lot of cpu on nvidia", "no hardware acceleration in firefox", "videos stutter in the browser", "vainfo fails on nvidia"]
+source = "https://wiki.archlinux.org/title/Hardware_video_acceleration#Translation_layers"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+# On hybrid laptops the integrated GPU decodes video already.
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "03"
+absent = true
+
+[[when]]
+source = "pci"
+vendor = "1002"
+class = "03"
+absent = true
+
+[[fixed_when]]
+source = "package"
+names = ["libva-nvidia-driver"]
+
+[[signals]]
+says = "No VA-API driver for NVIDIA is installed"
+weight = 0.5
+source = "package"
+names = ["libva-nvidia-driver"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["libva-nvidia-driver"], says = "Install the VA-API driver for NVIDIA cards" }]

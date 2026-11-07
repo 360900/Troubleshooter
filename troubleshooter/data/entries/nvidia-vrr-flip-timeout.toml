@@ -1,0 +1,31 @@
+id = "nvidia-vrr-flip-timeout"
+title = "NVIDIA: driver crashes when switching to a text console"
+summary = "With variable refresh rate (G-SYNC or FreeSync) active, switching between the desktop and a text console can hang the NVIDIA display engine. Hiding VRR from the system fixes it, but you lose VRR."
+categories = ["nvidia", "display", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["vrr", "g-sync", "gsync", "freesync", "nvidia_modeset.conceal_vrr_caps", "flip event timeout", "idling display engine timed out", "tty"]
+symptoms = ["screen freezes when I press ctrl alt f2", "black screen after switching tty on nvidia", "desktop crashes when switching to console", "nvidia hangs with g-sync monitor"]
+reproduce = "Switch to a text console with Ctrl+Alt+F3, then back to the desktop with Ctrl+Alt+F1 or F2."
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#Crashes_related_to_VRR_and_TTY-switching"
+
+[[when]]
+source = "module"
+names = ["nvidia_modeset"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["nvidia_modeset.conceal_vrr_caps=1"]
+
+[[signals]]
+says = "The NVIDIA display driver logged flip or display engine timeouts"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'nvidia-drm.*Flip event timeout|nvidia-modeset: ERROR: .*Idling display engine timed out'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["nvidia_modeset.conceal_vrr_caps=1"], says = "Add a kernel parameter that hides VRR from the desktop, keeping a fixed refresh rate" },
+  { op = "initramfs" },
+]

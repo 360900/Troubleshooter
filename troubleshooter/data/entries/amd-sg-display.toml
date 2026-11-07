@@ -1,0 +1,30 @@
+id = "amd-sg-display"
+title = "AMD: screen flashes white or gray on display changes"
+summary = "On some AMD graphics, mostly laptops and APUs, changing resolution or plugging in a monitor makes the screen flicker or stay white. Turning off scatter/gather display fixes it."
+categories = ["amd", "display"]
+systems = ["arch-and-based"]
+keywords = ["amdgpu.sg_display", "sg_display", "white screen", "gray screen", "apu", "external monitor"]
+symptoms = ["screen turns white when I plug in a monitor", "screen flickers gray after changing resolution", "white screen on amd laptop", "display goes blank when connecting hdmi"]
+source = "https://wiki.archlinux.org/title/AMDGPU#Screen_flickering_white/gray"
+
+[[when]]
+source = "module"
+names = ["amdgpu"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.sg_display=0"]
+
+[[signals]]
+says = "This is a laptop, where the problem is most common"
+weight = 0.2
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.sg_display=0"], says = "Add a kernel parameter that turns off scatter/gather display" },
+  { op = "initramfs" },
+]

@@ -1,0 +1,47 @@
+id = "intel-ddx-on-new-gpu"
+title = "Intel: old Xorg driver on newer graphics"
+summary = "The xf86-video-intel package doesn't properly support Gen 11 and newer Intel graphics (Ice Lake onward), causing rendering problems and lost acceleration on Xorg. Removing it lets Xorg use its built-in modesetting driver."
+categories = ["intel", "display"]
+systems = ["arch-and-based"]
+keywords = ["xf86-video-intel", "modesetting", "ddx", "sna", "xorg", "iris xe", "glamor"]
+symptoms = ["plasma is glitchy on intel graphics", "windows don't redraw on xorg", "desktop freezes with intel", "screen corruption on iris xe", "xorg is slow on my new intel laptop"]
+source = "https://wiki.archlinux.org/title/Intel_graphics#Installation"
+
+[[when]]
+source = "package"
+names = ["xf86-video-intel"]
+
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "03"
+devices = ["4500-457f", "4600-46ff", "4900-490f", "4c80-4c9f", "4e50-4e7f", "5690-56ff", "6420-64ff", "7d40-7dff", "8a50-8a7f", "9840-9841", "9a40-9aff", "a780-a7ff", "b080-b0ff", "e200-e2ff"]
+
+# A config that names the intel driver would stop Xorg from starting without it.
+[[when]]
+source = "file"
+path = "/etc/X11/xorg.conf.d/*.conf"
+regex = 'Driver\s+"intel"'
+absent = true
+
+[[when]]
+source = "file"
+path = "/etc/X11/xorg.conf"
+regex = 'Driver\s+"intel"'
+absent = true
+
+[[signals]]
+says = "The legacy Intel Xorg driver is installed on graphics it doesn't support"
+weight = 0.6
+source = "package"
+names = ["xf86-video-intel"]
+
+[[signals]]
+says = "You're on an Xorg session, which uses that driver"
+weight = 0.3
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=x11$'
+
+[[fix]]
+steps = [{ op = "remove", packages = ["xf86-video-intel"], says = "Remove the legacy Intel Xorg driver" }]

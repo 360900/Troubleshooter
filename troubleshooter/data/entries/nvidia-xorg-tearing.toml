@@ -1,0 +1,18 @@
+id = "nvidia-xorg-tearing"
+title = "NVIDIA on Xorg: screen tearing"
+summary = "On an Xorg session the NVIDIA driver doesn't sync the whole screen by default, so moving windows and videos can tear. Forcing the full composition pipeline stops it, at some cost in performance."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["tearing", "ForceFullCompositionPipeline", "ForceCompositionPipeline", "vsync", "xorg", "x11", "nvidia-settings"]
+symptoms = ["screen tearing on nvidia", "videos tear when scrolling", "horizontal lines when moving windows", "tearing in xfce with nvidia"]
+advice = "Test it first with `nvidia-settings --assign CurrentMetaMode=\"nvidia-auto-select +0+0 { ForceFullCompositionPipeline = On }\"`. If it helps, make it permanent in nvidia-settings (X Server Display Configuration, Advanced) or in /etc/X11/xorg.conf.d/20-nvidia.conf. Switching to a Wayland session also avoids tearing."
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#Avoid_screen_tearing_on_Xorg"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=x11$'

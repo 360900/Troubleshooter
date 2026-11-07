@@ -1,0 +1,13 @@
+id = "intel-limited-rgb"
+title = "Intel: colors look washed out on an external monitor"
+summary = "Intel graphics sometimes send limited-range color to monitors, mostly over HDMI, so blacks look gray and colors look faded. Switching the output to full RGB range fixes it."
+categories = ["intel", "display"]
+systems = ["any"]
+keywords = ["broadcast rgb", "full range", "limited range", "rgbrange", "monitors.xml", "hdmi", "xrandr"]
+symptoms = ["colors look washed out on my monitor", "blacks look gray over hdmi", "external monitor looks faded", "colors are dull on intel graphics"]
+advice = "On Xorg, run `xrandr --output NAME --set \"Broadcast RGB\" \"Full\"` with your output name from `xrandr`. On GNOME, add `<rgbrange>full</rgbrange>` to that monitor in ~/.config/monitors.xml and log in again. Other Wayland desktops may have an RGB range option in their display settings."
+source = "https://wiki.archlinux.org/title/Intel_graphics#Washed_out_colors"
+
+[[when]]
+source = "module"
+names = ["i915", "xe"]

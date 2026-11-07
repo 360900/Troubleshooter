@@ -1,0 +1,13 @@
+id = "amd-hdmi21"
+title = "AMD: 4K above 120 Hz doesn't work over HDMI"
+summary = "The open AMD driver can't support HDMI 2.1 for licensing reasons, so 4K at 144 Hz or more isn't available over HDMI. There's no software fix."
+categories = ["amd", "display"]
+systems = ["any"]
+keywords = ["hdmi 2.1", "4k 144hz", "120hz", "displayport", "frl", "tv", "amdgpu"]
+symptoms = ["can't get 4k 144hz on my tv", "hdmi stuck at 120hz with amd", "4k 120hz missing over hdmi", "high refresh rate not available on hdmi"]
+advice = "Connect the display over DisplayPort. If it only has HDMI, an active DisplayPort to HDMI 2.1 adapter may work, as some users report."
+source = "https://wiki.archlinux.org/title/AMDGPU#HDMI_4K_capped_at_120Hz"
+
+[[when]]
+source = "module"
+names = ["amdgpu"]

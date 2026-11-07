@@ -1,0 +1,37 @@
+id = "amd-gfxoff-freeze"
+title = "AMD: system freezes or reboots while idle"
+summary = "GFXOFF, a power-saving feature that switches off the graphics core when idle, can crash the amdgpu driver, often with several monitors or after sleep. Turning off just that feature fixes it, at a small idle power cost."
+categories = ["amd", "crashes", "display"]
+systems = ["arch-and-based"]
+keywords = ["gfxoff", "amdgpu.ppfeaturemask", "PP_GFXOFF_MASK", "powerplay", "idle freeze", "multi-monitor"]
+symptoms = ["pc freezes when idle with amd", "computer reboots by itself when not in use", "screen freezes after waking from sleep on radeon", "crashes with two monitors on amd"]
+reproduce = "Leave the computer idle, or put it to sleep and wake it, until it freezes. Then restart and run this again."
+source = "https://wiki.archlinux.org/title/AMDGPU#System_freezes_or_reboots_when_idle"
+
+[[when]]
+source = "module"
+names = ["amdgpu"]
+
+# Someone who already set their own mask (for overclocking) should choose the bits themselves.
+[[when]]
+source = "cmdline"
+regex = '^amdgpu\.ppfeaturemask=(?!0xffff7fff$)'
+absent = true
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.ppfeaturemask=0xffff7fff"]
+
+[[signals]]
+says = "The kernel log shows amdgpu timeouts or GPU resets"
+weight = 0.4
+source = "journal"
+kernel = true
+regex = 'amdgpu.*(ring .* timeout|GPU reset begin)'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.ppfeaturemask=0xffff7fff"], says = "Add a kernel parameter that turns off GFXOFF and keeps other power features" },
+  { op = "initramfs" },
+]
