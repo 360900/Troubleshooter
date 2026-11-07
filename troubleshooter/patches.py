@@ -68,6 +68,7 @@ class Step:
     says: str
     lines: list[str] = field(default_factory=list)
     undo: list[str] = field(default_factory=list)
+    undo_first: list[str] = field(default_factory=list)  # undone before files are restored
     late: list[str] = field(default_factory=list)  # runs once, after everything else
     late_undo: list[str] = field(default_factory=list)
 
@@ -317,8 +318,9 @@ def _op_service(step: dict, system: System, entry_id: str) -> Step | None:
     names = " ".join(_q(n) for n in change)
     now = " --now" if step.get("now") else ""
     verb = {"enable": "Enable", "disable": "Disable", "mask": "Mask"}[action]
+    # Undone before files are restored: a unit file the fix wrote must still exist to be disabled.
     return Step(step.get("says") or f"{verb} {_listing(change)}",
-                [f"systemctl {action}{now} {names}"], [f"systemctl {undo_action}{now} {names}"])
+                [f"systemctl {action}{now} {names}"], undo_first=[f"systemctl {undo_action}{now} {names}"])
 
 
 def _op_command(step: dict, system: System, entry_id: str) -> Step:
@@ -411,8 +413,11 @@ def build_plan(entry_id: str, title: str, steps: list[dict], reboot: bool, syste
 
     undo = [*head[:-2], f"# Undoes run {run_id}", f"export PATH={system.script_path}", f"TS_BACKUP={_q(backup)}",
             '[ -d "$TS_BACKUP" ] || { echo "Backup $TS_BACKUP is gone, nothing to restore from." >&2; exit 1; }',
-            "rc=0", "set -E", "trap 'rc=1' ERR", _UNDO_PRELUDE, "",
-            "echo '==> Restoring files'", "ts_restore_all"]
+            "rc=0", "set -E", "trap 'rc=1' ERR", _UNDO_PRELUDE, ""]
+    for step in reversed(compiled):
+        if step.undo_first:
+            undo += [f"echo {_q('==> Reversing: ' + step.says)}", *step.undo_first]
+    undo += ["echo '==> Restoring files'", "ts_restore_all"]
     for step in reversed(compiled):
         if step.undo:
             undo += [f"echo {_q('==> Reversing: ' + step.says)}", *step.undo]

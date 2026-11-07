@@ -195,6 +195,19 @@ class UndoTests(PatchCase):
         self.assertEqual(m.read("/etc/default/grub"), GRUB)
         self.assertIn("mkinitcpio -P", m.commands_run())
 
+    def test_undo_disables_a_new_service_before_deleting_its_unit_file(self):
+        m = self.machine()
+        steps = [{"op": "write_file", "path": "/etc/systemd/system/ts-test.service", "content": "[Unit]\n"},
+                 {"op": "service", "names": ["ts-test.service"], "now": True}]
+        plan = patches.build_plan("ts-test", "Test", steps, False, m.system())
+        self.apply(m, plan)
+        unit = m.root / "etc/systemd/system/ts-test.service"
+        # Like the real systemctl: disabling a unit whose file is gone fails.
+        (m.stubs / "systemctl").write_text(f'#!/bin/sh\n[ "$1" != disable ] || [ -e {unit} ]\n')
+        result = self.run_script(m, plan.undo_script)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(unit.exists())
+
     def test_undo_refuses_when_backup_is_gone(self):
         m = self.machine()
         plan = self.plan(m, "games-max-map-count")
