@@ -19,8 +19,10 @@ weight = 0.5
 source = "journal"
 regex = 'systemd-coredump.*Process .*\((steam|steamwebhelper)\)'
 
+# Steam doesn't log the beta to the journal (only to its own bootstrap_log.txt), but the
+# file that opts in is there for as long as the beta is on.
 [[signals]]
-says = "Steam is running its beta client"
+says = "Steam is set to use a beta client"
 weight = 0.2
-source = "journal"
-regex = "You are in the 'publicbeta' client beta"
+source = "file"
+path = "~/.local/share/Steam/package/beta"
