@@ -115,6 +115,24 @@ class ModesetOffTests(EngineCase):
         self.assertNotIn("gpu-driver-modeset-off", self.scan_ids(m))
 
 
+class NvidiaSleepTests(EngineCase):
+    def params(self, preserve, notifiers, services="disabled"):
+        m = self.machine()
+        m.modules("nvidia")
+        m.write("/proc/driver/nvidia/params",
+                f"PreserveVideoMemoryAllocations: {preserve}\nUseKernelSuspendNotifiers: {notifiers}\n")
+        m.outputs["services"] = {"nvidia-suspend.service": services, "nvidia-resume.service": services}
+        return engine.evaluate(DB.entries["nvidia-sleep"], m.system())
+
+    def test_automatic_preserve_without_notifiers_is_off(self):
+        # 595's defaults: 2 only turns preservation on together with suspend notifiers.
+        self.assertTrue(self.params(2, 0).recommended)
+        self.assertNotEqual(self.params(2, 0, "enabled").status, engine.FIXED)
+
+    def test_automatic_preserve_with_notifiers_is_fine(self):
+        self.assertEqual(self.params(2, 1).status, engine.FIXED)
+
+
 class GdmNoGpuTests(EngineCase):
     def test_current_gnome_shell_wording_is_caught(self):
         for line in ("gnome-shell[1203]: Failed to setup: No GPUs found",

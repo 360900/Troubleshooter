@@ -13,7 +13,9 @@ source = "https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video
 source = "module"
 names = ["nvidia"]
 
-# Newer drivers handle this through kernel suspend notifiers and need none of it.
+# Newer drivers handle this through kernel suspend notifiers and need none of it. Their
+# default PreserveVideoMemoryAllocations of 2 means "on only with suspend notifiers",
+# so with notifiers off (595's default) it is as good as 0.
 [[fixed_when]]
 source = "file"
 path = "/proc/driver/nvidia/params"
@@ -21,7 +23,7 @@ regex = '^UseKernelSuspendNotifiers: 1'
 
 [[fixed_when]]
 all_of = [
-  { source = "file", path = "/proc/driver/nvidia/params", regex = '^PreserveVideoMemoryAllocations: [12]' },
+  { source = "file", path = "/proc/driver/nvidia/params", regex = '^PreserveVideoMemoryAllocations: 1' },
   { source = "service", name = "nvidia-suspend.service", state = "enabled" },
   { source = "service", name = "nvidia-resume.service", state = "enabled" },
 ]
@@ -31,7 +33,7 @@ says = "The driver isn't preserving video memory across sleep"
 weight = 0.7
 source = "file"
 path = "/proc/driver/nvidia/params"
-regex = '^PreserveVideoMemoryAllocations: 0'
+regex = '^PreserveVideoMemoryAllocations: [02]'
 
 [[signals]]
 says = "The sleep services aren't enabled"
