@@ -16,6 +16,12 @@ names = ["nvidia_modeset"]
 source = "kernel_param"
 params = ["nvidia_modeset.conceal_vrr_caps=1"]
 
+# The running driver shows the option however it was set (kernel parameter or modprobe.d).
+[[fixed_when]]
+source = "file"
+path = "/sys/module/nvidia_modeset/parameters/conceal_vrr_caps"
+regex = '^Y'
+
 [[signals]]
 says = "The NVIDIA display driver logged flip or display engine timeouts"
 weight = 0.8

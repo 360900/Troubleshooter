@@ -11,3 +11,9 @@ source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#Refresh-rate_l
 [[when]]
 source = "module"
 names = ["nvidia_modeset"]
+
+# The running driver shows the option however it was set (kernel parameter or modprobe.d).
+[[fixed_when]]
+source = "file"
+path = "/sys/module/nvidia_modeset/parameters/hdmi_deepcolor"
+regex = '^N'
