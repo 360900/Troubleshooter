@@ -1,0 +1,49 @@
+id = "firewall-ufw-nftables-conflict"
+title = "Firewall: nftables.service is enabled next to UFW"
+summary = "UFW and nftables.service both load firewall rules at startup, and nftables.service runs after UFW. If /etc/nftables.conf starts with flush ruleset, as older versions of it did, it deletes UFW's rules. Otherwise it adds a second firewall that blocks everything except SSH, so ports you allow in UFW stay closed. Disabling nftables.service leaves the firewall to UFW."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["ufw", "nftables", "nftables.service", "nftables.conf", "flush ruleset", "firewall", "conflict", "nft"]
+symptoms = ["ufw rules not applied", "ufw allow doesn't open the port", "ports blocked although ufw allows them", "firewall rules missing at startup", "kde connect blocked with ufw"]
+auto_detect = true
+advice = "If you wrote your own rules in /etc/nftables.conf, move what you still need into UFW before restarting, because they stop loading."
+source = "https://wiki.archlinux.org/title/Uncomplicated_Firewall#Installation"
+
+[[when]]
+source = "package"
+names = ["ufw"]
+
+[[when]]
+source = "service"
+name = "ufw.service"
+state = "enabled"
+
+# With UFW turned off, nftables is simply the firewall in use.
+[[when]]
+source = "file"
+path = "/etc/ufw/ufw.conf"
+regex = '^\s*ENABLED\s*=\s*yes'
+
+[[when]]
+source = "service"
+name = "nftables.service"
+state = "enabled"
+
+# ufw.service starts before sysinit.target, nftables.service later, before network-pre.target.
+[[signals]]
+says = "/etc/nftables.conf deletes every firewall rule when it loads, UFW's included"
+weight = 0.8
+source = "file"
+path = "/etc/nftables.conf"
+regex = '^\s*flush\s+ruleset'
+
+[[signals]]
+says = "/etc/nftables.conf sets up its own firewall that drops what it doesn't allow"
+weight = 0.5
+source = "file"
+path = "/etc/nftables.conf"
+regex = '^\s*policy\s+drop'
+
+[[fix]]
+reboot = true
+steps = [{ op = "service", action = "disable", names = ["nftables.service"], says = "Stop nftables.service from starting next to UFW" }]

@@ -1,0 +1,38 @@
+id = "amd-gfxoff-overdrive-mask"
+title = "AMD: an earlier GFXOFF fix also turned on Overdrive"
+summary = "Older versions of Troubleshooter's fix for idle freezes set amdgpu.ppfeaturemask=0xffff7fff. Besides turning off GFXOFF, that mask turns on Overdrive (overclocking), which marks the kernel as tainted, and an experimental power feature. The current fix turns off only GFXOFF."
+categories = ["amd", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["gfxoff", "amdgpu.ppfeaturemask", "0xffff7fff", "0xfff73fff", "overdrive", "tainted kernel", "PP_OVERDRIVE_MASK"]
+symptoms = ["kernel is tainted after amd fix", "overdrive turned on by itself", "amdgpu overclocking enabled"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/AMDGPU#System_freezes_or_reboots_when_idle"
+
+# Only where our own fix set it: run ids end in the entry id. Someone who chose this mask
+# themselves, for overclocking, keeps it.
+[[when]]
+source = "file"
+path = "/var/lib/troubleshooter/backups/*-amd-gfxoff-freeze"
+
+[[when]]
+source = "kernel_param"
+params = ["amdgpu.ppfeaturemask=0xffff7fff"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["amdgpu.ppfeaturemask=0xfff73fff"]
+
+[[signals]]
+says = "The kernel parameters still have the old mask, which turns on Overdrive"
+weight = 0.9
+source = "kernel_param"
+params = ["amdgpu.ppfeaturemask=0xffff7fff"]
+
+# Added after the old one, so it's the one the driver uses. Undoing the earlier fix from
+# Applied fixes removes the old one.
+[[fix]]
+reboot = true
+steps = [
+  { op = "kernel_params", add = ["amdgpu.ppfeaturemask=0xfff73fff"], says = "Add the current mask, which turns off only GFXOFF" },
+  { op = "initramfs" },
+]
