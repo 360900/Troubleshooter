@@ -534,12 +534,12 @@ class OtherFixTests(PatchCase):
                                              for name in step["names"]}
                     # A kernel that's missing the module, with its driver package in the repos.
                     m.outputs["repos"] = set()
+                    m.write("/usr/lib/modules/1.0-test/pkgbase", "linux-test\n")  # so {headers} has a kernel
                     for step in fix.steps:
                         if "kernels_without" in step:
                             name, needs = next(iter(step["optional"].items()))
                             m.packages.add(needs if isinstance(needs, str) else needs[0])
                             m.outputs["repos"].add(name.replace("{kernel}", "linux-test"))
-                            m.write("/usr/lib/modules/1.0-test/pkgbase", "linux-test\n")
                     system = m.system()
                     if not system.in_scopes(fix.systems):
                         continue

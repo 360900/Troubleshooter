@@ -23,7 +23,8 @@ source = "kernel_headers"
 
 [[fix]]
 reboot = true
+# dkms's pacman hook (70-dkms-install.hook) builds the drivers for each kernel whose headers
+# get installed, so installing them is enough.
 steps = [
-  { op = "install", packages = ["{headers}"], says = "Install the missing kernel headers" },
-  { op = "command", says = "Build DKMS drivers for all kernels", run = "dkms autoinstall" },
+  { op = "install", packages = ["{headers}"], says = "Install the missing kernel headers, which also builds the DKMS drivers for them" },
 ]
