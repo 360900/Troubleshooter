@@ -144,6 +144,25 @@ class RateMirrorsTests(EngineCase):
 
 
 class PrintingTests(EngineCase):
+    def test_gutenprint_fix_backs_up_the_queues_it_rewrites(self):
+        m = self.machine()
+        m.packages = {"gutenprint", "cups"}
+        plan = plan_for(m, "cups-gutenprint-ppd")
+        self.assertIn("pacman -S --needed --noconfirm perl", plan.script)
+        self.assertLess(plan.script.index('ts_backup "$f"'), plan.script.index("; cups-genppdupdate;"))
+        self.assertIn("pacman -Rns --noconfirm perl", plan.undo_script)
+        self.assertIn("systemctl try-restart cups.service", plan.undo_script)
+
+    def test_gutenprint_fix_stops_when_the_update_fails(self):
+        # With "a && b" bash's set -e ignores a failing a, and the script reported success.
+        m = self.machine()
+        m.packages = {"gutenprint", "cups", "perl"}
+        script = plan_for(m, "cups-gutenprint-ppd").script
+        script = script.replace("cups-genppdupdate;", "false;")
+        result = run_script(m, script)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("==> Done", result.stdout)
+
     def test_missing_ghostscript_alone_is_only_a_hint(self):
         m = self.machine()
         m.packages = {"cups"}

@@ -19,4 +19,9 @@ path = "/var/log/cups/error_log"
 regex = 'PPD version .* is not compatible with Gutenprint'
 
 [[fix]]
-steps = [{ op = "command", says = "Update the printer driver files and restart CUPS", run = "cups-genppdupdate && systemctl try-restart cups.service" }]
+# cups-genppdupdate rewrites the files in /etc/cups/ppd without keeping the old ones, so back
+# them up first for undo. It's a Perl script, and gutenprint only lists perl as optional.
+steps = [
+  { op = "install", packages = ["perl"], says = "Install Perl, which cups-genppdupdate needs" },
+  { op = "command", says = "Update the printer driver files and restart CUPS", run = 'for f in /etc/cups/ppd/*.ppd; do if [ -e "$f" ]; then ts_backup "$f"; fi; done; cups-genppdupdate; systemctl try-restart cups.service', undo = "systemctl try-restart cups.service" },
+]
