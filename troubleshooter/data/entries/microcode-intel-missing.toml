@@ -21,7 +21,12 @@ absent = true
 
 [[fixed_when]]
 source = "package"
-names = ["intel-ucode"]
+names = ["intel-ucode", "intel-ucode-git"]
+
+# What mkinitcpio's microcode hook and dracut embed, whichever package put it there.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/firmware/intel-ucode/??-??-??"
 
 [[signals]]
 says = "This is an Intel CPU, but intel-ucode isn't installed"

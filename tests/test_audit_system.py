@@ -80,5 +80,30 @@ class BtrfsTests(EngineCase):
             self.assertTrue(self.btrfs(journal=f"kernel: {line}\n").recommended, line)
 
 
+class MicrocodeTests(EngineCase):
+    def cpu(self, vendor, extra=""):
+        m = self.machine()
+        m.write("/proc/cpuinfo", f"vendor_id\t: {vendor}\nflags\t\t: fpu sse2 avx2{extra}\n")
+        return m
+
+    def test_missing_microcode_is_recommended(self):
+        self.assertIn("microcode-amd-missing", self.scan_ids(self.cpu("AuthenticAMD")))
+        self.assertIn("microcode-intel-missing", self.scan_ids(self.cpu("GenuineIntel")))
+
+    def test_virtual_machines_are_left_alone(self):
+        self.assertNotIn("microcode-amd-missing", self.scan_ids(self.cpu("AuthenticAMD", " hypervisor")))
+
+    def test_git_packages_and_other_providers_count(self):
+        m = self.cpu("AuthenticAMD")
+        m.packages = {"amd-ucode-git"}
+        self.assertNotIn("microcode-amd-missing", self.scan_ids(m))
+        m = self.cpu("AuthenticAMD")
+        m.write("/usr/lib/firmware/amd-ucode/microcode_amd_fam19h.bin", "x")
+        self.assertNotIn("microcode-amd-missing", self.scan_ids(m))
+        m = self.cpu("GenuineIntel")
+        m.write("/usr/lib/firmware/intel-ucode/06-b7-01", "x")
+        self.assertNotIn("microcode-intel-missing", self.scan_ids(m))
+
+
 if __name__ == "__main__":
     unittest.main()

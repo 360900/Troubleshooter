@@ -21,7 +21,12 @@ absent = true
 
 [[fixed_when]]
 source = "package"
-names = ["amd-ucode"]
+names = ["amd-ucode", "amd-ucode-git"]
+
+# What mkinitcpio's microcode hook and dracut embed, whichever package put it there.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/firmware/amd-ucode/microcode_amd*.bin"
 
 [[signals]]
 says = "This is an AMD CPU, but amd-ucode isn't installed"
