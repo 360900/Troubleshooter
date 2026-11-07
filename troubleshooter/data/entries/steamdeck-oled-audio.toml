@@ -1,0 +1,33 @@
+id = "steamdeck-oled-audio"
+title = "Steam Deck OLED: built-in speakers don't work"
+summary = "The Steam Deck OLED's speakers need DSP firmware and topology files that Arch's own firmware packages don't ship yet. They come in the steamdeck-dsp package."
+categories = ["sound", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["steam deck", "oled", "galileo", "steamdeck-dsp", "sof-firmware", "alsa-ucm-conf", "speakers", "cachyos-deckify"]
+symptoms = ["no sound on steam deck", "steam deck speakers silent", "no audio device on steam deck oled", "sound stops after sleep on steam deck"]
+auto_detect = false
+advice = "Install steamdeck-dsp. CachyOS has it in its repositories; elsewhere build it from Valve's jupiter-main sources, and keep it close in age to the rest of the system. Use a recent kernel (7.0.10 or newer); if sound breaks after suspend, a patched kernel such as linux-cachyos-deckify fixes that."
+source = "https://wiki.archlinux.org/title/Steam_Deck#Audio"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Valve'
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^Galileo'
+
+[[fixed_when]]
+any_of = [
+  { source = "package", names = ["steamdeck-dsp*"] },
+  { source = "file", path = "/etc/os-release", regex = '^ID="?steamos' },
+]
+
+[[signals]]
+says = "The Steam Deck DSP firmware isn't installed"
+weight = 0.6
+source = "package"
+names = ["steamdeck-dsp*"]
+absent = true

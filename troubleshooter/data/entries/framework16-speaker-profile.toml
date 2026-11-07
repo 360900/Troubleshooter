@@ -1,0 +1,19 @@
+id = "framework16-speaker-profile"
+title = "Framework Laptop 16: no sound from the speakers"
+summary = "On the Framework Laptop 16 the sound server may pick an audio profile for headphones only, so the built-in speakers stay silent while headphones and Bluetooth work. Choosing the profile with Speaker in its name fixes it."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["framework", "laptop 16", "wireplumber", "profile", "HiFi", "speaker", "pavucontrol", "Ryzen HD Audio Controller"]
+symptoms = ["no sound from laptop speakers", "headphones work but speakers don't", "framework 16 speakers silent", "only headphones in sound settings"]
+advice = "Open pavucontrol, go to Configuration and set the Ryzen HD Audio Controller to the profile that includes Speaker, for example HiFi (Mic1, Mic2, Speaker). To keep it, add a WirePlumber rule in /etc/wireplumber/wireplumber.conf.d/ that sets device.profile for that card (find its device.name with pactl list cards). Also turn on Linux audio compatibility in the BIOS for better sound."
+source = "https://wiki.archlinux.org/title/Framework_Laptop_16#No_sound_from_speakers"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Framework'
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^Laptop 16'

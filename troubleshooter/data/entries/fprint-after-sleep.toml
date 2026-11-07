@@ -1,0 +1,13 @@
+id = "fprint-after-sleep"
+title = "Fingerprint reader: stops working after sleep"
+summary = "After waking from sleep the fingerprint reader may not respond, either because fprintd starts before the reader is back or because the computer slept while fprintd was still running. A small rule or service keeps it working."
+categories = ["devices", "sleep"]
+systems = ["any"]
+keywords = ["fprintd", "fingerprint", "resume", "suspend", "power/persist", "udev", "kill fprintd"]
+symptoms = ["fingerprint doesn't work after sleep", "fingerprint login fails after resume", "have to restart to use fingerprint", "fingerprint reader not responding after suspend"]
+advice = "Find the reader's ID with lsusb and add a udev rule in /etc/udev/rules.d that sets ATTR{power/persist}=\"1\" for that idVendor and idProduct. If the reader only breaks when you suspend right after logging in, add a system service with Before=sleep.target and WantedBy=sleep.target that runs killall fprintd."
+source = "https://wiki.archlinux.org/title/Fprint#fprintd_starts_before_fingerprint_reader_device_is_initialized_after_resuming_from_sleep"
+
+[[when]]
+source = "package"
+names = ["fprintd"]

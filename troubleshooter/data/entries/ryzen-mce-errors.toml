@@ -1,0 +1,30 @@
+id = "ryzen-mce-errors"
+title = "AMD Ryzen: random reboots with machine check errors"
+summary = "The CPU reported hardware errors (machine checks). On Ryzen this often means the CPU isn't getting quite enough voltage at its highest clocks, which leads to random crashes and reboots."
+categories = ["crashes", "amd"]
+systems = ["any"]
+keywords = ["mce", "machine check", "Hardware Error", "ryzen", "curve optimizer", "pbo", "5950x", "5900x", "random reboot"]
+symptoms = ["computer reboots randomly", "pc restarts by itself", "random crashes under load", "machine check events logged", "apps crash randomly on ryzen"]
+advice = "Update the BIOS first. If the errors continue, set a small positive Curve Optimizer offset in the BIOS (start around +4, some CPUs need +6 or more) and turn off any overclocking or PBO tweaks."
+reproduce = "Use the computer as usual until it crashes or reboots, then run this again so the previous boot is checked."
+source = "https://wiki.archlinux.org/title/Ryzen#Random_reboots"
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'AuthenticAMD'
+
+[[signals]]
+says = "The CPU logged machine check errors in this boot"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'mce: \[Hardware Error\]: Machine check events logged'
+
+[[signals]]
+says = "The CPU logged machine check errors in the previous boot"
+weight = 0.4
+source = "journal"
+kernel = true
+boot = -1
+regex = 'mce: \[Hardware Error\]: Machine check events logged'

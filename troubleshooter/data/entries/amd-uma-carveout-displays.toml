@@ -1,0 +1,25 @@
+id = "amd-uma-carveout-displays"
+title = "AMD laptop: black screen or failures with several monitors"
+summary = "The integrated AMD GPU has a fixed slice of memory reserved by the firmware, and with several or high-resolution monitors it can run out. Screens then stay black or fail to turn on, especially after plugging in or waking. Reserving more memory fixes it at the cost of RAM for everything else."
+categories = ["display", "amd"]
+systems = ["any"]
+keywords = ["uma", "carveout", "vram", "amdgpu", "apu", "ryzen ai 300", "framework", "multiple monitors", "Failed to allocate a buffer"]
+symptoms = ["external monitors stay black", "third monitor doesn't work", "screen fails after resume with monitors", "display configuration failed", "monitors flicker on and off when plugging in"]
+advice = "Check the current size with cat /sys/class/drm/card*/device/uma/carveout and the choices with cat /sys/class/drm/card*/device/uma/carveout_options. Write the index of a larger size to carveout as root (for example echo 2 > /sys/class/drm/card1/device/uma/carveout, after checking what 2 means) and reboot. Some firmware also has a UMA size setting in the BIOS."
+source = "https://wiki.archlinux.org/title/Framework_Laptop_16#Black_screen_or_display_failures_with_multiple_monitors"
+
+[[when]]
+source = "file"
+path = "/sys/class/drm/card*/device/uma/carveout"
+
+[[signals]]
+says = "KWin couldn't find a working output configuration"
+weight = 0.4
+source = "journal"
+regex = 'Failed to find a working output layer configuration'
+
+[[signals]]
+says = "Mesa couldn't allocate a buffer on the AMD GPU"
+weight = 0.4
+source = "journal"
+regex = 'amdgpu: Failed to allocate a buffer'

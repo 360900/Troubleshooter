@@ -1,0 +1,22 @@
+id = "logitech-bolt-instant-wake"
+title = "Logitech Bolt receiver: computer wakes right after going to sleep"
+summary = "The Logitech Bolt receiver can wake the computer the moment it suspends. Turning off its wakeup stops that, but the mouse and keyboard on it can then no longer wake the computer; use the power button or the built-in keyboard instead."
+categories = ["sleep", "input"]
+systems = ["any"]
+keywords = ["logitech", "logi bolt", "046d:c548", "unifying", "power/wakeup", "solaar", "wakes immediately", "suspend"]
+symptoms = ["computer wakes up right after sleep", "pc won't stay asleep", "suspend returns immediately", "mouse wakes computer from sleep", "logitech receiver wakes pc"]
+source = "https://wiki.archlinux.org/title/Logitech_Unifying_Receiver#PC_wakes_immediately_from_sleep"
+
+[[when]]
+source = "usb"
+vendor = "046d"
+devices = ["c548"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/udev/rules.d/*.rules"
+regex = 'c548.*power/wakeup.*disabled'
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/udev/rules.d/90-troubleshooter-logitech-bolt-wakeup.rules", content = "ACTION==\"add\", SUBSYSTEM==\"usb\", DRIVERS==\"usb\", ATTRS{idVendor}==\"046d\", ATTRS{idProduct}==\"c548\", ATTR{power/wakeup}=\"disabled\"\n", says = "Add a udev rule that stops the Bolt receiver from waking the computer" }]

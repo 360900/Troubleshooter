@@ -1,0 +1,28 @@
+id = "thunderbolt-bolt-missing"
+title = "Thunderbolt: docks and devices stay unauthorized"
+summary = "This computer asks for approval before a Thunderbolt device may connect, but nothing is installed to give it. Docks, eGPUs and drives stay dead until bolt, the Thunderbolt device manager, is installed."
+categories = ["devices", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["thunderbolt", "bolt", "boltctl", "authorized", "security level", "usb4", "plasma-thunderbolt", "dock"]
+symptoms = ["thunderbolt dock doesn't work", "usb ports on my dock are dead", "egpu not detected", "thunderbolt device not authorized", "monitor works on dock but usb doesn't", "nothing happens when i plug in thunderbolt"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Thunderbolt#User_device_authorization"
+
+[[when]]
+source = "file"
+path = "/sys/bus/thunderbolt/devices/domain*/security"
+regex = '^(user|secure)$'
+
+[[fixed_when]]
+source = "package"
+names = ["bolt", "bolt-git"]
+
+[[signals]]
+says = "A connected Thunderbolt device is waiting to be authorized"
+weight = 0.8
+source = "file"
+path = "/sys/bus/thunderbolt/devices/*/authorized"
+regex = '^0$'
+
+[[fix]]
+steps = [{ op = "install", packages = ["bolt"], says = "Install bolt, which lets your desktop approve Thunderbolt devices" }]

@@ -1,0 +1,26 @@
+id = "logitech-keyboard-luks"
+title = "Logitech wireless keyboard: can't type the disk password at boot"
+summary = "Logitech wireless keyboards on a Unifying or Bolt receiver need their own driver, which may not be in the boot image. Then the keyboard is dead at the disk encryption password prompt."
+categories = ["input", "boot"]
+systems = ["arch-and-based"]
+keywords = ["logitech", "unifying", "bolt", "hid-logitech-hidpp", "hid-logitech-dj", "luks", "encrypt", "mkinitcpio", "initramfs"]
+symptoms = ["keyboard doesn't work at luks password prompt", "can't enter encryption password", "wireless keyboard dead at boot", "logitech keyboard only works after login"]
+advice = "Add hid-logitech-dj and hid-logitech-hidpp to the MODULES line in /etc/mkinitcpio.conf, for example MODULES=(hid-logitech-dj hid-logitech-hidpp), then run mkinitcpio -P and reboot. Until then, a wired keyboard works at the prompt."
+source = "https://wiki.archlinux.org/title/Logitech_Unifying_Receiver#Wireless_Keyboard_does_not_work_while_booting_(cannot_enter_luks_passphrase)"
+
+[[when]]
+source = "usb"
+vendor = "046d"
+devices = ["c52b", "c548"]
+
+[[when]]
+any_of = [
+  { source = "file", path = "/etc/mkinitcpio.conf", regex = '^HOOKS=.*\b(encrypt|sd-encrypt)\b' },
+  { source = "file", path = "/etc/mkinitcpio.conf.d/*.conf", regex = '^HOOKS.*\b(encrypt|sd-encrypt)\b' },
+]
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/mkinitcpio.conf", regex = '^MODULES=.*hid[-_]logitech[-_]hidpp' },
+  { source = "file", path = "/etc/mkinitcpio.conf.d/*.conf", regex = '^MODULES.*hid[-_]logitech[-_]hidpp' },
+]

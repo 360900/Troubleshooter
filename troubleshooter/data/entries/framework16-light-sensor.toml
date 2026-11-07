@@ -1,0 +1,33 @@
+id = "framework16-light-sensor"
+title = "Framework Laptop 16: automatic brightness doesn't work"
+summary = "The ambient light sensor works in the kernel, but desktops can only use it through iio-sensor-proxy. Without that package there is no automatic brightness option."
+categories = ["devices", "display"]
+systems = ["arch-and-based"]
+keywords = ["framework", "laptop 16", "ambient light sensor", "iio-sensor-proxy", "monitor-sensor", "auto brightness", "illuminance"]
+symptoms = ["automatic brightness missing", "light sensor not working", "auto brightness option missing in settings", "framework 16 ambient light sensor"]
+source = "https://wiki.archlinux.org/title/Framework_Laptop_16#Desktop_environment_integration"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/sys_vendor"
+regex = '^Framework'
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/product_name"
+regex = '^Laptop 16'
+
+[[fixed_when]]
+source = "package"
+names = ["iio-sensor-proxy"]
+
+[[signals]]
+says = "iio-sensor-proxy isn't installed"
+weight = 0.5
+source = "package"
+names = ["iio-sensor-proxy"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["iio-sensor-proxy"], says = "Install iio-sensor-proxy so the desktop can read the light sensor" }]

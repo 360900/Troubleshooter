@@ -1,0 +1,15 @@
+id = "udev-unknown-group"
+title = "udev: a device rule names a group that doesn't exist"
+summary = "A udev rule gives a device to a group that isn't on this system, so udev skips that part and the device keeps root-only permissions. Apps that rely on that rule, such as tools for mice, keyboards or dev boards, can't open the device."
+categories = ["devices", "input"]
+systems = ["any"]
+keywords = ["udev", "udev rules", "group", "plugdev", "Unknown group", "Failed to resolve group", "permission denied", "/dev/hidraw"]
+symptoms = ["permission denied opening device", "app only sees my device as root", "unknown group plugdev", "udev rule not working", "device not accessible as normal user"]
+advice = "The log line names the group and the rules file. Create the group with groupadd -r NAME, add your user with gpasswd -a USER NAME, then log out and back in and replug the device. If the rule came from a package written for another distro, it may be simpler to use a group Arch already has or rely on the uaccess tag."
+source = "https://wiki.archlinux.org/title/Udev#udevd_hangs_at_boot"
+
+[[signals]]
+says = "udev skipped a rule because its group doesn't exist"
+weight = 0.6
+source = "journal"
+regex = "(Failed to resolve group|Unknown group) '[^']+', ignoring"

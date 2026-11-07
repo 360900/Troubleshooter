@@ -1,0 +1,26 @@
+id = "mac-facetimehd-camera"
+title = "Mac: FaceTime HD webcam doesn't work"
+summary = "MacBooks from 2011 on have a FaceTime HD camera on PCIe that Linux has no built-in driver for. It needs the facetimehd driver and firmware from the AUR."
+categories = ["devices", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["facetime hd", "facetimehd", "facetimehd-dkms", "facetimehd-firmware", "macbook", "webcam", "14e4:1570"]
+symptoms = ["macbook webcam not working", "no camera found on mac", "facetime camera not detected", "webcam missing in video calls"]
+auto_detect = true
+advice = "Install facetimehd-dkms and facetimehd-firmware from the AUR (plus the headers for your kernel), then reboot. facetimehd-data is optional and improves the colors."
+source = "https://wiki.archlinux.org/title/Mac/Troubleshooting#FaceTime_HD_Camera"
+
+[[when]]
+source = "pci"
+vendor = "14e4"
+devices = ["1570"]
+
+[[fixed_when]]
+source = "module"
+names = ["facetimehd"]
+
+[[signals]]
+says = "The FaceTime HD camera has no driver loaded"
+weight = 0.6
+source = "module"
+names = ["facetimehd"]
+absent = true

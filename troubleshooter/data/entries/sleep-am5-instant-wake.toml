@@ -1,0 +1,28 @@
+id = "sleep-am5-instant-wake"
+title = "ASRock or MSI AM5 board: wakes up right after going to sleep"
+summary = "Some ASRock B850M and MSI X870 Tomahawk boards wake as soon as they suspend because the USB controller or the NVMe bridge sends a wake signal. Turning off that one wakeup source fixes it."
+categories = ["sleep", "amd"]
+systems = ["any"]
+keywords = ["asrock", "msi", "am5", "xh00", "gpp1", "/proc/acpi/wakeup", "b850m", "x870 tomahawk", "instant wake"]
+symptoms = ["pc wakes up right after sleep", "computer won't stay asleep", "suspend returns immediately", "am5 pc wakes from sleep"]
+advice = "On the ASRock board run echo XH00 > /proc/acpi/wakeup as root, on the MSI board echo GPP1 > /proc/acpi/wakeup (it toggles, so run it once), then test a suspend. To keep it, have a small systemd service run the same command at boot. On ASRock, USB devices can then no longer wake the PC."
+source = "https://wiki.archlinux.org/title/Power_management/Wakeup_triggers#ASRock_AM5_motherboards"
+
+[[when]]
+any_of = [
+  { all_of = [
+    { source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^ASRock' },
+    { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'B850M Pro' },
+  ] },
+  { all_of = [
+    { source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^Micro-Star' },
+    { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'X870 TOMAHAWK' },
+  ] },
+]
+
+[[signals]]
+says = "The suspect device is allowed to wake the system"
+weight = 0.4
+source = "file"
+path = "/proc/acpi/wakeup"
+regex = '^(XH00|GPP1)\s+\S+\s+\*enabled'

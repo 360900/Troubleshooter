@@ -1,0 +1,29 @@
+id = "tablet-hid-bpf-missing"
+title = "Huion, XP-Pen or Gaomon tablet: buttons or pen features missing"
+summary = "Fixes for many newer non-Wacom tablets come as small HID-BPF programs instead of kernel drivers. Without the udev-hid-bpf package that loads them, pen buttons, the eraser or pressure may not work."
+categories = ["input", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["udev-hid-bpf", "hid-bpf", "huion", "xp-pen", "gaomon", "ugee", "graphics tablet", "drawing tablet"]
+symptoms = ["huion tablet buttons don't work", "xp-pen pen pressure not working", "tablet eraser does nothing", "drawing tablet only moves the cursor", "graphics tablet partly works"]
+source = "https://wiki.archlinux.org/title/Graphics_tablet#Kernel_support"
+
+[[when]]
+any_of = [
+  { source = "usb", vendor = "256c" },
+  { source = "usb", vendor = "28bd" },
+]
+
+[[fixed_when]]
+source = "package"
+names = ["udev-hid-bpf"]
+
+[[signals]]
+says = "udev-hid-bpf isn't installed"
+weight = 0.4
+source = "package"
+names = ["udev-hid-bpf"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["udev-hid-bpf"], says = "Install udev-hid-bpf, which loads fixes for many tablets" }]

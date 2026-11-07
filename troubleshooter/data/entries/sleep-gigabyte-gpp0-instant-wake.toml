@@ -1,0 +1,34 @@
+id = "sleep-gigabyte-gpp0-instant-wake"
+title = "Gigabyte AMD board: wakes up right after going to sleep"
+summary = "On several Gigabyte AM4 boards the PCIe bridge to the NVMe drive wakes the PC as soon as it suspends. Stopping PCIe ports from waking the system fixes it; waking with the keyboard, mouse or power button still works."
+categories = ["sleep", "amd"]
+systems = ["any"]
+keywords = ["gigabyte", "gpp0", "/proc/acpi/wakeup", "pcieport", "power/wakeup", "b550", "a520", "instant wake", "suspend"]
+symptoms = ["pc wakes up right after sleep", "computer won't stay asleep", "suspend returns immediately", "gigabyte board wakes from sleep", "fans spin up again after suspend"]
+source = "https://wiki.archlinux.org/title/Power_management/Wakeup_triggers#GPP_bridge"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/board_vendor"
+regex = '^Gigabyte'
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/board_name"
+regex = '^(B550 AORUS ELITE( AX)? V2|B550M DS3H|B550M AORUS PRO-P|A520M K V2)'
+
+[[fixed_when]]
+source = "file"
+path = "/proc/acpi/wakeup"
+regex = '^GPP0\s+\S+\s+\*disabled'
+
+[[signals]]
+says = "The GPP0 bridge is allowed to wake the system"
+weight = 0.4
+source = "file"
+path = "/proc/acpi/wakeup"
+regex = '^GPP0\s+\S+\s+\*enabled'
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/udev/rules.d/90-troubleshooter-gpp-wakeup.rules", content = "ACTION==\"add\", SUBSYSTEM==\"pci\", DRIVER==\"pcieport\", ATTR{power/wakeup}=\"disabled\"\n", says = "Add a udev rule that stops PCIe ports from waking the computer" }]

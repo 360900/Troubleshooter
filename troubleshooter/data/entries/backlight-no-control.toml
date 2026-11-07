@@ -1,0 +1,38 @@
+id = "backlight-no-control"
+title = "Laptop: screen brightness can't be changed"
+summary = "No brightness control is available for the built-in screen, so the slider and brightness keys do nothing. Usually the wrong backlight interface was picked, often because of an old acpi_backlight kernel parameter."
+categories = ["display", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["backlight", "brightness", "/sys/class/backlight", "acpi_backlight", "acpi_video0", "intel_backlight", "amdgpu_bl0", "brightness keys"]
+symptoms = ["can't change screen brightness", "brightness keys don't work", "brightness slider missing", "laptop screen brightness stuck", "no brightness option in settings", "screen is too dim and won't get brighter"]
+advice = "If your boot loader adds an acpi_backlight= parameter, remove it first: since kernel 6.1 the kernel picks the right interface by itself. If there is still no device in /sys/class/backlight, try acpi_backlight=video, then native, then vendor, one at a time, rebooting after each. Some laptops also need amdgpu.backlight=0 (AMD) or the asus-nb-wmi module (Asus). OLED panels have no backlight at all."
+source = "https://wiki.archlinux.org/title/Backlight#Kernel_command-line_options"
+
+[[when]]
+source = "file"
+path = "/sys/class/dmi/id/chassis_type"
+regex = '^(8|9|10|14|31|32)$'
+
+[[when]]
+source = "pci"
+class = "03"
+
+[[signals]]
+says = "The kernel offers no backlight device"
+weight = 0.5
+source = "file"
+path = "/sys/class/backlight/*"
+absent = true
+
+[[signals]]
+says = "An acpi_backlight kernel parameter overrides the kernel's choice"
+weight = 0.25
+source = "cmdline"
+regex = '^acpi_backlight='
+
+[[signals]]
+says = "nomodeset is set, which also removes the backlight (see the nomodeset entry)"
+weight = 0.6
+counter = true
+source = "cmdline"
+regex = '^nomodeset$'

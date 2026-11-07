@@ -1,0 +1,20 @@
+id = "keyboard-alt-super-swapped"
+title = "Keyboard: Alt and Super (Windows) keys are swapped"
+summary = "Many keyboards with a Mac mode, such as Keychron models, are handled by the Apple keyboard driver, which swaps Alt and Super to match a Mac layout. Switching the keyboard to its Windows mode or adjusting the driver fixes it."
+categories = ["input", "bluetooth"]
+systems = ["any"]
+keywords = ["hid_apple", "swap_opt_cmd", "keychron", "alt", "super", "windows key", "command key", "mac mode"]
+symptoms = ["alt and windows key are swapped", "super key acts as alt", "keychron keys are wrong", "bluetooth keyboard modifier keys swapped", "alt key opens the menu"]
+advice = "First check for a Mac/Windows switch or key combination on the keyboard. If it isn't an Apple keyboard, run rmmod hid_apple as root and reconnect it; if that fixes it, blacklist hid_apple in /etc/modprobe.d. With a real Apple keyboard keep the module and set options hid_apple swap_opt_cmd=1 instead."
+source = "https://wiki.archlinux.org/title/Bluetooth_keyboard#Alt_and_Super_are_swapped"
+
+[[when]]
+source = "module"
+names = ["hid_apple"]
+
+[[signals]]
+says = "A real Apple keyboard is attached, so hid_apple is expected"
+weight = 0.5
+counter = true
+source = "usb"
+vendor = "05ac"

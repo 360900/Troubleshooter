@@ -1,0 +1,27 @@
+id = "backlight-i915-soc-pwm"
+title = "Intel tablet or 2-in-1: brightness doesn't work at all"
+summary = "On some Intel Atom-based tablets and 2-in-1s with a DSI panel, the graphics driver starts before the chip that dims the screen, so brightness control never works. Loading that chip's driver early in boot fixes it."
+categories = ["display", "intel", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["i915", "pwm-lpss-platform", "SoC PWM chip", "DSI", "mkinitcpio", "MODULES", "backlight"]
+symptoms = ["brightness doesn't work on my tablet", "brightness keys do nothing on intel 2 in 1", "screen brightness can't be changed", "backlight not working on atom tablet"]
+auto_detect = true
+advice = "Edit /etc/mkinitcpio.conf so the MODULES line contains i915 and pwm-lpss-platform, for example MODULES=(i915 pwm-lpss-platform), then run mkinitcpio -P and reboot."
+source = "https://wiki.archlinux.org/title/Backlight#sysfs_and_xbacklight_both_not_working"
+
+[[when]]
+source = "module"
+names = ["i915"]
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/mkinitcpio.conf", regex = '^MODULES=.*pwm[-_]lpss[-_]platform' },
+  { source = "file", path = "/etc/mkinitcpio.conf.d/*.conf", regex = '^MODULES.*pwm[-_]lpss[-_]platform' },
+]
+
+[[signals]]
+says = "The Intel graphics driver couldn't find the panel's PWM chip"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'Failed to get the SoC PWM chip'

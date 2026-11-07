@@ -1,0 +1,20 @@
+id = "thunderbolt-device-pending"
+title = "Thunderbolt: a device is waiting for your approval"
+summary = "A Thunderbolt or USB4 device is plugged in but hasn't been approved, so the firmware keeps it disconnected. Approving it once (and optionally remembering it) brings it to life."
+categories = ["devices"]
+systems = ["any"]
+keywords = ["thunderbolt", "boltctl", "boltctl authorize", "boltctl enroll", "authorized", "usb4", "dock"]
+symptoms = ["thunderbolt dock doesn't work", "thunderbolt device connected but nothing works", "egpu not working", "dock usb ports dead", "how do i authorize a thunderbolt device"]
+advice = "Approve the device in your desktop's settings (GNOME has a Thunderbolt panel, Plasma one from plasma-thunderbolt). From a terminal, boltctl list shows waiting devices; boltctl enroll UUID approves one and remembers it, boltctl authorize UUID approves it only until it is unplugged."
+source = "https://wiki.archlinux.org/title/Thunderbolt#User_device_authorization"
+
+[[when]]
+source = "package"
+names = ["bolt", "bolt-git"]
+
+[[signals]]
+says = "A connected Thunderbolt device is not authorized"
+weight = 0.5
+source = "file"
+path = "/sys/bus/thunderbolt/devices/*/authorized"
+regex = '^0$'

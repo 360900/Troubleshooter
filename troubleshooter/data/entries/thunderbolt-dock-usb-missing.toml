@@ -1,0 +1,13 @@
+id = "thunderbolt-dock-usb-missing"
+title = "Thunderbolt dock: screens work but USB devices don't"
+summary = "Sometimes the PCI buses behind a Thunderbolt dock aren't picked up when it's plugged in, so its monitors work while its USB ports, network and audio don't. Asking the kernel to rescan the PCI bus usually brings them up."
+categories = ["devices"]
+systems = ["any"]
+keywords = ["thunderbolt", "pci rescan", "/sys/bus/pci/rescan", "dock", "usb4", "hotplug"]
+symptoms = ["monitor works on dock but usb doesn't", "keyboard on thunderbolt dock not working", "dock ethernet missing", "usb ports on dock dead after plugging in", "thunderbolt dock only displays"]
+advice = "With the dock plugged in, run echo 1 > /sys/bus/pci/rescan as root. If that helps every time, add a small script running that command and a udev rule in /etc/udev/rules.d that calls it on ACTION==\"change\", SUBSYSTEM==\"thunderbolt\", ATTR{authorized}==\"1\". Also check that the dock is authorized (boltctl list) and has current firmware (fwupdmgr)."
+source = "https://wiki.archlinux.org/title/Thunderbolt#PCI_buses_are_not_registered"
+
+[[when]]
+source = "file"
+path = "/sys/bus/thunderbolt/devices/domain*"

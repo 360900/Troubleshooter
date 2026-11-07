@@ -1,0 +1,44 @@
+id = "nvme-apst-failure"
+title = "NVMe drive: timeouts and resets from broken power saving"
+summary = "Some NVMe drives fail when they drop into their deepest power-saving states. The drive stops answering, file systems turn read-only and only a reboot helps. Turning that power saving off costs a little battery life."
+categories = ["boot", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["nvme", "apst", "nvme_core.default_ps_max_latency_us", "QID timeout", "reset controller", "CSTS", "power state", "kingston a2000"]
+symptoms = ["ssd disappears randomly", "file system suddenly read-only", "computer freezes and the disk stops working", "nvme timeout aborting", "btrfs went read-only", "nvme drive keeps resetting"]
+auto_detect = false
+reproduce = "Leave the computer idle for a few minutes, then use it again."
+source = "https://wiki.archlinux.org/title/Solid_state_drive/NVMe#Controller_failure_due_to_broken_APST_support"
+
+[[when]]
+source = "file"
+path = "/sys/module/nvme_core"
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["nvme_core.default_ps_max_latency_us=0"]
+
+[[signals]]
+says = "NVMe commands timed out and the controller had to be reset"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'nvme nvme\d+: I/O (tag )?\d+ .*QID \d+ timeout, (aborting|reset controller)'
+
+[[signals]]
+says = "The same NVMe timeouts happened in the previous boot"
+weight = 0.5
+source = "journal"
+kernel = true
+boot = -1
+regex = 'nvme nvme\d+: I/O (tag )?\d+ .*QID \d+ timeout, (aborting|reset controller)'
+
+[[signals]]
+says = "The drive couldn't be woken and APST couldn't be set"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'nvme nvme\d+: (failed to set APST feature|Device not ready; aborting reset, CSTS=0x1)'
+
+[[fix]]
+reboot = true
+steps = [{ op = "kernel_params", add = ["nvme_core.default_ps_max_latency_us=0"], says = "Add a kernel parameter that turns off NVMe power-state switching (APST)" }]

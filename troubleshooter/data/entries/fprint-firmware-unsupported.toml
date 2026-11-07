@@ -1,0 +1,26 @@
+id = "fprint-firmware-unsupported"
+title = "Fingerprint reader: ignored because of old firmware"
+summary = "fprintd found the fingerprint reader but skipped it because its firmware is too old for the driver. Updating the reader's firmware with fwupd usually makes it work."
+categories = ["devices"]
+systems = ["any"]
+keywords = ["fprintd", "libfprint", "fingerprint", "unsupported firmware version", "fwupd", "fwupdmgr", "synaptics"]
+symptoms = ["fingerprint reader not found", "fprintd no devices available", "fingerprint option missing in settings", "fingerprint reader stopped working", "can't enroll fingerprint"]
+auto_detect = true
+advice = "Update the reader's firmware: run fwupdmgr refresh, then fwupdmgr update (install fwupd first if needed), and reboot. Afterwards fprintd-list or your desktop's settings should find the reader."
+source = "https://wiki.archlinux.org/title/Fprint#No_devices_available"
+
+[[when]]
+source = "package"
+names = ["fprintd"]
+
+[[signals]]
+says = "fprintd ignored the reader because of its firmware version"
+weight = 0.8
+source = "journal"
+regex = 'Ignoring device due to initialization error: unsupported firmware version'
+
+[[signals]]
+says = "fprintd ignored a reader that failed to start"
+weight = 0.3
+source = "journal"
+regex = 'Ignoring device due to initialization error'

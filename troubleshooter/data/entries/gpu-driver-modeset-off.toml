@@ -1,0 +1,39 @@
+id = "gpu-driver-modeset-off"
+title = "Graphics: a modeset=0 parameter turns off the graphics driver"
+summary = "A kernel parameter such as i915.modeset=0 or amdgpu.modeset=0 stops the graphics driver from working, which leaves a slow, unaccelerated desktop with the wrong resolution. It's usually left over from an old troubleshooting step."
+categories = ["display", "drivers"]
+systems = ["any"]
+keywords = ["modeset=0", "i915.modeset", "amdgpu.modeset", "nouveau.modeset", "kms", "kernel mode setting", "kernel parameter", "llvmpipe"]
+symptoms = ["desktop is very slow", "screen resolution is wrong", "graphics driver not loading", "no wayland session", "games run on llvmpipe", "only one resolution available"]
+auto_detect = true
+advice = "Remove the modeset=0 parameter from your boot loader's kernel parameters: in GRUB edit GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub and run grub-mkconfig -o /boot/grub/grub.cfg, in systemd-boot edit the options line under /boot/loader/entries. Then reboot. Keep nouveau.modeset=0 only if you use the proprietary NVIDIA driver."
+source = "https://wiki.archlinux.org/title/Kernel_mode_setting#Disabling_modesetting"
+
+[[when]]
+source = "pci"
+class = "03"
+
+[[signals]]
+says = "The Intel graphics driver is turned off with modeset=0"
+weight = 0.8
+all_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "cmdline", regex = '^(i915|xe)\.modeset=0$' },
+]
+
+[[signals]]
+says = "The AMD graphics driver is turned off with modeset=0"
+weight = 0.8
+all_of = [
+  { source = "pci", vendor = "1002", class = "03" },
+  { source = "cmdline", regex = '^(amdgpu|radeon)\.modeset=0$' },
+]
+
+[[signals]]
+says = "nouveau is turned off and no NVIDIA driver is loaded"
+weight = 0.4
+all_of = [
+  { source = "pci", vendor = "10de", class = "03" },
+  { source = "cmdline", regex = '^nouveau\.modeset=0$' },
+  { source = "module", names = ["nvidia"], absent = true },
+]

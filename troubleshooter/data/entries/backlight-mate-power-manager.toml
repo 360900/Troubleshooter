@@ -1,0 +1,32 @@
+id = "backlight-mate-power-manager"
+title = "MATE: brightness keys and slider don't work"
+summary = "In MATE, screen brightness is handled by the MATE power manager. Without it installed the brightness keys and controls do nothing."
+categories = ["display", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["mate", "mate-power-manager", "backlight", "brightness keys", "power manager"]
+symptoms = ["brightness keys don't work in mate", "can't change brightness in mate", "no brightness applet in mate", "mate laptop brightness stuck"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Backlight#Backlight_not_working_in_MATE"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = 'MATE'
+
+[[when]]
+source = "file"
+path = "/sys/class/backlight/*"
+
+[[fixed_when]]
+source = "package"
+names = ["mate-power-manager"]
+
+[[signals]]
+says = "mate-power-manager isn't installed"
+weight = 0.6
+source = "package"
+names = ["mate-power-manager"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["mate-power-manager"], says = "Install the MATE power manager, which handles brightness" }]

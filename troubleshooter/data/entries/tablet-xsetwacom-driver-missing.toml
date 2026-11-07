@@ -1,0 +1,32 @@
+id = "tablet-xsetwacom-driver-missing"
+title = "Wacom tablet on X11: xsetwacom and tablet settings missing"
+summary = "On an X11 session, tablet tools like xsetwacom and some desktop tablet settings need the Xorg Wacom driver. Without it the tablet works as a plain pointer and can't be configured."
+categories = ["input"]
+systems = ["arch-and-based"]
+keywords = ["xf86-input-wacom", "xsetwacom", "wacom", "xorg", "x11", "pressure", "graphics tablet"]
+symptoms = ["xsetwacom list devices is empty", "xsetwacom command not found", "no pressure sensitivity on x11", "can't map tablet to monitor", "tablet buttons can't be configured"]
+source = "https://wiki.archlinux.org/title/Graphics_tablet#Installation"
+
+[[when]]
+source = "usb"
+vendor = "056a"
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '^x11$'
+
+[[fixed_when]]
+source = "package"
+names = ["xf86-input-wacom"]
+
+[[signals]]
+says = "The Xorg Wacom driver isn't installed"
+weight = 0.5
+source = "package"
+names = ["xf86-input-wacom"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["xf86-input-wacom"], says = "Install the Xorg Wacom tablet driver" }]

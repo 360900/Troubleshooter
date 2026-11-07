@@ -1,0 +1,40 @@
+id = "nvme-suspend-failure"
+title = "NVMe drive: gone after waking from sleep"
+summary = "With some laptops and NVMe drives the drive doesn't come back after suspend, the kernel removes it and the system becomes unusable until a restart. Using a software IOMMU usually avoids it."
+categories = ["sleep", "boot", "crashes"]
+systems = ["any"]
+keywords = ["nvme", "CSTS=0x3", "Device not ready", "iommu=soft", "amd_iommu=fullflush", "kioxia", "suspend", "resume"]
+symptoms = ["ssd gone after sleep", "laptop freezes after waking up", "file system read-only after resume", "computer doesn't work after suspend until reboot", "nvme device not ready after resume"]
+advice = "Add iommu=soft to your kernel parameters and reboot; it costs a little CPU time. On HP laptops with an AMD CPU and a KIOXIA KBG40ZN drive, amd_iommu=fullflush may work better. Also check for BIOS and SSD firmware updates (fwupdmgr get-updates)."
+reproduce = "Put the computer to sleep and wake it up. If it fails, reboot and run this again so the previous boot is checked."
+source = "https://wiki.archlinux.org/title/Solid_state_drive/NVMe#Controller_failure_due_to_broken_suspend_support"
+
+[[when]]
+source = "file"
+path = "/sys/module/nvme_core"
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["iommu=soft"]
+
+[[signals]]
+says = "The NVMe controller didn't become ready again"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'nvme nvme\d+: Device not ready; aborting reset, CSTS=0x3'
+
+[[signals]]
+says = "The NVMe controller failed the same way in the previous boot"
+weight = 0.5
+source = "journal"
+kernel = true
+boot = -1
+regex = 'nvme nvme\d+: Device not ready; aborting reset, CSTS=0x3'
+
+[[signals]]
+says = "The kernel gave up on the NVMe drive"
+weight = 0.4
+source = "journal"
+kernel = true
+regex = 'nvme nvme\d+: (Removing after probe failure status: -19|Disabling device after reset failure)'

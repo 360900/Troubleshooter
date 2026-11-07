@@ -1,0 +1,26 @@
+id = "bluetooth-input-idle-timeout"
+title = "Bluetooth mouse or keyboard disconnects when idle"
+summary = "An IdleTimeout setting in /etc/bluetooth/input.conf makes BlueZ drop mice and keyboards after a few idle minutes, so they need a click or a reconnect to work again. The default is to never time out."
+categories = ["bluetooth", "input"]
+systems = ["any"]
+keywords = ["bluetooth", "input.conf", "IdleTimeout", "bluez", "hid", "mouse", "keyboard", "disconnect"]
+symptoms = ["bluetooth mouse disconnects after a while", "bluetooth keyboard falls asleep", "mouse stops working until i click", "bluetooth mouse keeps disconnecting", "have to reconnect my bluetooth mouse"]
+source = "https://wiki.archlinux.org/title/Bluetooth_mouse#Thinkpad_Bluetooth_Laser_Mouse_problems"
+
+[[when]]
+source = "file"
+path = "/etc/bluetooth/input.conf"
+regex = '^\s*IdleTimeout\s*=\s*[1-9]'
+
+[[signals]]
+says = "BlueZ is set to disconnect idle input devices"
+weight = 0.6
+source = "file"
+path = "/etc/bluetooth/input.conf"
+regex = '^\s*IdleTimeout\s*=\s*[1-9]'
+
+[[fix]]
+steps = [
+  { op = "replace", path = "/etc/bluetooth/input.conf", pattern = '^(\s*IdleTimeout\s*=\s*)[0-9]+', replacement = '\10', says = "Set IdleTimeout to 0 so input devices stay connected" },
+  { op = "command", says = "Restart Bluetooth to apply it (devices reconnect in a moment)", run = "systemctl restart bluetooth.service", undo = "systemctl restart bluetooth.service" },
+]

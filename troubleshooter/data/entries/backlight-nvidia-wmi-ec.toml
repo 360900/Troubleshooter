@@ -1,0 +1,40 @@
+id = "backlight-nvidia-wmi-ec"
+title = "NVIDIA laptop: brightness slider moves but the screen doesn't change"
+summary = "On laptops where only the NVIDIA GPU drives the screen (for example with a MUX switch set to discrete), the nvidia_wmi_ec_backlight control can accept values without changing anything. Telling the kernel to use the native backlight fixes it."
+categories = ["nvidia", "display"]
+systems = ["arch-and-based"]
+keywords = ["nvidia_wmi_ec_backlight", "acpi_backlight=native", "mux switch", "dgpu only", "backlight", "brightness"]
+symptoms = ["brightness slider does nothing on nvidia laptop", "brightness keys show the osd but screen doesn't change", "can't change brightness in discrete gpu mode", "screen brightness stuck with mux switch"]
+source = "https://wiki.archlinux.org/title/Backlight#NVIDIA-only_laptops_with_nvidia_wmi_ec_backlight"
+
+[[when]]
+source = "module"
+names = ["nvidia_wmi_ec_backlight"]
+
+[[when]]
+source = "module"
+names = ["nvidia", "nvidia_drm"]
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["acpi_backlight=native"]
+
+[[signals]]
+says = "The NVIDIA driver found no native backlight and fell back to ACPI"
+weight = 0.4
+source = "journal"
+kernel = true
+regex = 'ACPI reported no NVIDIA native backlight available'
+
+[[signals]]
+says = "The only backlight control is nvidia_wmi_ec_backlight"
+weight = 0.3
+all_of = [
+  { source = "file", path = "/sys/class/backlight/nvidia_wmi_ec_backlight" },
+  { source = "file", path = "/sys/class/backlight/intel_backlight", absent = true },
+  { source = "file", path = "/sys/class/backlight/amdgpu_bl*", absent = true },
+]
+
+[[fix]]
+reboot = true
+steps = [{ op = "kernel_params", add = ["acpi_backlight=native"], says = "Add a kernel parameter that makes the laptop use the native backlight control" }]

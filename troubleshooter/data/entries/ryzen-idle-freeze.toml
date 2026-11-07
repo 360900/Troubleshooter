@@ -1,0 +1,34 @@
+id = "ryzen-idle-freeze"
+title = "AMD Ryzen: freezes when idle, shutting down or sleeping"
+summary = "Deep CPU idle states (C6) on Ryzen can freeze the system when it's idle, or hang it at shutdown, reboot or suspend. A BIOS setting that keeps the CPU out of the deepest state usually fixes it, at a cost of a few watts at idle."
+categories = ["crashes", "amd", "sleep"]
+systems = ["any"]
+keywords = ["ryzen", "c6", "c-state", "Power Supply Idle Control", "Typical Current Idle", "processor.max_cstate", "soft lockup", "agesa"]
+symptoms = ["computer freezes when idle", "pc hangs at shutdown", "reboot freezes", "freeze when going to sleep", "system locks up overnight", "ryzen freezes randomly"]
+advice = "Update the BIOS first. Then in the BIOS set Power Supply Idle Control (or a similar name) from Low Current Idle to Typical Current Idle. If your board has no such option, add processor.max_cstate=1 to the kernel parameters; idle power use rises by roughly 5 to 10 W."
+reproduce = "Leave the computer idle until it freezes, then restart it and run this again so the previous boot is checked."
+source = "https://wiki.archlinux.org/title/Ryzen#Freeze_on_shutdown,_reboot_and_suspend"
+
+[[when]]
+source = "file"
+path = "/proc/cpuinfo"
+regex = 'AuthenticAMD'
+
+[[fixed_when]]
+source = "kernel_param"
+params = ["processor.max_cstate=1"]
+
+[[signals]]
+says = "The kernel reported a soft lockup"
+weight = 0.3
+source = "journal"
+kernel = true
+regex = 'watchdog: BUG: soft lockup - CPU#\d+ stuck'
+
+[[signals]]
+says = "The kernel reported a soft lockup in the previous boot"
+weight = 0.3
+source = "journal"
+kernel = true
+boot = -1
+regex = 'watchdog: BUG: soft lockup - CPU#\d+ stuck'
