@@ -27,16 +27,29 @@ absent = true
 says = "The kernel refused an unsigned module, so loading it by hand won't help"
 weight = 0.6
 counter = true
-source = "journal"
-kernel = true
-regex = 'Loading of unsigned module is rejected|unsigned module loading is restricted'
+any_of = [
+  { source = "journal", kernel = true, regex = 'Loading of (unsigned module|module with unavailable key) is rejected|Lockdown: \S+: unsigned module loading is restricted' },
+  { source = "journal", identifier = "systemd-modules-load", regex = "Failed to insert module 'vbox(drv|netadp|netflt)': (Key was rejected by service|Required key not available|Operation not permitted)" },
+]
 
+# Stays true after the log lines above have rotated away.
 [[signals]]
-says = "The running kernel's modules are gone after an update, so a restart is needed first"
+says = "The kernel only loads signed modules, so loading it by hand may not help"
 weight = 0.5
 counter = true
+any_of = [
+  { source = "file", path = "/sys/module/module/parameters/sig_enforce", regex = '^Y' },
+  { source = "file", path = "/sys/kernel/security/lockdown", regex = '\[(integrity|confidentiality)\]' },
+]
+
+# systemd-modules-load tries the modules virtualbox-host-dkms lists at every boot. Not found
+# means DKMS didn't build them for this kernel, or the kernel was updated since.
+[[signals]]
+says = "vboxdrv isn't built for the running kernel, so loading it by hand won't help"
+weight = 0.6
+counter = true
 source = "journal"
-regex = 'Module \S+ not found in directory /(usr/)?lib/modules/'
+regex = "Failed to find module 'vbox(drv|netadp|netflt)'|Module vbox(drv|netadp|netflt) not found in directory /(usr/)?lib/modules/"
 
 [[fix]]
 steps = [{ op = "command", says = "Load the VirtualBox kernel modules", run = "modprobe -a vboxdrv vboxnetadp vboxnetflt" }]

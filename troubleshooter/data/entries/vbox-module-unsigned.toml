@@ -1,12 +1,12 @@
 id = "vbox-module-unsigned"
 title = "VirtualBox: the kernel refuses its unsigned driver"
-summary = "Your kernel only accepts signed modules (for example because Secure Boot is on), and the VirtualBox modules built on your machine aren't signed. vboxdrv can't load, so no virtual machine starts."
+summary = "Your kernel only accepts modules signed with a key it trusts (lockdown or forced module signing, which some kernels turn on with Secure Boot), and the VirtualBox modules DKMS built on your machine aren't. vboxdrv can't load, so no virtual machine starts."
 categories = ["vms", "drivers"]
 systems = ["arch-and-based"]
 keywords = ["vboxdrv", "required key not available", "module signing", "secure boot", "lockdown", "mokutil", "sign-file", "CONFIG_MODULE_SIG_FORCE"]
 symptoms = ["failed to insert vboxdrv required key not available", "virtualbox doesn't work with secure boot", "modprobe vboxdrv fails", "kernel driver not installed rc=-1908", "virtualbox stopped working after enabling secure boot"]
 auto_detect = true
-advice = "Either sign vboxdrv, vboxnetadp and vboxnetflt with a key your kernel trusts (with the kernel's sign-file script, and enroll your own key with mokutil --import if you made one), or turn off Secure Boot or forced module signing. Signing has to be redone whenever the modules are rebuilt."
+advice = "DKMS signs the modules it builds with its own key, /var/lib/dkms/mok.key, unless /etc/dkms/framework.conf names another. Make the kernel trust that key: if you boot through shim, enroll the certificate with mokutil --import /var/lib/dkms/mok.pub and confirm it at the next start. Or turn off lockdown or forced module signing (lockdown= or module.sig_enforce=1 in /proc/cmdline), or Secure Boot if your kernel ties them to it."
 source = "https://wiki.archlinux.org/title/VirtualBox#Failed_to_insert_module"
 
 [[when]]
@@ -22,5 +22,22 @@ says = "vboxdrv isn't loaded and the kernel rejected an unsigned module"
 weight = 0.8
 all_of = [
   { source = "module", names = ["vboxdrv"], absent = true },
-  { source = "journal", kernel = true, regex = 'Loading of unsigned module is rejected|unsigned module loading is restricted' },
+  { source = "journal", kernel = true, regex = 'Loading of (unsigned module|module with unavailable key) is rejected|Lockdown: \S+: unsigned module loading is restricted' },
+]
+
+# virtualbox-host-dkms has systemd-modules-load try the modules at every boot.
+[[signals]]
+says = "The VirtualBox modules were refused at boot for lack of a trusted signature"
+weight = 0.8
+source = "journal"
+identifier = "systemd-modules-load"
+regex = "Failed to insert module 'vbox(drv|netadp|netflt)': (Key was rejected by service|Required key not available|Operation not permitted)"
+
+# Stays true after the log lines above have rotated away.
+[[signals]]
+says = "vboxdrv isn't loaded and the kernel only loads signed modules"
+weight = 0.6
+all_of = [
+  { source = "module", names = ["vboxdrv"], absent = true },
+  { any_of = [{ source = "file", path = "/sys/module/module/parameters/sig_enforce", regex = '^Y' }, { source = "file", path = "/sys/kernel/security/lockdown", regex = '\[(integrity|confidentiality)\]' }] },
 ]

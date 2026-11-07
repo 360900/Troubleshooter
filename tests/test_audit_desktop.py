@@ -128,5 +128,42 @@ class PodmanTests(DesktopCase):
         self.assertFalse(self.evaluate("podman-subuid-missing", m).recommended)
 
 
+class VirtualBoxTests(DesktopCase):
+    UNAVAILABLE_KEY = "kernel: Loading of module with unavailable key is rejected\n"
+    REJECTED = "systemd-modules-load[312]: Failed to insert module 'vboxdrv': Key was rejected by service\n"
+    NOT_BUILT = "systemd-modules-load[312]: Failed to find module 'vboxdrv'\n"
+
+    def vbox(self, journal="", sig_enforce="N"):
+        m = self.machine()
+        m.packages = {"virtualbox", "virtualbox-host-dkms"}
+        m.modules("snd_hda_intel")
+        m.write("/sys/module/module/parameters/sig_enforce", sig_enforce + "\n")
+        m.write("/sys/kernel/security/lockdown", "[none] integrity confidentiality\n")
+        m.journal(journal)
+        system = m.system()
+        return {e: engine.evaluate(DB.entries[e], system) for e in ("vbox-driver-not-loaded", "vbox-module-unsigned")}
+
+    def test_not_loaded_after_install_is_the_driver(self):
+        d = self.vbox()
+        self.assertTrue(d["vbox-driver-not-loaded"].recommended)
+        self.assertFalse(d["vbox-module-unsigned"].recommended)
+
+    def test_dkms_key_the_kernel_doesnt_trust_is_the_signature(self):
+        # DKMS signs with its own generated key, which the kernel reports as unavailable.
+        for journal in (self.UNAVAILABLE_KEY, self.REJECTED):
+            with self.subTest(journal=journal):
+                d = self.vbox(journal)
+                self.assertTrue(d["vbox-module-unsigned"].recommended)
+                self.assertFalse(d["vbox-driver-not-loaded"].recommended)
+
+    def test_enforced_signing_is_found_without_the_log(self):
+        d = self.vbox(sig_enforce="Y")
+        self.assertTrue(d["vbox-module-unsigned"].recommended)
+        self.assertFalse(d["vbox-driver-not-loaded"].recommended)
+
+    def test_module_not_built_for_this_kernel_isnt_loaded_by_hand(self):
+        self.assertFalse(self.vbox(self.NOT_BUILT)["vbox-driver-not-loaded"].recommended)
+
+
 if __name__ == "__main__":
     unittest.main()
