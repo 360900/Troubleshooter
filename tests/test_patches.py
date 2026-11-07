@@ -284,6 +284,63 @@ class DriverSwapTests(PatchCase):
         self.assertTrue(run[1].startswith("pacman -S") and "nvidia-open-dkms" in run[1], run)
 
 
+class InitramfsTests(PatchCase):
+    """Arch-based systems build boot images with mkinitcpio or dracut, sometimes through a wrapper."""
+    STEPS = [{"op": "initramfs"}]
+
+    def rebuild(self, m):
+        plan = patches.build_plan("ts-test", "Test", self.STEPS, True, m.system())
+        self.apply(m, plan)
+        return plan, m.commands_run()
+
+    def dracut_machine(self, *packages):
+        m = self.machine()
+        m.packages = {"grub", *packages}
+        for kver, pkgbase in (("7.0.1-arch1-1", "linux"), ("6.18.4-1-lts", "linux-lts")):
+            m.write(f"/usr/lib/modules/{kver}/pkgbase", pkgbase + "\n")
+        # Stands in for the dracut package's pacman hook script: logs the targets it's given.
+        m.write(patches.DRACUT_HOOK, f'#!/bin/sh\nwhile read -r t; do echo "dracut-hook $t" >> "{m.log}"; done\n',
+                mode=0o755)
+        return m
+
+    def test_mkinitcpio_is_the_default(self):
+        _, run = self.rebuild(self.dracut_machine("mkinitcpio", "dracut"))
+        self.assertIn("mkinitcpio -P", run)
+        self.assertFalse([c for c in run if c.startswith("dracut")], run)
+
+    def test_endeavouros_systemd_boot_uses_reinstall_kernels(self):
+        plan, run = self.rebuild(self.dracut_machine("dracut", "kernel-install-for-dracut"))
+        self.assertEqual(plan.summary, ["Rebuild the boot images (reinstall-kernels)"])
+        self.assertIn("reinstall-kernels ", run)
+        self.assertNotIn("mkinitcpio -P", run)
+
+    def test_endeavouros_grub_uses_dracut_rebuild(self):
+        _, run = self.rebuild(self.dracut_machine("dracut", "eos-dracut"))
+        self.assertIn("dracut-rebuild ", run)
+        self.assertNotIn("mkinitcpio -P", run)
+
+    def test_plain_dracut_runs_its_pacman_hook_for_every_kernel(self):
+        plan, run = self.rebuild(self.dracut_machine("dracut"))
+        self.assertEqual(plan.summary, ["Rebuild the boot images (dracut)"])
+        self.assertEqual(sorted(c for c in run if c.startswith("dracut-hook")),
+                         ["dracut-hook usr/lib/modules/6.18.4-1-lts/pkgbase",
+                          "dracut-hook usr/lib/modules/7.0.1-arch1-1/pkgbase"])
+        self.assertNotIn("mkinitcpio -P", run)
+
+    def test_dracut_when_mkinitcpio_hook_is_masked(self):
+        m = self.dracut_machine("mkinitcpio", "dracut")
+        m.write("/etc/pacman.d/hooks/90-mkinitcpio-install.hook", "")
+        _, run = self.rebuild(m)
+        self.assertTrue([c for c in run if c.startswith("dracut-hook")], run)
+        self.assertNotIn("mkinitcpio -P", run)
+
+    def test_masked_dracut_hook_is_reported_not_guessed(self):
+        m = self.dracut_machine("dracut")
+        m.write("/etc/pacman.d/hooks/90-dracut-install.hook", "")
+        with self.assertRaises(patches.PlanError):
+            patches.build_plan("ts-test", "Test", self.STEPS, True, m.system())
+
+
 class OtherFixTests(PatchCase):
     def test_multilib_uncomments_only_its_own_block(self):
         m = self.machine()

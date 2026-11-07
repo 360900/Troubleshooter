@@ -235,24 +235,47 @@ def _op_kernel_params(step: dict, system: System, entry_id: str) -> Step | None:
                 lines, undo, late, late)
 
 
-def _initramfs_command(system: System) -> str:
+DRACUT_HOOK = "/usr/share/libalpm/scripts/dracut-install"
+
+
+def _arch_initramfs(system: System) -> tuple[str, str]:
+    """The command that rebuilds every kernel's boot image, and what to call it."""
+    # EndeavourOS wraps dracut: kernel-install-for-dracut with systemd-boot, eos-dracut with GRUB.
+    if system.installed("kernel-install-for-dracut"):
+        return "reinstall-kernels", "reinstall-kernels"
+    if system.installed("eos-dracut"):
+        return "dracut-rebuild", "dracut-rebuild"
+    # Rebuilding alone leaves Limine's boot entries out of date. limine-update handles
+    # both mkinitcpio and dracut.
+    if "limine" in boot.loaders(system) and (system.exists("/usr/bin/limine-update") or system.installed(
+            "limine-mkinitcpio-hook", "limine-dracut-support")):
+        return "limine-update", "limine-update"
+    mkinitcpio_off = (not system.installed("mkinitcpio")
+                      or system.exists("/etc/pacman.d/hooks/90-mkinitcpio-install.hook"))
+    if system.installed("dracut") and mkinitcpio_off:
+        if system.exists("/etc/pacman.d/hooks/90-dracut-install.hook"):
+            raise PlanError("dracut's own pacman hook is turned off here, so it's unclear how this system "
+                            "builds its boot images. Rebuild them yourself after applying the change.")
+        # Feed dracut's pacman hook every installed kernel, as an upgrade of all of them would.
+        root, hook = _q(str(system.path("/"))), _q(str(system.path(DRACUT_HOOK)))
+        return f"(cd {root} && printf '%s\\n' usr/lib/modules/*/pkgbase | {hook})", "dracut"
+    return "mkinitcpio -P", "mkinitcpio -P"
+
+
+def _initramfs_command(system: System) -> tuple[str, str]:
     match system.family:
         case "arch":
-            # mkinitcpio -P alone leaves Limine's boot entries out of date.
-            if "limine" in boot.loaders(system) and (
-                    system.exists("/usr/bin/limine-update") or system.installed("limine-mkinitcpio-hook")):
-                return "limine-update"
-            return "mkinitcpio -P"
+            return _arch_initramfs(system)
         case "debian":
-            return "update-initramfs -u -k all"
+            return "update-initramfs -u -k all", "update-initramfs"
         case "fedora":
-            return "dracut --regenerate-all --force"
+            return "dracut --regenerate-all --force", "dracut"
     raise PlanError("No known way to rebuild the initramfs on this system.")
 
 
 def _op_initramfs(step: dict, system: System, entry_id: str) -> Step:
-    command = _initramfs_command(system)
-    return Step(step.get("says") or f"Rebuild the boot images ({command})",
+    command, name = _initramfs_command(system)
+    return Step(step.get("says") or f"Rebuild the boot images ({name})",
                 late=[command], late_undo=[command])
 
 

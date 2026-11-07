@@ -15,7 +15,7 @@ NOBARA = 'NAME="Nobara"\nID=nobara\nID_LIKE="rhel centos fedora"\n'
 
 # Every command a generated script may call, so nothing real ever runs.
 STUBS = ("pacman", "mkinitcpio", "limine-update", "grub-mkconfig", "update-grub", "grubby", "sdboot-manage",
-         "systemctl", "sysctl", "dkms", "update-initramfs", "dracut", "apt-get", "dnf", "runuser", "git", "makepkg")
+         "systemctl", "sysctl", "dkms", "update-initramfs", "dracut", "dracut-rebuild", "reinstall-kernels", "apt-get", "dnf", "runuser", "git", "makepkg")
 
 
 class FakeMachine:
