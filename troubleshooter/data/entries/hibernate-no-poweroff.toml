@@ -12,9 +12,11 @@ source = "file"
 path = "/sys/power/disk"
 
 [[fixed_when]]
-source = "file"
-path = "/etc/systemd/sleep.conf.d/*.conf"
-regex = '^\s*HibernateMode\s*=\s*shutdown'
+any_of = [
+  { source = "file", path = "/etc/systemd/sleep.conf", regex = '^\s*HibernateMode\s*=\s*shutdown' },
+  { source = "file", path = "/etc/systemd/sleep.conf.d/*.conf", regex = '^\s*HibernateMode\s*=\s*shutdown' },
+  { source = "file", path = "/usr/lib/systemd/sleep.conf.d/*.conf", regex = '^\s*HibernateMode\s*=\s*shutdown' },
+]
 
 [[fix]]
 steps = [{ op = "write_file", path = "/etc/systemd/sleep.conf.d/troubleshooter-hibernatemode.conf", content = "[Sleep]\nHibernateMode=shutdown\n", says = "Make hibernate shut the computer down after saving" }]

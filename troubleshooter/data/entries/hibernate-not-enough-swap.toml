@@ -21,7 +21,8 @@ kernel = true
 regex = 'PM: (Not enough free swap|hibernation: (Not enough free memory|Image allocation is \d+ pages short|Error -12 creating image))'
 
 [[signals]]
-says = "systemd reported that hibernation was aborted"
+# The same message follows any failed suspend; these errors are the ones a full swap gives.
+says = "systemd reported that the system couldn't hibernate for lack of space or memory"
 weight = 0.5
 source = "journal"
-regex = 'systemd-sleep.*Failed to put system to sleep\. System resumed again'
+regex = 'systemd-sleep.*Failed to put system to sleep\. System resumed again: (No space left on device|Cannot allocate memory)'

@@ -12,5 +12,11 @@ source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernat
 source = "file"
 path = "/sys/power/resume"
 
+# Nothing saved, so there is nothing stale for systemd to trip over.
+[[fixed_when]]
+source = "file"
+path = "/sys/power/resume"
+regex = '^0:0$'
+
 [[fix]]
 steps = [{ op = "command", says = "Clear the saved hibernation target until the next restart (check resume= in your kernel parameters if it comes back)", run = "echo 0:0 > /sys/power/resume && echo 0 > /sys/power/resume_offset" }]

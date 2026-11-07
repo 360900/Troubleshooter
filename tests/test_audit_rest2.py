@@ -34,5 +34,28 @@ class NetworkingDisabledTests(AuditCase):
         self.assertEqual(self.nm("enabled\n").status, engine.FIXED)
 
 
+class HibernateTests(AuditCase):
+    def test_no_saved_resume_target_is_nothing_to_clear(self):
+        m = self.machine()
+        m.write("/sys/power/resume", "0:0\n")
+        self.assertEqual(self.evaluate("hibernate-stale-resume-device", m).status, engine.FIXED)
+        m.write("/sys/power/resume", "259:2\n")
+        self.assertEqual(self.evaluate("hibernate-stale-resume-device", m).status, engine.APPLIES)
+
+    def test_a_failed_suspend_is_not_blamed_on_swap(self):
+        m = self.machine()
+        m.write("/proc/swaps", "Filename Type Size Used Priority\n")
+        m.journal("systemd-sleep[812]: Failed to put system to sleep. System resumed again: Device or resource busy\n")
+        self.assertFalse(self.evaluate("hibernate-not-enough-swap", m).found)
+        m.journal("systemd-sleep[812]: Failed to put system to sleep. System resumed again: No space left on device\n")
+        self.assertTrue(self.evaluate("hibernate-not-enough-swap", m).found)
+
+    def test_hibernate_mode_set_in_the_main_config_counts(self):
+        m = self.machine()
+        m.write("/sys/power/disk", "[platform] shutdown reboot suspend\n")
+        m.write("/etc/systemd/sleep.conf", "[Sleep]\nHibernateMode=shutdown\n")
+        self.assertEqual(self.evaluate("hibernate-no-poweroff", m).status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
