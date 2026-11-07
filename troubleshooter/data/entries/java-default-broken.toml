@@ -16,16 +16,21 @@ names = ["java-runtime-common"]
 source = "package"
 names = ["jre*-openjdk*", "jdk*-openjdk"]
 
+# java and the other runtime commands go through default-runtime, javac and the JDK tools
+# through default. archlinux-java sets both, and removing the default Java unsets both.
 [[fixed_when]]
-source = "file"
-path = "/usr/lib/jvm/default/bin/java"
+all_of = [
+  { source = "file", path = "/usr/lib/jvm/default-runtime/bin/java" },
+  { source = "file", path = "/usr/lib/jvm/default/bin/java" },
+]
 
 [[signals]]
-says = "/usr/lib/jvm/default/bin/java doesn't exist"
+says = "The default Java links in /usr/lib/jvm point to no installed Java"
 weight = 0.8
-source = "file"
-path = "/usr/lib/jvm/default/bin/java"
-absent = true
+any_of = [
+  { source = "file", path = "/usr/lib/jvm/default-runtime/bin/java", absent = true },
+  { source = "file", path = "/usr/lib/jvm/default/bin/java", absent = true },
+]
 
 [[fix]]
 steps = [{ op = "command", says = "Point the default Java link at an installed Java", run = "archlinux-java fix" }]
