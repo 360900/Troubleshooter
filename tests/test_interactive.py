@@ -1,11 +1,16 @@
 """Drives the terminal version with typed answers against a fake machine. Scripts run with stub binaries."""
 import io
+import os
 import stat
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tests.test_ui import GRUB, problem_machine
+from troubleshooter import __main__ as launcher
 from troubleshooter import history, interactive
 from troubleshooter.database import load_database
 
@@ -257,6 +262,37 @@ class InteractiveTest(unittest.TestCase):
     def test_ctrl_d_quits(self):
         self.run_session()
         self.assertEqual(self.code, 0)
+
+
+class LauncherTest(unittest.TestCase):
+    def test_terminal_version_never_loads_qt(self):
+        code = "import sys, troubleshooter.interactive; sys.exit('PySide6' in sys.modules)"
+        self.assertEqual(subprocess.run([sys.executable, "-c", code]).returncode, 0)
+
+    def launch(self, env, tty=True):
+        with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(sys, "argv", ["troubleshooter"]), \
+                mock.patch.object(sys.stdin, "isatty", return_value=tty), \
+                mock.patch("troubleshooter.interactive.main", return_value=0) as cli, \
+                mock.patch("sys.stderr", new_callable=io.StringIO) as err:
+            code = launcher.main()
+        return code, cli.called, err.getvalue()
+
+    def test_no_desktop_starts_the_terminal_version(self):
+        code, started, err = self.launch({})
+        self.assertEqual((code, started), (0, True))
+        self.assertIn("Starting the terminal version instead.", err)
+
+    def test_no_desktop_and_no_terminal_says_why(self):
+        code, started, err = self.launch({}, tty=False)
+        self.assertEqual((code, started), (1, False))
+        self.assertIn("No desktop", err)
+
+    def test_window_failing_to_start_falls_back(self):
+        with mock.patch("troubleshooter.ui.app.run", side_effect=AttributeError("broken")):
+            code, started, err = self.launch({"WAYLAND_DISPLAY": "wayland-0"})
+        self.assertEqual((code, started), (0, True))
+        self.assertIn("AttributeError: broken", err)
+        self.assertIn("The window failed to start.", err)
 
 
 if __name__ == "__main__":

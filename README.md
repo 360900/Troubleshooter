@@ -14,12 +14,15 @@ Supports Arch and Arch-based distros. Each database entry states which systems i
 cd packaging && makepkg -si
 ```
 
+This installs the app and `troubleshooter-cli`, the same thing in the terminal for when there's no desktop. `troubleshooter` also starts it when the window can't open.
+
 ## Run from source
 
 Needs Python 3.11+, PySide6 and polkit.
 
 ```sh
 python -m troubleshooter
+python -m troubleshooter.interactive
 python -m troubleshooter scan
 python -m troubleshooter search "my game keeps flickering"
 python -m troubleshooter plan nvidia-sleep
