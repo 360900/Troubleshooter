@@ -74,7 +74,9 @@ class HomePage(Page):
         self.results_layout.setSpacing(12)
         self.body.addWidget(self.results)
 
-        self._timer = QTimer(self, singleShot=True, interval=120)
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.setInterval(120)
         self._timer.timeout.connect(self._refresh)
         self.entry.textChanged.connect(lambda _: self._timer.start())
         self._refresh()
