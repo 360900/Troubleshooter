@@ -23,7 +23,10 @@ def _print_diagnosis(d: engine.Diagnosis, note: str = "") -> None:
 
 
 def main(argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(prog="troubleshooter", description="Finds and fixes common Linux problems.")
+    parser = argparse.ArgumentParser(
+        prog="troubleshooter",
+        description="Finds and fixes common Linux problems. Run without arguments for the app, "
+                    "or troubleshooter-cli to use it in the terminal.")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("scan", help="check this machine for known problems")
     search = commands.add_parser("search", help="search the database with a description")

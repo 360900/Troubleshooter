@@ -13,6 +13,7 @@ dependencies = ["PySide6"]
 
 [project.scripts]
 troubleshooter = "troubleshooter.__main__:main"
+troubleshooter-cli = "troubleshooter.interactive:main"
 
 [tool.setuptools.packages.find]
 include = ["troubleshooter*"]
