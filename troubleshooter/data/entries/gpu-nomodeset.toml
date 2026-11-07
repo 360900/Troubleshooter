@@ -9,9 +9,11 @@ auto_detect = true
 advice = "Remove nomodeset from your boot loader's kernel parameters: in GRUB edit GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub and run `grub-mkconfig -o /boot/grub/grub.cfg`, in systemd-boot edit the options line in your entry under /boot/loader/entries. Then reboot."
 source = "https://wiki.archlinux.org/title/Intel_graphics#Loading"
 
+# A graphics device left without a driver shows nomodeset is actually in the way.
 [[when]]
 source = "pci"
 class = "03"
+driver = "none"
 
 [[signals]]
 says = "The kernel was started with nomodeset"

@@ -26,6 +26,13 @@ absent = true
 source = "file"
 path = "/sys/class/sound/card*"
 
+# pipewire comes in as a dependency of the portals, so on window managers this can be
+# a deliberate ALSA-only setup. Full desktops control volume through PulseAudio.
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?(KDE|GNOME|XFCE|X-Cinnamon|MATE|LXQt|Budgie|COSMIC|Pantheon|Deepin|LXDE|Unity)(:|$)'
+
 [[fixed_when]]
 source = "package"
 names = ["pipewire-pulse"]

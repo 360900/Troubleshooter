@@ -21,6 +21,11 @@ source = "file"
 path = "/etc/locale.gen"
 regex = '^en_US\.UTF-8 UTF-8'
 
+# The locale can exist without locale.gen: glibc-locales ships it as a directory.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/locale/en_US.[uU][tT][fF]*8"
+
 [[signals]]
 says = "en_US.UTF-8 is not enabled in /etc/locale.gen"
 weight = 0.8

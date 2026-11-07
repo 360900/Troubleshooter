@@ -12,6 +12,14 @@ source = "https://wiki.archlinux.org/title/Gaming#Increase_vm.max_map_count"
 source = "file"
 path = "/proc/sys/vm/max_map_count"
 
+# Only gaming setups need the higher limit.
+[[when]]
+any_of = [
+  { source = "package", names = ["steam", "steam-installer", "steam-launcher", "lutris", "heroic-games-launcher*", "bottles", "wine", "wine-*", "wine64"] },
+  { source = "file", path = "/var/lib/flatpak/app/com.valvesoftware.Steam" },
+  { source = "file", path = "~/.local/share/flatpak/app/com.valvesoftware.Steam" },
+]
+
 [[fixed_when]]
 source = "file"
 path = "/proc/sys/vm/max_map_count"

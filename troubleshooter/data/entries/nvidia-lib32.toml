@@ -1,11 +1,11 @@
 id = "nvidia-lib32"
 title = "NVIDIA: 32-bit driver is missing for games"
-summary = "Steam and many Wine and Proton games need the 32-bit half of the driver. Without it they won't start, or they fall back to software rendering."
+summary = "32-bit games, such as older native Linux games in Steam, need the 32-bit half of the driver. Without it they won't start, or they fall back to software rendering."
 categories = ["nvidia", "games", "wine"]
 systems = ["arch-and-based"]
 keywords = ["lib32-nvidia-utils", "32-bit", "multilib", "vulkan", "glx"]
 symptoms = ["steam won't start", "game doesn't launch with nvidia", "wine can't find vulkan", "steam says graphics driver is missing", "very low fps in old games"]
-auto_detect = true
+auto_detect = false  # Steam and Wine no longer need 32-bit drivers to run, so a missing one is only a problem for some games
 source = "https://wiki.archlinux.org/title/NVIDIA#Installation"
 
 [[when]]
@@ -15,6 +15,11 @@ names = ["nvidia"]
 [[when]]
 source = "package"
 names = ["steam", "wine", "wine-*", "lutris"]
+
+# lib32-nvidia-utils must match the repo's nvidia-utils. Legacy branches have their own.
+[[when]]
+source = "package"
+names = ["nvidia-utils"]
 
 [[when]]
 source = "file"

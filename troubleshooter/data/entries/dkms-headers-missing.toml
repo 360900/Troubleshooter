@@ -11,6 +11,11 @@ auto_detect = true
 source = "package"
 names = ["dkms"]
 
+# dkms on its own builds nothing, so headers only matter once a DKMS driver is installed.
+[[when]]
+source = "file"
+path = "/usr/src/*/dkms.conf"
+
 [[signals]]
 says = "An installed kernel has no headers"
 weight = 0.9

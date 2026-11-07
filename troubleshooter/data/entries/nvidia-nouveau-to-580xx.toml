@@ -14,6 +14,25 @@ vendor = "10de"
 class = "03"
 devices = ["1340-1dff"]
 
+# With a Turing or newer card next to it, the swap would downgrade that card's driver.
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+devices = ["1e00-ffff"]
+absent = true
+
+# Before Turing, NVIDIA's driver can't power the card off on hybrid laptops, which
+# nouveau can, so the swap would cost battery life there.
+[[when]]
+any_of = [
+  { all_of = [
+    { source = "pci", vendor = "8086", class = "03", absent = true },
+    { source = "pci", vendor = "1002", class = "03", absent = true },
+  ] },
+  { source = "file", path = "/sys/class/power_supply/BAT*", absent = true },
+]
+
 [[fixed_when]]
 source = "package"
 names = ["nvidia-580xx-dkms"]

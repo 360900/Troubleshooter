@@ -19,6 +19,14 @@ source = "file"
 path = "/var/log/Xorg.*.log*"
 regex = 'Cannot run in framebuffer mode'
 
+# Rootless Xorg, as started by startx or GDM, logs here instead.
+[[signals]]
+says = "The Xorg log shows it couldn't run in framebuffer mode"
+weight = 0.85
+source = "file"
+path = "~/.local/share/xorg/Xorg.*.log*"
+regex = 'Cannot run in framebuffer mode'
+
 [[signals]]
 says = "The journal shows Xorg couldn't run in framebuffer mode"
 weight = 0.85

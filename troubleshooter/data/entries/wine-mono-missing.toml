@@ -8,13 +8,20 @@ symptoms = ["windows app won't start in wine", "installer fails under wine", ".n
 auto_detect = true
 source = "https://wiki.archlinux.org/title/Wine#Installation"
 
+# The wine-mono package is built for the repo's wine. Other builds such as wine-cachyos
+# or wine-ge-custom can want a different Mono version and download their own.
 [[when]]
 source = "package"
-names = ["wine", "wine-staging", "wine-cachyos", "wine-ge-custom"]
+names = ["wine", "wine-staging"]
 
 [[fixed_when]]
 source = "package"
 names = ["wine-mono"]
+
+# Wine already installed Mono into the default prefix when it offered to.
+[[fixed_when]]
+source = "file"
+path = "~/.wine/drive_c/windows/mono"
 
 [[signals]]
 says = "Wine is installed, but wine-mono isn't"

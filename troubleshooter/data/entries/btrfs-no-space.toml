@@ -9,9 +9,11 @@ auto_detect = true
 advice = "Delete old snapshots first (in Snapper, Timeshift or btrfs subvolume delete), then check real usage with sudo btrfs filesystem usage /. If space still looks used up, run sudo btrfs balance start -dusage=10 / to repack half-empty chunks."
 source = "https://wiki.archlinux.org/title/Btrfs#No_space_left_on_device"
 
+# A module check misses kernels with Btrfs built in, such as CachyOS's.
 [[when]]
-source = "module"
-names = ["btrfs"]
+source = "file"
+path = "/proc/self/mounts"
+regex = '^\S+ \S+ btrfs '
 
 [[signals]]
 says = "Btrfs hit an out-of-space error"

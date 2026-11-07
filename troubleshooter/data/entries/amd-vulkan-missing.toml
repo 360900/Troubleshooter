@@ -18,6 +18,11 @@ driver = "amdgpu"
 source = "package"
 names = ["vulkan-radeon", "amdvlk"]
 
+# Covers mesa-git and other builds that ship RADV under another package name.
+[[fixed_when]]
+source = "file"
+path = "/usr/share/vulkan/icd.d/radeon_icd*.json"
+
 [[signals]]
 says = "You have an AMD GPU, but no AMD Vulkan driver"
 weight = 0.9

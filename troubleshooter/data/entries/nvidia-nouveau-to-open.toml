@@ -14,6 +14,14 @@ vendor = "10de"
 class = "03"
 devices = ["1e00-ffff"]
 
+# A Maxwell or Pascal card next to it would lose its driver, since the open driver can't run it.
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+devices = ["1340-1dff"]
+absent = true
+
 [[fixed_when]]
 source = "module"
 names = ["nvidia"]

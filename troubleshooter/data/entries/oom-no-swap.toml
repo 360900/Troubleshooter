@@ -19,7 +19,9 @@ says = "The kernel killed processes for lack of memory"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'Out of memory: Killed process|oom-kill:'
+# System-wide OOM only (mm/oom_kill.c). "Memory cgroup out of memory" and
+# CONSTRAINT_MEMCG mean a service hit its own memory limit, which swap doesn't fix.
+regex = '(?<!cgroup )out of memory: Killed process|oom-kill:constraint=CONSTRAINT_NONE'
 
 [[signals]]
 says = "This system has no swap"

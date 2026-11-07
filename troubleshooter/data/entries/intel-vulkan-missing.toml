@@ -8,18 +8,22 @@ symptoms = ["game won't start on intel graphics", "vulkan not found", "dxvk fail
 auto_detect = true
 source = "https://wiki.archlinux.org/title/Vulkan#Installation"
 
+# Driven by i915 or xe, and Ivy Bridge or newer: the device ranges leave out every
+# i810 to Sandy Bridge ID in include/drm/intel/pciids.h, chips with no Vulkan driver.
 [[when]]
-source = "pci"
-vendor = "8086"
-class = "03"
-
-[[when]]
-source = "module"
-names = ["i915", "xe"]
+any_of = [
+  { source = "pci", vendor = "8086", class = "03", driver = "i915", devices = ["0127-1131", "1133-2561", "2e93-3576", "358f-7120", "7126-a000", "a012-ffff"] },
+  { source = "pci", vendor = "8086", class = "03", driver = "xe" },
+]
 
 [[fixed_when]]
 source = "package"
 names = ["vulkan-intel"]
+
+# Covers mesa-git and other builds that ship ANV under another package name.
+[[fixed_when]]
+source = "file"
+path = "/usr/share/vulkan/icd.d/intel_*icd*.json"
 
 [[signals]]
 says = "You have Intel graphics, but no Intel Vulkan driver"

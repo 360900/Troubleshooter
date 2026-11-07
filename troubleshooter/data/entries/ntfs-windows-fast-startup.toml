@@ -12,7 +12,7 @@ source = "https://wiki.archlinux.org/title/Dual_boot_with_Windows#Fast_Startup_a
 
 [[when]]
 any_of = [
-  { source = "module", names = ["ntfs3"] },
+  { source = "module", names = ["ntfs3", "ntfs"] },
   { source = "package", names = ["ntfs-3g"] },
 ]
 
@@ -20,4 +20,6 @@ any_of = [
 says = "Linux refused to mount an NTFS drive that Windows left in use"
 weight = 0.85
 source = "journal"
-regex = 'ntfs3.*volume is dirty|Windows is hibernated, refused to mount|Metadata kept in Windows cache, refused to mount'
+# ntfs3 (fs/ntfs3/super.c) refuses a read-write mount, the newer ntfs driver
+# (fs/ntfs/super.c) mounts read-only, and ntfs-3g (libntfs-3g/volume.c) refuses.
+regex = 'ntfs3.*volume is dirty and "force" flag is not set|ntfs: .*(Windows is hibernated|Volume is dirty)\.\s+Mounting read-only|Windows is hibernated, refused to mount|Metadata kept in Windows cache, refused to mount'

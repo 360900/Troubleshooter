@@ -9,13 +9,16 @@ auto_detect = true
 advice = "Create a separate subvolume for swap (for example sudo btrfs subvolume create /swap), then make the file with sudo btrfs filesystem mkswapfile --size 4g --uuid clear /swap/swapfile and point /etc/fstab at it. Remove the old swap file once the new one works."
 source = "https://wiki.archlinux.org/title/Btrfs#Swap_file"
 
+# A module check misses kernels with Btrfs built in, such as CachyOS's.
 [[when]]
-source = "module"
-names = ["btrfs"]
+source = "file"
+path = "/proc/self/mounts"
+regex = '^\S+ \S+ btrfs '
 
 [[signals]]
 says = "Btrfs refused a swap file or a snapshot because of a swap file"
 weight = 0.85
 source = "journal"
 kernel = true
-regex = 'BTRFS warning.*(swapfile must|cannot activate swapfile|cannot snapshot subvolume with active swapfile)'
+# "cannot activate swapfile ..." is a passing clash with a balance or snapshot, not a badly made file.
+regex = 'BTRFS warning .*(swapfile must|cannot snapshot subvolume with active swapfile)'

@@ -22,7 +22,10 @@ says = "The audio driver needs Sound Open Firmware, which isn't installed"
 weight = 0.9
 source = "journal"
 kernel = true
-regex = 'sof-audio.*(error|failed|missing)|SOF firmware.*(missing|not found)|snd_soc_skl.*(failed|error)'
+# sound/soc/sof/fw-file-profile.c (older kernels: "sof firmware file is missing") and the
+# firmware loader's line for SOF's own files.
+# snd_soc_skl is left out: its firmware comes from linux-firmware, not sof-firmware.
+regex = 'sof-audio-\S+ \S+: (SOF firmware and/or topology file not found|(error: )?sof firmware file is missing|Direct firmware load for intel/sof\S* failed)|sof-audio-\S+ \S+: Check if you have .sof-firmware. package installed'
 
 [[signals]]
 says = "The sound firmware package isn't installed"

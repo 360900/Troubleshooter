@@ -45,7 +45,9 @@ says = "The NVIDIA driver logged errors around sleep"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'NVRM:.*(suspend|resume|video memory|PreserveVideoMemory)|nvidia.*(suspend|resume).*(fail|error)'
+# nv.c's sleep errors, and the PM core's failure lines for the nvidia device
+# (drivers/base/power/main.c: "failed to %s%s: error %d", "%s(): %ps returns %d").
+regex = 'NVRM: .*(System Power Management attempted without driver procfs suspend interface|aborting suspend)|nvidia \S+: PM: (failed to (suspend|resume|freeze|thaw|restore|hibernate)|\S+\(\): nv_pmops_\w+ \[nvidia\] returns -)'
 
 [[fix]]
 reboot = true

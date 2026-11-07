@@ -18,4 +18,5 @@ says = "XDG_RUNTIME_DIR isn't the usual /run/user/<your id>"
 weight = 0.8
 source = "env"
 name = "XDG_RUNTIME_DIR"
-regex = '^XDG_RUNTIME_DIR=(?!/run/user/[0-9]+/?$)'
+# WSLg sets its own runtime directory on purpose.
+regex = '^XDG_RUNTIME_DIR=(?!/run/user/[0-9]+/?$|/mnt/wslg/runtime-dir/?$)'

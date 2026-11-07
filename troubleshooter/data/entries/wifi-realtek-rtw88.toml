@@ -19,8 +19,9 @@ path = "/sys/module/rtw88_pci/parameters/disable_aspm"
 regex = '^Y'
 
 [[signals]]
+# Most of these chips work fine, so the chip alone isn't enough to recommend the fix.
 says = "You have a Realtek chip known for dropping connections"
-weight = 0.55
+weight = 0.3
 source = "module"
 names = ["rtw88_8821ce", "rtw88_8822ce", "rtw88_8723de", "rtw88_8821c", "rtw88_8822c", "rtw88_8723d"]
 
@@ -29,7 +30,8 @@ says = "The kernel log shows Realtek Wi-Fi errors"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'rtw_?88.*(failed|timeout|firmware error|error)'
+# Symptoms of the chip falling asleep or hanging, from rtw88's ps.c, fw.c, pci.c and tx.c.
+regex = 'rtw(88)?_8\w+ \S+: (firmware failed to leave lps state|failed to leave ips state|leave idle state failed|failed to send h2c (command|packet)|pci bus timeout, check dma status|failed to get tx report from firmware)'
 
 [[fix]]
 reboot = true

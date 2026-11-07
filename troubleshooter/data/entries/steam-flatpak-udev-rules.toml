@@ -21,7 +21,12 @@ regex = '^\[multilib\]'
 
 [[fixed_when]]
 source = "package"
-names = ["steam-devices", "steam-devices-git", "steam"]
+names = ["steam-devices", "steam-devices-git", "steam", "game-devices-udev"]
+
+# Rules copied in by hand.
+[[fixed_when]]
+source = "file"
+path = "/etc/udev/rules.d/*steam*.rules"
 
 [[signals]]
 says = "Steam's device rules aren't installed"

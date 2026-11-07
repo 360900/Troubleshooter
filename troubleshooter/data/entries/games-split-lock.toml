@@ -23,7 +23,9 @@ says = "The kernel caught a program doing split locks and slowed it down"
 weight = 0.75
 source = "journal"
 kernel = true
-regex = 'split lock detection: #(AC|DB): .* took a (split|bus)_lock trap'
+# Only the #AC split lock path is slowed down by split_lock_mitigate. #DB bus lock
+# warnings are just logged (arch/x86/kernel/cpu/bus_lock.c).
+regex = 'x86/split lock detection: #AC: .* took a split_lock trap'
 
 [[fix]]
 steps = [{ op = "sysctl", values = { "kernel.split_lock_mitigate" = "0" }, says = "Turn off the split lock slowdown" }]

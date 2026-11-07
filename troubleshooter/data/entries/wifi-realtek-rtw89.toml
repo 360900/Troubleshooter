@@ -19,8 +19,9 @@ path = "/sys/module/rtw89_pci/parameters/disable_aspm_l1"
 regex = '^Y'
 
 [[signals]]
+# Most of these chips work fine, so the chip alone isn't enough to recommend the fix.
 says = "You have a Realtek chip known for dropping connections"
-weight = 0.55
+weight = 0.3
 source = "module"
 names = ["rtw89_pci"]
 
@@ -29,7 +30,8 @@ says = "The kernel log shows Realtek Wi-Fi errors"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'rtw89.*(failed|timeout|firmware error|error|SER catches)'
+# Symptoms of the chip hanging or falling asleep, from rtw89's ser.c, ps.c and pci.c.
+regex = 'rtw89_8\w+ \S+: (SER catches error|failed to leave idle state|rtw89: check lps h2c received by firmware fail|failed to update \d+ RXBD info|no available TX(WD|BD))'
 
 [[fix]]
 reboot = true

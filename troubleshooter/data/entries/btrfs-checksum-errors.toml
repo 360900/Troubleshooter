@@ -10,13 +10,17 @@ advice = "Back up anything important now. Then run sudo btrfs scrub start / and 
 reproduce = "Open or copy the files that give errors."
 source = "https://wiki.archlinux.org/title/Btrfs#Scrub"
 
+# A module check misses kernels with Btrfs built in, such as CachyOS's.
 [[when]]
-source = "module"
-names = ["btrfs"]
+source = "file"
+path = "/proc/self/mounts"
+regex = '^\S+ \S+ btrfs '
 
 [[signals]]
 says = "The kernel logged Btrfs checksum or corruption errors"
 weight = 0.85
 source = "journal"
 kernel = true
-regex = 'BTRFS (warning|error).*(csum failed|checksum error)|BTRFS.*errs: wr \d+, rd \d+, flush \d+, corrupt [1-9]'
+# The errs line is also printed at every mount while old counts remain, but only
+# as "BTRFS info", so match the error level that comes with a new failure.
+regex = 'BTRFS (warning|error) .*(csum failed|checksum error|checksum verify failed)|BTRFS error .*errs: wr \d+, rd \d+, flush \d+, corrupt [1-9]'

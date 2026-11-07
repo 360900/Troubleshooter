@@ -24,7 +24,9 @@ says = "The kernel log shows the Wi-Fi chip timing out or resetting"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'mt79(21|22|25)e?.*(timeout|chip reset|hardware reset|failed to)'
+# MT7922 also runs on the mt7921e driver. Lines from mt7921/mcu.c, mt7925/mcu.c,
+# mt792x_core.c and mt79xx/mac.c; plain "failed to" also hits harmless boot lines.
+regex = 'mt79(21|25)e \S+: (Message [0-9a-f]+ \(seq \d+\) timeout|driver own failed|firmware own failed|chip reset failed)'
 
 [[fix]]
 reboot = true

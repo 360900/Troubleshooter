@@ -9,22 +9,28 @@ auto_detect = true
 reproduce = "Use the internet normally until the connection drops."
 source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#iwlwifi"
 
+# power_scheme only exists in iwlmvm and iwlmld (newer cards). Older iwldvm cards lack it.
 [[when]]
 source = "module"
-names = ["iwlwifi"]
+names = ["iwlmvm", "iwlmld"]
 
 [[fixed_when]]
-source = "file"
-path = "/sys/module/iwlmvm/parameters/power_scheme"
-regex = '^1$'
+any_of = [
+  { source = "file", path = "/sys/module/iwlmvm/parameters/power_scheme", regex = '^1$' },
+  { source = "file", path = "/sys/module/iwlmld/parameters/power_scheme", regex = '^1$' },
+]
 
 [[signals]]
 says = "The kernel log shows Intel Wi-Fi firmware errors"
 weight = 0.8
 source = "journal"
 kernel = true
-regex = 'iwlwifi.*(Microcode SW error|Queue .* is stuck|Hardware error|Error sending)'
+# pcie/rx.c and pcie/tx.c
+regex = 'iwlwifi \S+: (Microcode SW error detected|Queue \d+ is stuck|Hardware error detected|Error sending \S+: time out)'
 
 [[fix]]
 reboot = true
-steps = [{ op = "module_options", module = "iwlmvm", options = ["power_scheme=1"], says = "Run the Wi-Fi chip in its most active power mode" }]
+steps = [
+  { op = "module_options", module = "iwlmvm", options = ["power_scheme=1"], says = "Run the Wi-Fi chip in its most active power mode" },
+  { op = "module_options", module = "iwlmld", options = ["power_scheme=1"], says = "Do the same for newer chips that use iwlmld" },
+]
