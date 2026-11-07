@@ -20,6 +20,7 @@ any_of = [
 says = "Linux refused to mount an NTFS drive that Windows left in use"
 weight = 0.85
 source = "journal"
-# ntfs3 (fs/ntfs3/super.c) refuses a read-write mount, the newer ntfs driver
-# (fs/ntfs/super.c) mounts read-only, and ntfs-3g (libntfs-3g/volume.c) refuses.
-regex = 'ntfs3.*volume is dirty and "force" flag is not set|ntfs: .*(Windows is hibernated|Volume is dirty)\.\s+Mounting read-only|Windows is hibernated, refused to mount|Metadata kept in Windows cache, refused to mount'
+# ntfs3 (fs/ntfs3/super.c) refuses a read-write mount, also when Windows left its journal
+# unfinished, the newer ntfs driver (fs/ntfs/super.c) mounts read-only, and ntfs-3g
+# (libntfs-3g/volume.c) refuses.
+regex = 'ntfs3.*(volume is dirty and "force" flag is not set|failed to replay log file)|ntfs: .*(Windows is hibernated|Volume is dirty)\.\s+Mounting read-only|Windows is hibernated, refused to mount|Metadata kept in Windows cache, refused to mount'
