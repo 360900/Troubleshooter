@@ -106,3 +106,25 @@ class PodmanRegistryTests(EngineCase):
     def test_a_per_user_config_counts(self):
         d = self.evaluate((".config/containers/registries.conf", "unqualified-search-registries = ['quay.io']\n"))
         self.assertEqual(d.status, engine.FIXED)
+
+
+class PolkitAgentTests(EngineCase):
+    def evaluate(self, desktop, processes):
+        m = self.machine()
+        for pid, name in enumerate(["systemd", "polkitd", *processes], 1):
+            m.write(f"/proc/{pid}/comm", name + "\n")
+        system = m.system()
+        system.env["XDG_CURRENT_DESKTOP"] = desktop
+        return engine.evaluate(DB.entries["polkit-agent-missing"], system)
+
+    def test_window_manager_without_agent(self):
+        d = self.evaluate("Hyprland", ["Hyprland", "waybar"])
+        self.assertEqual([f.signal.says for f in d.found],
+                         ["You're using a window manager that doesn't start a polkit agent by itself"])
+        self.assertTrue(self.evaluate("labwc:wlroots", ["labwc"]).found)
+
+    def test_a_running_agent_clears_it(self):
+        for agent in ("polkit-gnome-au", "polkit-kde-auth", "hyprpolkitagent", "lxqt-policykit-"):
+            with self.subTest(agent=agent):
+                d = self.evaluate("sway", ["sway", agent])
+                self.assertLess(d.confidence, 10)

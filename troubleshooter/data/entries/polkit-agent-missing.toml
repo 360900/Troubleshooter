@@ -13,7 +13,17 @@ says = "You're using a window manager that doesn't start a polkit agent by itsel
 weight = 0.3
 source = "env"
 name = "XDG_CURRENT_DESKTOP"
-regex = '=(sway|i3|niri|river|bspwm|dwm|qtile|awesome|openbox|labwc|wayfire|herbstluftwm)$'
+regex = '=(sway|i3|niri|river|bspwm|dwm|qtile|awesome|openbox|labwc|wayfire|herbstluftwm|hyprland)(:|$)'
+
+# Installed isn't running. Process names are cut to 15 characters
+# (polkit-gnome-au, polkit-kde-auth, polkit-mate-aut). GNOME Shell and Cinnamon have one built in.
+[[signals]]
+says = "A polkit agent is running"
+weight = 0.9
+counter = true
+source = "file"
+path = "/proc/[0-9]*/comm"
+regex = '^(polkit-|lxqt-policykit|hyprpolkitagent|lxpolkit|xfce-polkit|soteria|budgie-polkit|gnome-shell$|cinnamon$|cosmic-osd)'
 
 [[signals]]
 says = "A graphical polkit agent is installed"
