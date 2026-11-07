@@ -17,12 +17,22 @@ devices = ["02e6", "02fe", "02f9", "091e"]
 source = "module"
 names = ["xone_dongle"]
 
+# 02e6 and 02fe are the USB adapters, plugged in to be used. 02f9 (ASUS, Lenovo) and 091e
+# (Surface Book 2) are built into some laptops and are there whether or not anyone uses
+# Xbox controllers, so they alone don't recommend building a driver from the AUR.
 [[signals]]
 says = "An Xbox Wireless Adapter is plugged in, but its driver isn't loaded"
 weight = 0.85
-source = "module"
-names = ["xone_dongle"]
-absent = true
+source = "usb"
+vendor = "045e"
+devices = ["02e6", "02fe"]
+
+[[signals]]
+says = "This computer has a built-in Xbox Wireless Adapter without a driver (it only matters if you use Xbox controllers with it)"
+weight = 0.3
+source = "usb"
+vendor = "045e"
+devices = ["02f9", "091e"]
 
 [[fix]]
 reboot = true

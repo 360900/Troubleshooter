@@ -47,5 +47,21 @@ class SofTests(EngineCase):
         self.assertEqual(d.status, engine.FIXED)
 
 
+class XboxAdapterTests(EngineCase):
+    def adapter(self, product):
+        m = self.machine()
+        m.write("/sys/bus/usb/devices/1-2/idVendor", "045e\n")
+        m.write("/sys/bus/usb/devices/1-2/idProduct", f"{product}\n")
+        return engine.evaluate(DB.entries["xbox-wireless-adapter-driver"], m.system())
+
+    def test_plugged_in_adapter_is_recommended(self):
+        self.assertTrue(self.adapter("02fe").recommended)
+
+    def test_built_in_adapter_alone_is_not_recommended_on_launch(self):
+        d = self.adapter("091e")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertFalse(d.recommended)
+
+
 if __name__ == "__main__":
     unittest.main()
