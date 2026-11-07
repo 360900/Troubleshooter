@@ -21,7 +21,7 @@ says = "The Bluetooth chip stopped answering commands"
 weight = 0.4
 source = "journal"
 kernel = true
-regex = 'Bluetooth: hci[0-9]+: command 0x[0-9a-f]+ tx timeout'
+regex = 'Bluetooth: hci[0-9]+: command (0x[0-9a-f]+ )?tx timeout'
 
 [[fix]]
 reboot = true

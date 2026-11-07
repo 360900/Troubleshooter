@@ -1,4 +1,6 @@
 """Checks for entries reviewed in the database audit (group rest1)."""
+import subprocess
+
 from tests.test_engine import DB, EngineCase
 from troubleshooter import engine, patches
 
@@ -8,6 +10,14 @@ def plan_for(machine, entry_id):
     system = machine.system()
     fix = next(f for f in entry.fixes if system.in_scopes(f.systems))
     return patches.build_plan(entry.id, entry.title, fix.steps, fix.reboot, system)
+
+
+def run_script(machine, script):
+    """Runs a generated script against the fake root, with stub binaries only."""
+    machine.install_stubs()
+    env = {"PATH": f"{machine.stubs}:/usr/bin:/bin", "HOME": str(machine.home)}
+    return subprocess.run(["bash", "-c", script], env=env, capture_output=True, text=True,
+                          stdin=subprocess.DEVNULL, timeout=30)
 
 
 class AmdGfxoffTests(EngineCase):
@@ -57,3 +67,10 @@ class AmdAbmTests(EngineCase):
         d = self.abm(0, {"power-profiles-daemon"})
         self.assertFalse(d.found)
         self.assertLess(d.confidence, engine.RECOMMEND_AT)
+
+
+class BluetoothTests(EngineCase):
+    def test_timeouts_without_an_opcode_count(self):
+        m = self.machine()
+        m.journal("kernel: Bluetooth: hci0: command tx timeout\n")
+        self.assertTrue(engine.evaluate(DB.entries["bluetooth-controller-stuck"], m.system()).found)
