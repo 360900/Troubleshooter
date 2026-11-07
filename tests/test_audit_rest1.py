@@ -231,3 +231,16 @@ class DockerTests(EngineCase):
         self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.APPLIES)
         m.write("/etc/docker/daemon.json", '{\n  "iptables": false\n}\n')
         self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.FIXED)
+
+
+class DesktopTests(EngineCase):
+    def test_fcitx5_chosen_as_kwin_virtual_keyboard_is_fixed(self):
+        m = self.machine()
+        m.packages = {"fcitx5"}
+        (m.home / ".config").mkdir()
+        (m.home / ".config/kwinrc").write_text(
+            "[Wayland]\nInputMethod[$e]=/usr/share/applications/org.fcitx.Fcitx5.desktop\n")
+        system = m.system()
+        system.env = {"XDG_CURRENT_DESKTOP": "KDE", "XDG_SESSION_TYPE": "wayland"}
+        self.assertEqual(engine.diagnose_entry(DB.entries["fcitx5-plasma-wayland-kwin"], system).status,
+                         engine.FIXED)

@@ -21,3 +21,9 @@ regex = '=(.*:)?KDE(:|$)'
 source = "env"
 name = "XDG_SESSION_TYPE"
 regex = '=wayland$'
+
+# What the Virtual Keyboard settings page saves: KWin starts this input method itself.
+[[fixed_when]]
+source = "file"
+path = "~/.config/kwinrc"
+regex = '^InputMethod(\[\$e\])?=.*fcitx'
