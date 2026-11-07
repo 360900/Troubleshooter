@@ -2,9 +2,9 @@
 
 ![Troubleshooter search results](docs/img/troubleshooter-search.png)
 
-Finds and fixes common Linux problems.
+Finds and fixes known Linux problems automagically.
 
-Describe the problem or pick a category. It reads your logs and hardware, tells you what it would change and how confident it is, and backs up files so you can undo. Known problems are checked on launch.
+Describe the problem or pick a category. It reads your logs and hardware, tells you what it would change and how confident it is, and backs up files so you can undo. Some problems are checked on launch.
 
 Supports Arch and Arch-based distros. Each database entry states which systems it is for.
 
