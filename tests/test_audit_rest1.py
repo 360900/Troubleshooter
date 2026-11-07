@@ -244,3 +244,19 @@ class DesktopTests(EngineCase):
         system.env = {"XDG_CURRENT_DESKTOP": "KDE", "XDG_SESSION_TYPE": "wayland"}
         self.assertEqual(engine.diagnose_entry(DB.entries["fcitx5-plasma-wayland-kwin"], system).status,
                          engine.FIXED)
+
+
+class GameTests(EngineCase):
+    def crashed(self, line):
+        m = self.machine()
+        m.journal(line + "\n")
+        return bool(engine.evaluate(DB.entries["game-crash-coredump"], m.system()).found)
+
+    def test_wine_and_truncated_exe_names_are_games(self):
+        self.assertTrue(self.crashed("systemd-coredump[9]: Process 51 (Cyberpunk2077.e) of user 1000 dumped core."))
+        self.assertTrue(self.crashed("systemd-coredump[9]: Process 51 (wine64-preloade) of user 1000 dumped core."))
+        self.assertTrue(self.crashed("kernel: Cyberpunk2077.e[51]: segfault at 0 ip 00007f00 sp 00007f00 error 4"))
+
+    def test_steam_helpers_are_not_games(self):
+        self.assertFalse(self.crashed("systemd-coredump[9]: Process 51 (steamwebhelper) of user 1000 dumped core."))
+        self.assertFalse(self.crashed("systemd-coredump[9]: Process 51 (xdg-desktop-por) of user 1000 dumped core."))

@@ -12,4 +12,6 @@ reproduce = "Start the game or app and do what makes it crash."
 says = "A game or Wine process crashed during this boot"
 weight = 0.7
 source = "journal"
-regex = 'systemd-coredump.*(wine|proton|steam|\.exe)|(wine|\.exe).*segfault at'
+# Process names are cut to 15 characters, so a long Game.exe shows up as "Game.e". Steam's
+# own processes (steamwebhelper crashes often and harmlessly) aren't games.
+regex = 'Process \d+ \(([^)]*(wine|proton)[^)]*|[^)]*\.(e|ex|exe))\) of user \d+ dumped core|(wine\S*|\S*\.(e|ex|exe))\[\d+\]: segfault at'
