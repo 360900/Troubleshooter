@@ -1,6 +1,6 @@
 id = "firewall-ufw-iptables-conflict"
 title = "Firewall: iptables.service is enabled next to UFW"
-summary = "UFW and iptables.service both load firewall rules at startup, and with both enabled UFW doesn't start properly, so the rules you set in UFW may not be in effect. Disabling iptables.service leaves the firewall to UFW."
+summary = "UFW and iptables.service both load firewall rules at startup. iptables.service runs after UFW and replaces its rules with the ones in /etc/iptables, so the rules you set in UFW aren't in effect. Disabling iptables.service leaves the firewall to UFW."
 categories = ["network"]
 systems = ["arch-and-based"]
 keywords = ["ufw", "ufw.service", "iptables.service", "ip6tables.service", "iptables", "firewall", "conflict"]
