@@ -229,3 +229,27 @@ class SensorChipTests(EngineCase):
         m = self.board("MAG B650 TOMAHAWK WIFI (MS-7D75)")
         self.assertEqual([f.signal.says for f in engine.evaluate(entry, m.system()).found],
                          ["The sensor chip isn't being read at all"])
+
+
+class SleepWakeupTests(EngineCase):
+    WAKEUP = ("Device\tS-state\t  Status   Sysfs node\n"
+              "GPP1\t  S4\t*enabled   pci:0000:00:01.2\n"
+              "XH00\t  S4\t*enabled   pci:0000:0e:00.0\n")
+
+    def test_am5_only_blames_each_boards_own_device(self):
+        m = self.machine()
+        m.write("/sys/class/dmi/id/board_vendor", "ASRock\n")
+        m.write("/sys/class/dmi/id/board_name", "B850M Pro RS\n")
+        m.write("/proc/acpi/wakeup", self.WAKEUP)
+        d = engine.evaluate(DB.entries["sleep-am5-instant-wake"], m.system())
+        self.assertEqual([f.signal.says for f in d.found],
+                         ["The ASRock board's USB controller (XH00) is allowed to wake the system"])
+
+    def test_an_early_wake_alone_is_not_enough_to_blame_usb(self):
+        m = self.machine()
+        m.journal("kernel: PM: Some devices failed to suspend, or early wake event detected\n")
+        d = engine.diagnose_entry(DB.entries["sleep-usb-blocks-suspend"], m.system())
+        self.assertFalse(d.recommended)
+        m.journal("kernel: xhci_hcd 0000:00:14.0: PM: failed to suspend async: error -16\n"
+                  "kernel: PM: Some devices failed to suspend, or early wake event detected\n")
+        self.assertTrue(engine.evaluate(DB.entries["sleep-usb-blocks-suspend"], m.system()).recommended)

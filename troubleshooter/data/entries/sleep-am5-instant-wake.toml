@@ -14,9 +14,19 @@ any_of = [
   { all_of = [{ source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^Micro-Star' }, { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'X870 TOMAHAWK' }] },
 ]
 
+# Each board has its own culprit; the other device being enabled means nothing.
 [[signals]]
-says = "The suspect device is allowed to wake the system"
+says = "The ASRock board's USB controller (XH00) is allowed to wake the system"
 weight = 0.4
-source = "file"
-path = "/proc/acpi/wakeup"
-regex = '^(XH00|GPP1)\s+\S+\s+\*enabled'
+all_of = [
+  { source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^ASRock' },
+  { source = "file", path = "/proc/acpi/wakeup", regex = '^XH00\s+\S+\s+\*enabled' },
+]
+
+[[signals]]
+says = "The MSI board's NVMe bridge (GPP1) is allowed to wake the system"
+weight = 0.4
+all_of = [
+  { source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^Micro-Star' },
+  { source = "file", path = "/proc/acpi/wakeup", regex = '^GPP1\s+\S+\s+\*enabled' },
+]

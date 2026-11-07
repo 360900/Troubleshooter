@@ -17,8 +17,10 @@ kernel = true
 regex = 'xhci_hcd .*PM: failed to suspend.*error -16'
 
 [[signals]]
-says = "The kernel aborted suspend because a device failed"
-weight = 0.5
+# The kernel logs this for any failing device, and also when any wakeup event (a key press,
+# a network packet) arrives while suspending, so on its own it doesn't point at USB.
+says = "The kernel aborted suspend because a device failed or something woke it early"
+weight = 0.25
 source = "journal"
 kernel = true
 regex = 'PM: Some devices failed to suspend, or early wake event detected'
