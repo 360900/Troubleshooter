@@ -14,14 +14,32 @@ source = "https://wiki.archlinux.org/title/Network_configuration/Ethernet#Realte
 source = "module"
 names = ["r8152"]
 
+# Quirk flags are letters after the second colon, k is USB_QUIRK_NO_LPM.
 [[fixed_when]]
 source = "file"
 path = "/sys/module/usbcore/parameters/quirks"
-regex = ':k'
+regex = ':[a-z]*k'
 
+# A hang shows up as the transmit watchdog firing. Failed transmits alone are weaker:
+# -71 also shows up when the adapter is unplugged mid-transfer, and -2 whenever the driver
+# cancels pending transmits, as it does on unplug, link down and suspend.
 [[signals]]
-says = "The r8152 driver reports failed transmits (Tx status -2 or -71)"
-weight = 0.8
+says = "The r8152 driver reports a transmit timeout"
+weight = 0.6
 source = "journal"
 kernel = true
-regex = 'r8152.*Tx status -(2|71)\b'
+regex = 'r8152.*Tx timeout'
+
+[[signals]]
+says = "The r8152 driver reports failed transmits (Tx status -71)"
+weight = 0.4
+source = "journal"
+kernel = true
+regex = 'r8152.*Tx status -71\b'
+
+[[signals]]
+says = "The r8152 driver reports cancelled transmits (Tx status -2)"
+weight = 0.1
+source = "journal"
+kernel = true
+regex = 'r8152.*Tx status -2\b'

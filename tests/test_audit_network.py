@@ -81,5 +81,29 @@ class IwdTests(NetworkCase):
         self.assertEqual(self.evaluate("network-nm-iwd-conflict", m).status, engine.NOT_APPLICABLE)
 
 
+class UsbEthernetTests(NetworkCase):
+    PREFIX = "kernel: r8152 2-1:1.0 enx00e04c680001: "
+
+    def adapter(self, journal, quirks="\n"):
+        m = self.machine()
+        m.modules("r8152")
+        m.write("/sys/module/usbcore/parameters/quirks", quirks)
+        m.journal(journal)
+        return self.evaluate("network-usb-ethernet-tx-timeout", m)
+
+    def test_transmit_timeout_is_recommended(self):
+        self.assertTrue(self.adapter(self.PREFIX + "Tx timeout\n").recommended)
+
+    def test_unplugging_alone_is_not_recommended(self):
+        # Pending transmits fail with -71 or are cancelled with -2 when the adapter goes away.
+        d = self.adapter(self.PREFIX + "Tx status -71\n" + self.PREFIX + "Tx status -2\n")
+        self.assertEqual(len(d.found), 2)
+        self.assertFalse(d.recommended)
+
+    def test_no_lpm_quirk_among_others_is_fixed(self):
+        d = self.adapter(self.PREFIX + "Tx timeout\n", "0bda:8153:gk,2357:0601:b\n")
+        self.assertEqual(d.status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
