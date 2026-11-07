@@ -17,6 +17,30 @@ class = "04"
 source = "package"
 names = ["sof-firmware", "firmware-sof-signed", "alsa-sof-firmware"]
 
+# Firmware copied in by hand from sof-bin. linux-firmware ships nothing under intel/sof*.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/firmware/intel/sof*"
+
+# The SOF driver stays bound to the audio device when its firmware is missing (it loads the
+# firmware later, from a work queue), so this still holds after the boot log has rotated.
+# The snd_sof_pci_intel_* modules alone don't count: they also load on plain HDA machines.
+[[signals]]
+says = "Your Intel audio uses the Sound Open Firmware driver, but no SOF firmware is installed"
+weight = 0.85
+any_of = [
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-skl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-apl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-cnl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-icl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-tgl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-mtl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-lnl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-ptl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-nvl" },
+  { source = "pci", vendor = "8086", driver = "sof-audio-pci-intel-tng" },
+]
+
 [[signals]]
 says = "The audio driver needs Sound Open Firmware, which isn't installed"
 weight = 0.9
