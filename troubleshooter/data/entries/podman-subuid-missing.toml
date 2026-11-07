@@ -13,10 +13,11 @@ source = "https://wiki.archlinux.org/title/Podman#Set_subuid_and_subgid"
 source = "package"
 names = ["podman"]
 
+# Only checks that anyone has a range: a probe can't name the current user yet.
 [[signals]]
-says = "/etc/subuid has no entries for any user"
+says = "/etc/subuid or /etc/subgid has no entries for any user"
 weight = 0.6
-source = "file"
-path = "/etc/subuid"
-regex = '^[^:#\s]+:\d+:\d+'
-absent = true
+any_of = [
+  { source = "file", path = "/etc/subuid", regex = '^[^:#\s]+:\d+:\d+', absent = true },
+  { source = "file", path = "/etc/subgid", regex = '^[^:#\s]+:\d+:\d+', absent = true },
+]

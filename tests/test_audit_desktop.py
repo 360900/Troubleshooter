@@ -117,5 +117,16 @@ class TlpTests(DesktopCase):
         self.assertEqual(self.tlp("masked").status, engine.FIXED)
 
 
+class PodmanTests(DesktopCase):
+    def test_missing_subgid_ranges_are_found(self):
+        m = self.machine()
+        m.packages = {"podman"}
+        m.write("/etc/subuid", "alice:100000:65536\n")
+        m.write("/etc/subgid", "")
+        self.assertTrue(self.evaluate("podman-subuid-missing", m).recommended)
+        m.write("/etc/subgid", "alice:100000:65536\n")
+        self.assertFalse(self.evaluate("podman-subuid-missing", m).recommended)
+
+
 if __name__ == "__main__":
     unittest.main()
