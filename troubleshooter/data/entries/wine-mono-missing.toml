@@ -23,12 +23,24 @@ names = ["wine-mono"]
 source = "file"
 path = "~/.wine/drive_c/windows/mono"
 
+# Wine also finds a shared copy here, whichever package put it there.
+[[fixed_when]]
+source = "file"
+path = "/usr/share/wine/mono/wine-mono-*"
+
+# Without a prefix, Wine hasn't run yet, and it offers to download Mono the first time it does.
 [[signals]]
 says = "Wine is installed, but wine-mono isn't"
-weight = 0.75
+weight = 0.3
 source = "package"
 names = ["wine-mono"]
 absent = true
+
+[[signals]]
+says = "Your Wine prefix (~/.wine) was set up without Mono, so .NET apps in it can't run"
+weight = 0.4
+source = "file"
+path = "~/.wine/system.reg"
 
 [[fix]]
 steps = [{ op = "install", packages = ["wine-mono", "wine-gecko"] }]

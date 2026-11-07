@@ -55,5 +55,29 @@ class MissingPackageTests(DesktopCase):
         self.assertTrue(self.evaluate("xfce-gvfs-missing", m, {"XDG_CURRENT_DESKTOP": "XFCE"}).recommended)
 
 
+class WineMonoTests(DesktopCase):
+    def wine(self):
+        m = self.machine()
+        m.packages = {"wine"}
+        return m
+
+    def test_wine_that_never_ran_is_not_recommended(self):
+        # It offers to download Mono the first time it sets up a prefix.
+        d = self.evaluate("wine-mono-missing", self.wine())
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertFalse(d.recommended)
+
+    def test_a_prefix_set_up_without_mono_is_recommended(self):
+        m = self.wine()
+        (m.home / ".wine").mkdir()
+        (m.home / ".wine/system.reg").write_text("")
+        self.assertTrue(self.evaluate("wine-mono-missing", m).recommended)
+
+    def test_a_shared_mono_from_any_package_is_fixed(self):
+        m = self.wine()
+        m.write("/usr/share/wine/mono/wine-mono-11.3.0/lib/mono.dll", "")
+        self.assertEqual(self.evaluate("wine-mono-missing", m).status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
