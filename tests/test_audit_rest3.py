@@ -253,3 +253,36 @@ class SleepWakeupTests(EngineCase):
         m.journal("kernel: xhci_hcd 0000:00:14.0: PM: failed to suspend async: error -16\n"
                   "kernel: PM: Some devices failed to suspend, or early wake event detected\n")
         self.assertTrue(engine.evaluate(DB.entries["sleep-usb-blocks-suspend"], m.system()).recommended)
+
+
+class UpdatedbSnapshotTests(EngineCase):
+    CONF = 'PRUNE_BIND_MOUNTS = "yes"\nPRUNENAMES = ".git .hg .svn"\nPRUNEPATHS = "/afs /media /mnt /tmp"\n'
+
+    def evaluate(self, conf=CONF, configs=True):
+        m = self.machine()
+        m.packages = {"snapper", "plocate"}
+        m.write("/etc/updatedb.conf", conf)
+        if configs:
+            m.write("/etc/snapper/configs/root", 'SUBVOLUME="/"\n')
+        return engine.evaluate(DB.entries["snapper-updatedb-snapshots"], m.system())
+
+    def test_snapper_without_a_config_has_no_snapshots(self):
+        self.assertEqual(self.evaluate(configs=False).status, engine.NOT_APPLICABLE)
+        self.assertEqual(len(self.evaluate().found), 1)
+
+    def test_skipping_the_path_also_counts(self):
+        conf = self.CONF.replace("/tmp", "/tmp /.snapshots")
+        self.assertEqual(self.evaluate(conf).status, engine.FIXED)
+
+
+class WireplumberSuspendTests(EngineCase):
+    def test_suspend_turned_off_by_hand_is_fixed(self):
+        m = self.machine()
+        m.packages = {"wireplumber"}
+        target = m.home / ".config/wireplumber/wireplumber.conf.d/disable-suspension.conf"
+        target.parent.mkdir(parents=True)
+        target.write_text("monitor.alsa.rules = [\n  {\n    actions = {\n      update-props = {\n"
+                          "        session.suspend-timeout-seconds = 0\n      }\n    }\n  }\n]\n")
+        self.assertEqual(engine.evaluate(DB.entries["sound-pipewire-suspend-delay"], m.system()).status, engine.FIXED)
+        target.write_text(target.read_text().replace("= 0", "= 5"))
+        self.assertEqual(engine.evaluate(DB.entries["sound-pipewire-suspend-delay"], m.system()).status, engine.APPLIES)

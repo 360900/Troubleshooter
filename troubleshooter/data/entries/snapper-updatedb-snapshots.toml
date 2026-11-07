@@ -11,6 +11,11 @@ source = "https://wiki.archlinux.org/title/Snapper#updatedb"
 source = "package"
 names = ["snapper"]
 
+# Without a Snapper config there are no .snapshots folders to crawl.
+[[when]]
+source = "file"
+path = "/etc/snapper/configs/*"
+
 [[when]]
 source = "file"
 path = "/etc/updatedb.conf"
@@ -20,6 +25,11 @@ regex = '^\s*PRUNENAMES\s*=\s*"'
 source = "file"
 path = "/etc/updatedb.conf"
 regex = '^\s*PRUNENAMES\s*=.*\.snapshots'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/updatedb.conf"
+regex = '^\s*PRUNEPATHS\s*=.*/\.snapshots'
 
 [[signals]]
 says = "updatedb is set to index .snapshots folders"
