@@ -75,5 +75,24 @@ class PipewirePulseTests(EngineCase):
         self.assertEqual(d.status, engine.FIXED)
 
 
+class IntelWifiTests(EngineCase):
+    CRASH = "kernel: iwlwifi 0000:00:14.3: Microcode SW error detected. Restarting 0x0.\n"
+
+    def test_one_old_firmware_crash_is_not_recommended_on_launch(self):
+        m = self.machine()
+        m.modules("iwlmvm")
+        m.journal(self.CRASH)
+        d = engine.evaluate(DB.entries["wifi-intel-power"], m.system())
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+    def test_crash_while_reproducing_is_recommended(self):
+        m = self.machine()
+        m.modules("iwlmvm")
+        m.journal(self.CRASH, window=True)
+        d = engine.evaluate(DB.entries["wifi-intel-power"], reproduced(m.system()))
+        self.assertTrue(d.recommended)
+
+
 if __name__ == "__main__":
     unittest.main()

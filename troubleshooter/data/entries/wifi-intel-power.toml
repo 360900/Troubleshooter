@@ -20,9 +20,12 @@ any_of = [
   { source = "file", path = "/sys/module/iwlmld/parameters/power_scheme", regex = '^1$' },
 ]
 
+# A firmware crash has many causes (the first remedy is newer firmware) and the driver
+# restarts the firmware by itself, so one from hours ago doesn't recommend trading battery
+# life on launch. Seen while the user reproduces the drops, it does.
 [[signals]]
 says = "The kernel log shows Intel Wi-Fi firmware errors"
-weight = 0.8
+weight = 0.45
 source = "journal"
 kernel = true
 # pcie/rx.c and pcie/tx.c
