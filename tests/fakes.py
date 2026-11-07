@@ -99,6 +99,9 @@ class FakeMachine:
             body = f'#!/bin/sh\necho "{name} $*" >> "{self.log}"\n'
             if name in fail:
                 body += "exit 1\n"
+            if name == "sysctl":  # sysctl -n key: the value from the last sysctl.d file setting it
+                body += (f'[ "$1" = -n ] && {{ cat "{self.root}"/usr/lib/sysctl.d/*.conf "{self.root}"/etc/sysctl.d/*.conf '
+                         f'2>/dev/null | sed -n "s/^$2 *= *//p" | tail -n 1; }}\nexit 0\n')
             if name == "runuser":  # runuser -u user -- cmd...
                 body += 'shift 3\nexec "$@"\n'
             if name == "makepkg":

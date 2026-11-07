@@ -44,5 +44,5 @@ absent = true
 steps = [
   { op = "install", packages = ["zram-generator"] },
   { op = "write_file", path = "/etc/systemd/zram-generator.conf", content = "[zram0]\nzram-size = ram / 2\ncompression-algorithm = zstd\n", says = "Configure compressed swap using up to half your RAM" },
-  { op = "command", says = "Turn on compressed swap", run = "systemctl daemon-reload && systemctl start systemd-zram-setup@zram0.service", undo = "systemctl stop systemd-zram-setup@zram0.service; systemctl daemon-reload" },
+  { op = "command", says = "Turn on compressed swap", run = "systemctl daemon-reload\nsystemctl start systemd-zram-setup@zram0.service", undo = "systemctl stop systemd-zram-setup@zram0.service; systemctl daemon-reload" },
 ]

@@ -172,6 +172,13 @@ class UndoTests(PatchCase):
         self.assertEqual(self.run_script(m, plan.undo_script).returncode, 0)
         self.assertFalse(m.exists(conf))
 
+    def test_fails_when_a_later_sysctl_file_wins(self):
+        m = self.machine()
+        m.write("/etc/sysctl.d/99-local.conf", "vm.max_map_count = 65530\n")
+        result = self.run_script(m, self.plan(m, "games-max-map-count").script)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Another file in sysctl.d sets vm.max_map_count after ours", result.stderr)
+
     def test_backup_keeps_the_original_when_a_file_is_edited_twice(self):
         m = self.machine()
         m.write("/etc/pacman.conf", "#[multilib]\n#Include = /etc/pacman.d/mirrorlist\n")
@@ -462,6 +469,35 @@ class KernelDriverTests(PatchCase):
             {"op": "install", "packages": [], "optional": {"{kernel}-nvidia-open": "x"}}))
         self.assertIsNone(patches.validate_step(
             {"op": "install", "packages": [], "kernels_without": "nvidia", "optional": {"{kernel}-nvidia-open": "x"}}))
+
+
+class StepRuleTests(PatchCase):
+    def test_command_steps_cant_hide_failures_with_and(self):
+        # Under set -e, a failure before && neither stops the script nor shows.
+        step = {"op": "command", "says": "x", "run": "systemctl try-restart a && systemctl try-restart b"}
+        self.assertIn("&&", patches.validate_step(step))
+        self.assertIn("&&", patches.validate_step({**step, "run": "true", "undo": "a && b"}))
+        self.assertIsNone(patches.validate_step({**step, "run": "systemctl try-restart a\nsystemctl try-restart b"}))
+
+    def test_multiline_command_stops_at_the_first_failure(self):
+        m = self.machine(fail=("systemctl",))
+        plan = patches.build_plan("x", "x", [{"op": "command", "says": "x", "run": "systemctl a\ntouch done"}], False,
+                                  m.system())
+        self.assertNotEqual(self.run_script(m, plan.script).returncode, 0)
+        self.assertFalse((m.root / "done").exists())
+
+    def test_replace_leaves_lines_that_already_have_it(self):
+        m = self.machine()
+        hosts = "hosts: mymachines resolve [!UNAVAIL=return] files myhostname mdns4_minimal [NOTFOUND=return] dns\n"
+        m.write("/etc/nsswitch.conf", hosts)
+        step = next(s for s in DB.entries["cups-network-discovery"].fixes[0].steps if s["op"] == "replace")
+        plan = patches.build_plan("x", "x", [step], False, m.system())
+        self.apply(m, plan)
+        self.assertEqual(m.read("/etc/nsswitch.conf"), hosts)
+        m.write("/etc/nsswitch.conf", "hosts: mymachines resolve [!UNAVAIL=return] files myhostname dns\n")
+        self.apply(m, plan)
+        self.assertEqual(m.read("/etc/nsswitch.conf"),
+                         "hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns\n")
 
 
 class OtherFixTests(PatchCase):

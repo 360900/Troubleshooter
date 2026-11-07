@@ -19,4 +19,4 @@ path = "/sys/power/resume"
 regex = '^0:0$'
 
 [[fix]]
-steps = [{ op = "command", says = "Clear the saved hibernation target until the next restart (check resume= in your kernel parameters if it comes back)", run = "echo 0:0 > /sys/power/resume && echo 0 > /sys/power/resume_offset" }]
+steps = [{ op = "command", says = "Clear the saved hibernation target until the next restart (check resume= in your kernel parameters if it comes back)", run = "echo 0:0 > /sys/power/resume\necho 0 > /sys/power/resume_offset" }]

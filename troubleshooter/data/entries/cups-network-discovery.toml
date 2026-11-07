@@ -35,7 +35,7 @@ absent = true
 [[fix]]
 steps = [
   { op = "install", packages = ["avahi", "nss-mdns"], says = "Install Avahi and its .local name resolver" },
-  { op = "replace", path = "/etc/nsswitch.conf", address = '/^hosts:/', pattern = '^(hosts:[[:space:]]+(mymachines[[:space:]]+)?)(mdns_minimal \[NOTFOUND=return\] )?', replacement = '\1mdns_minimal [NOTFOUND=return] ', says = "Let the system resolve .local printer names" },
+  { op = "replace", path = "/etc/nsswitch.conf", address = '/^hosts:/', unless = 'mdns', pattern = '^(hosts:[[:space:]]+(mymachines[[:space:]]+)?)(mdns_minimal \[NOTFOUND=return\] )?', replacement = '\1mdns_minimal [NOTFOUND=return] ', says = "Let the system resolve .local printer names" },
   { op = "service", names = ["avahi-daemon.service"], now = true, says = "Enable and start the Avahi service" },
   { op = "command", says = "Restart CUPS so it picks up Avahi", run = "systemctl try-restart cups.service" },
 ]

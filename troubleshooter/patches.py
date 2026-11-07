@@ -335,7 +335,14 @@ def _op_write_file(step: dict, system: System, entry_id: str) -> Step:
 
 def _op_replace(step: dict, system: System, entry_id: str) -> Step:
     path = _q(str(system.path(step["path"])))
-    script = f"{step.get('address', '')}s|{step['pattern']}|{step['replacement']}|"
+    script = f"s|{step['pattern']}|{step['replacement']}|"
+    address = step.get("address", "")
+    if step.get("unless"):  # leave lines that already contain this alone
+        script = f"/{step['unless']}/!{{{script}}}"
+        if address:
+            script = f"{address}{{{script}}}"
+            address = ""
+    script = address + script
     return Step(step["says"], [f"ts_backup {path}", f"sed -E -i {_q(script)} {path}"])
 
 
@@ -358,9 +365,13 @@ def _op_sysctl(step: dict, system: System, entry_id: str) -> Step:
     pairs = step["values"]
     body = "".join(f"{k} = {v}\n" for k, v in pairs.items())
     says = ", ".join(f"{k} to {v}" for k, v in pairs.items())
+    # A file that sorts later in sysctl.d (such as 99-*.conf) would silently win.
+    checks = [f'[ "$(sysctl -n {_q(k)} | tr -s "[:space:]" " " | sed "s/ $//")" = {_q(" ".join(str(v).split()))} ] || '
+              f'{{ echo {_q(f"Another file in sysctl.d sets {k} after ours, so it did not change. Find it with: grep -r {k} /etc/sysctl.d /run/sysctl.d /usr/lib/sysctl.d")} >&2; exit 1; }}'
+              for k, v in pairs.items()]
     return Step(step.get("says") or f"Set {says}",
                 _write(system, f"/etc/sysctl.d/90-troubleshooter-{entry_id}.conf", body),
-                late=["sysctl --system > /dev/null"], late_undo=["sysctl --system > /dev/null"])
+                late=["sysctl --system > /dev/null", *checks], late_undo=["sysctl --system > /dev/null"])
 
 
 def _op_service(step: dict, system: System, entry_id: str) -> Step | None:
@@ -464,6 +475,10 @@ def validate_step(step: dict) -> str | None:
             return f"bad module option {option!r}"
     if "|" in step.get("pattern", "") or "|" in step.get("replacement", ""):
         return "replace can't use | because it's the sed delimiter"
+    if "/" in step.get("unless", ""):
+        return "replace's unless can't use / because it's the sed address delimiter"
+    if op == "command" and any("&&" in step.get(key, "") for key in ("run", "undo")):
+        return "command can't chain with &&: set -e misses a failure before it. Put each command on its own line"
     if op == "run_from_repo":
         if not _REPO.match(step["repo"]):
             return f"repo must be a GitHub https URL, not {step['repo']!r}"

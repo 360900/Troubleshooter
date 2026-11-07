@@ -63,5 +63,5 @@ regex = 'Host name conflict, retrying with'
 [[fix]]
 steps = [
   { op = "write_file", path = "/etc/systemd/resolved.conf.d/troubleshooter-avahi.conf", content = "[Resolve]\nMulticastDNS=resolve\n", says = "Let systemd-resolved look up .local names but stop it from answering them" },
-  { op = "command", says = "Restart systemd-resolved, then Avahi", run = "systemctl try-restart systemd-resolved.service && systemctl try-restart avahi-daemon.service", undo = "systemctl try-restart systemd-resolved.service && systemctl try-restart avahi-daemon.service" },
+  { op = "command", says = "Restart systemd-resolved, then Avahi", run = "systemctl try-restart systemd-resolved.service\nsystemctl try-restart avahi-daemon.service", undo = "systemctl try-restart systemd-resolved.service\nsystemctl try-restart avahi-daemon.service" },
 ]
