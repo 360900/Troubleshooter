@@ -63,5 +63,17 @@ class XboxAdapterTests(EngineCase):
         self.assertFalse(d.recommended)
 
 
+class PipewirePulseTests(EngineCase):
+    def test_another_pulseaudio_server_counts_as_fixed(self):
+        m = self.machine()
+        m.packages = {"pipewire", "pipewire-pulse-git"}
+        m.write("/sys/class/sound/card0/number", "0\n")
+        m.outputs["commands"] = {("pacman", "-Qq", "pulse-native-provider"): "pipewire-pulse-git\n"}
+        system = m.system()
+        system.env["XDG_CURRENT_DESKTOP"] = "KDE"
+        d = engine.evaluate(DB.entries["sound-pipewire-pulse-missing"], system)
+        self.assertEqual(d.status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -38,7 +38,10 @@ class DatabaseTests(unittest.TestCase):
                     self.assertEqual(parts - {a.removeprefix("--no-") for a in step["undo_args"][1:]}, kept)
 
     def test_probes_only_run_read_only_commands(self):
-        reviewed = [["resolvectl", "mdns"]]  # status only, no arguments that change anything
+        reviewed = [
+            ["resolvectl", "mdns"],  # status only, no arguments that change anything
+            ["pacman", "-Qq", "pulse-native-provider"],  # local database query only
+        ]
 
         def commands(spec):
             for group in ("all_of", "any_of"):

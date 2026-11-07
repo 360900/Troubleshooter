@@ -37,6 +37,13 @@ regex = '=(.*:)?(KDE|GNOME|XFCE|X-Cinnamon|MATE|LXQt|Budgie|COSMIC|Pantheon|Deep
 source = "package"
 names = ["pipewire-pulse"]
 
+# Any other PulseAudio server, like pipewire-pulse-git or pulseaudio-git. pacman resolves
+# what packages provide, and pipewire-pulse would conflict with them.
+[[fixed_when]]
+source = "command"
+argv = ["pacman", "-Qq", "pulse-native-provider"]
+exit = 0
+
 [[signals]]
 says = "Neither pipewire-pulse nor pulseaudio is installed, so PulseAudio apps have nothing to connect to"
 weight = 0.75
