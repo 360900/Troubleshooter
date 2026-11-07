@@ -32,6 +32,14 @@ QUERIES = {
     "wifi gone after installing a new kernel": {"dkms-headers-missing"},
     "flikering scren": {"display", "amd-psr-flicker", "intel-psr-flicker"},
     "blutooth": {"bluetooth", "bluetooth-service-off"},
+    "printer not found": {"cups-network-discovery", "cups-service-off", "devices"},
+    "little squares where the smileys should be": {"fonts-emoji-missing"},
+    "screen sharing doesn't work": {"portal-kde-missing", "portal-gnome-missing", "portal-wlr-missing", "portal-hyprland-missing"},
+    "pacman says invalid signature": {"pacman-signature-invalid"},
+    "windows drive won't mount": {"ntfs-windows-fast-startup"},
+    "clock is wrong after using windows": {"time-dual-boot-offset"},
+    "xbox controller won't connect": {"xbox-wireless-adapter-driver", "xbox-bluetooth-ertm"},
+    "my laptop drains battery while sleeping": {"sleep-s2idle-battery-drain"},
 }
 
 
