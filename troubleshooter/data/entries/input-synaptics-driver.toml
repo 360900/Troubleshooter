@@ -22,7 +22,7 @@ says = "This session runs on X11, where the Synaptics driver applies"
 weight = 0.3
 source = "env"
 name = "XDG_SESSION_TYPE"
-regex = '^x11$'
+regex = '=x11$'
 
 [[fix]]
 reboot = true
