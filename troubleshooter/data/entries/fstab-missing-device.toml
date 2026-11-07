@@ -13,8 +13,20 @@ source = "https://wiki.archlinux.org/title/Fstab#External_devices"
 source = "file"
 path = "/etc/fstab"
 
+# A drive marked nofail is still waited for in the background and logs the same timeout,
+# but startup goes on without it. Only a timeout that failed Local File Systems or Swaps
+# held startup up or ended in emergency mode: systemd's fstab-generator makes those
+# targets require every entry without nofail.
+[[signals]]
+says = "Startup waited for a drive in /etc/fstab that wasn't found"
+weight = 0.85
+all_of = [
+  { source = "journal", regex = 'Timed out waiting for device .*(by-uuid|by-label|by-partuuid|by-partlabel|by-id|/dev/sd|/dev/nvme)|dev-disk-by\S*\.device/start timed out' },
+  { source = "journal", regex = 'Dependency failed for (Local File Systems|Swaps)\.' },
+]
+
 [[signals]]
 says = "Startup timed out waiting for a device"
-weight = 0.8
+weight = 0.3
 source = "journal"
 regex = 'Timed out waiting for device .*(by-uuid|by-label|by-partuuid|by-partlabel|by-id|/dev/sd|/dev/nvme)|dev-disk-by\S*\.device/start timed out'
