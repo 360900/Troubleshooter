@@ -6,10 +6,12 @@ systems = ["any"]
 keywords = ["udev", "udev rules", "group", "plugdev", "Unknown group", "Failed to resolve group", "permission denied", "/dev/hidraw"]
 symptoms = ["permission denied opening device", "app only sees my device as root", "unknown group plugdev", "udev rule not working", "device not accessible as normal user"]
 advice = "The log line names the group and the rules file. Create the group with groupadd -r NAME, add your user with gpasswd -a USER NAME, then log out and back in and replug the device. If the rule came from a package written for another distro, it may be simpler to use a group Arch already has or rely on the uaccess tag."
-source = "https://wiki.archlinux.org/title/Udev#udevd_hangs_at_boot"
+source = "https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices"
 
 [[signals]]
 says = "udev skipped a rule because its group doesn't exist"
 weight = 0.6
 source = "journal"
-regex = "(Failed to resolve group|Unknown group) '[^']+', ignoring"
+# systemd-udevd quotes the name with ' when it reads the rules and with " when a rule computes
+# the group while handling a device.
+regex = '''(Failed to resolve group|Unknown group) ['"][^'"]+['"], ignoring'''
