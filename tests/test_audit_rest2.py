@@ -105,5 +105,22 @@ class GpuBlacklistTests(AuditCase):
         self.assertFalse(self.evaluate("gpu-driver-blacklisted", m).found)
 
 
+class GrubWindowsTests(AuditCase):
+    def grub(self, cfg="menuentry 'Arch Linux' --class arch {\n}\n"):
+        m = self.machine()
+        m.packages = {"grub"}
+        m.write("/etc/default/grub", "GRUB_TIMEOUT=5\n#GRUB_DISABLE_OS_PROBER=false\n")
+        m.write("/boot/grub/grub.cfg", cfg)
+        m.outputs["commands"] = {("efibootmgr",): "BootCurrent: 0001\nBoot0000* Windows Boot Manager\tHD(1,GPT,x)/\\EFI\\Microsoft\\Boot\\bootmgfw.efi\nBoot0001* GRUB\tHD(1,GPT,x)/\\EFI\\GRUB\\grubx64.efi\n"}
+        return self.evaluate("grub-windows-missing", m)
+
+    def test_windows_found_in_firmware_entries_when_the_esp_is_root_only(self):
+        self.assertEqual(self.grub().status, engine.APPLIES)
+
+    def test_a_windows_entry_in_the_menu_is_fixed_however_it_got_there(self):
+        cfg = "menuentry 'Windows Boot Manager (on /dev/nvme0n1p1)' --class windows --class os {\n}\n"
+        self.assertEqual(self.grub(cfg).status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()

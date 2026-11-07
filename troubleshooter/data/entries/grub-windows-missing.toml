@@ -20,12 +20,20 @@ path = "/etc/default/grub"
 source = "file"
 path = "/boot/grub/grub.cfg"
 
+# The ESP is often root-only (fmask=0077), so also ask the firmware's boot entries.
 [[when]]
 any_of = [
+  { source = "command", argv = ["efibootmgr"], regex = '^Boot[0-9A-F]{4}\*? Windows Boot Manager' },
   { source = "file", path = "/boot/EFI/Microsoft/Boot/bootmgfw.efi" },
   { source = "file", path = "/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
   { source = "file", path = "/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
 ]
+
+# However it got there: os-prober, or an entry written by hand in /etc/grub.d.
+[[fixed_when]]
+source = "file"
+path = "/boot/grub/grub.cfg"
+regex = '^\s*menuentry\s.*windows'
 
 [[fixed_when]]
 all_of = [

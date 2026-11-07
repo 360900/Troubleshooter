@@ -46,6 +46,7 @@ class DatabaseTests(unittest.TestCase):
             ["modinfo", "-F", "name", "loop"],  # reads module metadata from disk, loads nothing
             ["iw", "reg", "get"],  # prints the regulatory domain, needs no privileges
             ["nmcli", "networking"],  # prints enabled or disabled, changes nothing without on/off
+            ["efibootmgr"],  # lists boot entries; changing them needs options
         ]
 
         def commands(spec):
