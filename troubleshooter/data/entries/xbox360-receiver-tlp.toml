@@ -21,7 +21,8 @@ state = "enabled"
 any_of = [
   { source = "file", path = "/etc/tlp.conf", regex = '^USB_(DENYLIST|BLACKLIST)=.*045e:0719' },
   { source = "file", path = "/etc/tlp.d/*.conf", regex = '^USB_(DENYLIST|BLACKLIST)=.*045e:0719' },
-  { source = "file", path = "/etc/tlp.conf", regex = '^USB_AUTOSUSPEND=0' },
+  { source = "file", path = "/etc/tlp.conf", regex = '^\s*USB_AUTOSUSPEND\s*=\s*"?0' },
+  { source = "file", path = "/etc/tlp.d/*.conf", regex = '^\s*USB_AUTOSUSPEND\s*=\s*"?0' },
 ]
 
 [[signals]]
