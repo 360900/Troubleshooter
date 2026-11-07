@@ -3,9 +3,9 @@ title = "Leftover NVIDIA driver slows down app startup"
 summary = "The NVIDIA driver is installed but there's no NVIDIA card. Vulkan tries it first, which can make Chromium, Electron and other apps hang for about 30 seconds when they start."
 categories = ["drivers", "desktop", "nvidia"]
 systems = ["arch-and-based"]
-keywords = ["nvidia-utils", "nvidia_icd.json", "VK_DRIVER_FILES", "vulkan icd", "30 second delay", "electron", "chromium"]
-symptoms = ["chrome takes 30 seconds to open", "apps are slow to start after changing graphics card", "electron apps hang at launch", "vulkan apps start slowly"]
-advice = "If you no longer have an NVIDIA card, remove the NVIDIA driver packages (nvidia-utils, lib32-nvidia-utils and the nvidia kernel module package). If you keep them for CUDA, set `VK_DRIVER_FILES` in /etc/environment to your real GPU's file in /usr/share/vulkan/icd.d, such as radeon_icd.json or intel_icd.json."
+keywords = ["nvidia-utils", "nvidia_icd.json", "VK_DRIVER_FILES", "vulkan icd", "30 second delay", "electron", "chromium", "chwd", "replaced graphics card", "nvidia to amd"]
+symptoms = ["chrome takes 30 seconds to open", "apps are slow to start after changing graphics card", "electron apps hang at launch", "vulkan apps start slowly", "switched from nvidia to amd", "replaced my nvidia card"]
+advice = "If you no longer have an NVIDIA card, remove the NVIDIA driver packages (nvidia-utils, lib32-nvidia-utils and the nvidia kernel module package). On CachyOS, let chwd do it: find the NVIDIA profile with sudo chwd --list-installed, remove it with sudo chwd -r followed by its name, then run sudo chwd -a to set up drivers for the new card. If you keep them for CUDA, set `VK_DRIVER_FILES` in /etc/environment to your real GPU's file in /usr/share/vulkan/icd.d, such as radeon_icd.json or intel_icd.json."
 source = "https://wiki.archlinux.org/title/Vulkan#Vulkan_applications_launch_slowly_(30_second_delay)"
 
 [[when]]
