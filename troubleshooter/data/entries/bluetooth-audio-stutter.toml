@@ -5,7 +5,6 @@ categories = ["bluetooth", "sound"]
 systems = ["any"]
 keywords = ["client too slow", "bluez5.codecs", "sbc", "sbc_xq", "ldac", "aac", "aptx", "codec", "coexistence", "2.4 ghz"]
 symptoms = ["bluetooth audio stutters", "bluetooth headphones cut out", "bluetooth sound skips", "choppy bluetooth audio", "bluetooth music crackles"]
-reproduce = "Play music through the Bluetooth headphones until it stutters."
 source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Low_audio_quality_on_Bluetooth"
 advice = "Pick a lighter codec for the headphones (for example SBC or AAC instead of LDAC) in your sound settings or pavucontrol's Configuration tab. If your Wi-Fi and Bluetooth share a chip, connect the Wi-Fi on 5 GHz. Also stop any Bluetooth scan that keeps running in the background."
 
@@ -13,8 +12,5 @@ advice = "Pick a lighter codec for the headphones (for example SBC or AAC instea
 source = "package"
 names = ["pipewire-audio"]
 
-[[signals]]
-says = "PipeWire reported a Bluetooth stream that couldn't keep up"
-weight = 0.6
-source = "journal"
-regex = 'bluez_(input|output)\S* (client too slow|XRun)!'
+# No log evidence: PipeWire reports xruns ("XRun!", "graph xrun", older "client too slow")
+# only at info level, below its default warning level, so they never reach the journal.
