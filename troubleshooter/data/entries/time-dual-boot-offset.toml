@@ -8,8 +8,11 @@ symptoms = ["time is wrong after booting windows", "clock is off by one hour", "
 advice = "In Windows, open a Command Prompt as administrator and run: reg add \"HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\TimeZoneInformation\" /v RealTimeIsUniversal /d 1 /t REG_DWORD /f. Then restart and let each system sync the time once. Switching Linux to local time instead (timedatectl set-local-rtc 1) also works but causes problems around daylight saving changes."
 source = "https://wiki.archlinux.org/title/System_time#UTC_in_Microsoft_Windows"
 
+# The ESP is often readable by root only, so also look for Windows' firmware boot entry, whose
+# UTF-16 description the efivars file holds.
 [[when]]
 any_of = [
+  { source = "file", path = "/sys/firmware/efi/efivars/Boot[0-9A-F][0-9A-F][0-9A-F][0-9A-F]-8be4df61-93ca-11d2-aa0d-00e098032b8c", regex = 'W\x00i\x00n\x00d\x00o\x00w\x00s\x00 \x00B\x00o\x00o\x00t\x00 \x00M\x00a\x00n\x00a\x00g\x00e\x00r' },
   { source = "file", path = "/boot/EFI/Microsoft/Boot/bootmgfw.efi" },
   { source = "file", path = "/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
   { source = "file", path = "/boot/efi/EFI/Microsoft/Boot/bootmgfw.efi" },
