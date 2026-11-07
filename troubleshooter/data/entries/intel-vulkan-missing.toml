@@ -25,12 +25,35 @@ names = ["vulkan-intel"]
 source = "file"
 path = "/usr/share/vulkan/icd.d/intel_*icd*.json"
 
+# A missing driver only matters once something uses Vulkan, so it alone stays low.
 [[signals]]
 says = "You have Intel graphics, but no Intel Vulkan driver"
-weight = 0.8
+weight = 0.4
 source = "package"
 names = ["vulkan-intel"]
 absent = true
+
+[[signals]]
+says = "Games or Windows apps are installed, and they need Vulkan"
+weight = 0.8
+source = "package"
+names = ["steam", "lutris", "heroic-games-launcher*", "bottles", "wine", "wine-*", "proton*", "umu-launcher", "gamescope*"]
+
+[[signals]]
+says = "The software Vulkan driver is installed, so Vulkan apps can end up running on the CPU"
+weight = 0.6
+source = "package"
+names = ["vulkan-swrast"]
+
+# Games run on the other card here, which has its own Vulkan driver.
+[[signals]]
+says = "Another graphics card with its own Vulkan driver runs the games"
+weight = 0.6
+counter = true
+any_of = [
+  { source = "pci", vendor = "10de", class = "03", driver = "nvidia" },
+  { source = "pci", vendor = "1002", class = "03", driver = "amdgpu" },
+]
 
 [[fix]]
 steps = [{ op = "install", packages = ["vulkan-intel"], optional = { "lib32-vulkan-intel" = ["steam", "wine", "wine-*", "lib32-mesa"] }, says = "Install Intel's Vulkan driver" }]

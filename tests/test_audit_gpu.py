@@ -35,3 +35,40 @@ class RadeonToAmdgpuTests(EngineCase):
         m = self.machine()
         m.pci("0000:01:00.0", "1002", "67b1", "030000", "amdgpu")
         self.assertEqual(self.evaluate(m).status, engine.NOT_APPLICABLE)
+
+
+class VulkanMissingTests(EngineCase):
+    ENTRIES = ("amd-vulkan-missing", "intel-vulkan-missing")
+
+    def gpu(self, entry, packages=(), nvidia=False):
+        m = self.machine()
+        if entry == "amd-vulkan-missing":
+            m.pci("0000:05:00.0", "1002", "73bf", "030000", "amdgpu")  # RX 6800
+        else:
+            m.pci("0000:00:02.0", "8086", "a7a0", "030000", "i915")  # Raptor Lake
+        if nvidia:
+            m.pci("0000:01:00.0", "10de", "2860", "030200", "nvidia")
+        m.packages = {"mesa", "vulkan-icd-loader", *packages}
+        return engine.evaluate(DB.entries[entry], m.system())
+
+    def test_no_vulkan_driver_and_nothing_using_vulkan_is_not_recommended(self):
+        for entry in self.ENTRIES:
+            with self.subTest(entry=entry):
+                d = self.gpu(entry)
+                self.assertEqual(d.status, engine.APPLIES)
+                self.assertFalse(d.recommended)
+
+    def test_games_without_the_driver_are_recommended(self):
+        for entry in self.ENTRIES:
+            for packages in ({"steam"}, {"wine-staging"}, {"vulkan-swrast"}):
+                with self.subTest(entry=entry, packages=packages):
+                    self.assertTrue(self.gpu(entry, packages).recommended)
+
+    def test_games_on_the_nvidia_card_of_a_hybrid_laptop_are_left_alone(self):
+        for entry in self.ENTRIES:
+            with self.subTest(entry=entry):
+                self.assertFalse(self.gpu(entry, {"steam", "nvidia-utils"}, nvidia=True).recommended)
+
+    def test_installed_driver_is_fixed(self):
+        self.assertEqual(self.gpu("amd-vulkan-missing", {"steam", "vulkan-radeon"}).status, engine.FIXED)
+        self.assertEqual(self.gpu("intel-vulkan-missing", {"steam", "vulkan-intel"}).status, engine.FIXED)
