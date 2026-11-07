@@ -22,9 +22,19 @@ source = "journal"
 kernel = true
 regex = 'EXT4-fs error \(device '
 
+# The kernel counts every error in the superblock, and only a full e2fsck run resets
+# it (e2fsck/unix.c clears the error fields), so this survives reboots and log rotation.
+[[signals]]
+says = "A mounted ext4 file system has errors that no check has repaired yet"
+weight = 0.8
+source = "file"
+path = "/sys/fs/ext4/*/errors_count"
+regex = '^[1-9]'
+
+# That boot ended in emergency mode, where people usually run the repair right away.
 [[signals]]
 says = "The startup file system check needed a manual repair last time"
-weight = 0.6
+weight = 0.3
 source = "journal"
 boot = -1
 regex = 'UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY'

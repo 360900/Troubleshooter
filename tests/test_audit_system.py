@@ -26,5 +26,32 @@ class FstabTests(EngineCase):
         self.assertTrue(self.fstab(self.TIMEOUT + "systemd[1]: Dependency failed for Swaps.\n").recommended)
 
 
+class Ext4Tests(EngineCase):
+    def ext4(self, errors="0\n", journal=""):
+        m = self.machine()
+        m.write("/proc/filesystems", "nodev\tproc\n\text4\n")
+        m.write("/sys/fs/ext4/nvme0n1p2/errors_count", errors)
+        m.journal(journal)
+        return engine.evaluate(DB.entries["fs-ext4-errors"], m.system())
+
+    def test_recorded_errors_are_found_after_the_log_is_gone(self):
+        self.assertTrue(self.ext4("3\n").recommended)
+
+    def test_a_clean_file_system_is_not_flagged(self):
+        self.assertFalse(self.ext4().found)
+
+    def test_benign_mount_messages_are_not_errors(self):
+        d = self.ext4(journal="kernel: EXT4-fs (sda1): orphan cleanup on readonly fs\n"
+                              "kernel: EXT4-fs (sda1): recovery complete\n"
+                              "kernel: EXT4-fs (sda1): mounted filesystem r/w with ordered data mode.\n")
+        self.assertFalse(d.found)
+
+    def test_a_manual_repair_last_boot_alone_is_not_recommended(self):
+        # It ended in emergency mode, where the repair was most likely done.
+        d = self.ext4(journal="systemd-fsck[312]: /dev/sda2: UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY.\n")
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+
 if __name__ == "__main__":
     unittest.main()
