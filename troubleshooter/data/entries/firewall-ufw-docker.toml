@@ -21,7 +21,9 @@ source = "service"
 name = "ufw.service"
 state = "enabled"
 
+# ufw-docker's rules, or Docker told not to touch iptables at all.
 [[fixed_when]]
-source = "file"
-path = "/etc/ufw/after.rules"
-regex = 'BEGIN UFW AND DOCKER'
+any_of = [
+  { source = "file", path = "/etc/ufw/after.rules", regex = 'BEGIN UFW AND DOCKER' },
+  { source = "file", path = "/etc/docker/daemon.json", regex = '"iptables"\s*:\s*false' },
+]

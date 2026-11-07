@@ -222,3 +222,12 @@ class DockerTests(EngineCase):
         d = self.docker("tarik wheel dockerx\n")
         self.assertEqual(d.status, engine.APPLIES)
         self.assertTrue(d.found)
+
+    def test_docker_without_iptables_is_not_bypassing_ufw(self):
+        m = self.machine()
+        m.packages = {"docker", "ufw"}
+        m.outputs["services"] = {"ufw.service": "enabled"}
+        entry = DB.entries["firewall-ufw-docker"]
+        self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.APPLIES)
+        m.write("/etc/docker/daemon.json", '{\n  "iptables": false\n}\n')
+        self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.FIXED)
