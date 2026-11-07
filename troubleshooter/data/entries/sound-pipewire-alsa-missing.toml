@@ -1,0 +1,36 @@
+id = "sound-pipewire-alsa-missing"
+title = "Sound: ALSA apps bypass PipeWire"
+summary = "Programs that talk to ALSA directly don't go through PipeWire, so they can grab the sound card for themselves and leave other apps silent, or get no sound at all. Installing pipewire-alsa routes them through PipeWire."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["pipewire-alsa", "pulseaudio-alsa", "alsa", "device or resource busy", "dmix", "spa.alsa", "aplay"]
+symptoms = ["one app has sound but others don't", "sound stops when another program plays", "device or resource busy", "no sound in some apps", "audio device is busy"]
+source = "https://wiki.archlinux.org/title/PipeWire#ALSA_clients"
+
+[[when]]
+source = "package"
+names = ["pipewire-pulse"]
+
+[[fixed_when]]
+source = "package"
+names = ["pipewire-alsa"]
+
+[[signals]]
+says = "pipewire-alsa isn't installed"
+weight = 0.35
+source = "package"
+names = ["pipewire-alsa"]
+absent = true
+
+[[signals]]
+says = "PipeWire couldn't open the sound card because something else holds it"
+weight = 0.6
+source = "journal"
+regex = 'spa\.alsa.*Device or resource busy'
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "remove", packages = ["pulseaudio-alsa"] },
+  { op = "install", packages = ["pipewire-alsa"] },
+]

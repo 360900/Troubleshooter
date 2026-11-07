@@ -1,0 +1,20 @@
+id = "sound-pulse-socket-missing"
+title = "Sound: the PipeWire PulseAudio service isn't running"
+summary = "pipewire-pulse is installed, but its socket doesn't exist in your session, so apps can't connect and play nothing. It's usually a disabled or masked user service."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["pipewire-pulse.socket", "pipewire-pulse.service", "pactl info", "connection refused", "systemctl --user", "pulse/native"]
+symptoms = ["pactl info says connection refused", "no sound in any app", "volume icon shows no output devices", "sound stopped working after login"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#No_Sound_or_pactl_info_shows_Failure:_Connection_refused"
+advice = "Run `systemctl --user enable --now pipewire.socket pipewire-pulse.socket wireplumber.service` as your normal user (not root). If it reports a masked unit, run `systemctl --user unmask` on it first, then log out and back in."
+
+[[when]]
+source = "package"
+names = ["pipewire-pulse"]
+
+[[signals]]
+says = "The PulseAudio socket that pipewire-pulse provides is missing from your session"
+weight = 0.6
+source = "file"
+path = "/run/user/*/pulse/native"
+absent = true

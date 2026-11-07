@@ -1,0 +1,22 @@
+id = "bluetooth-battery-level"
+title = "Bluetooth: headset battery level isn't shown"
+summary = "BlueZ only reports the battery level of many headsets when its experimental D-Bus features are on. Enabling them can stop a few Bluetooth mice from reconnecting automatically."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["battery level", "Experimental", "main.conf", "upower", "bluetoothd --experimental", "battery percentage"]
+symptoms = ["bluetooth headphones battery not shown", "can't see headset battery level", "no battery percentage for bluetooth device", "earbuds battery missing"]
+source = "https://wiki.archlinux.org/title/Bluetooth_headset#Battery_level_reporting"
+
+[[when]]
+source = "file"
+path = "/etc/bluetooth/main.conf"
+regex = '^#?\s*Experimental\s*='
+
+[[fixed_when]]
+source = "file"
+path = "/etc/bluetooth/main.conf"
+regex = '^Experimental\s*=\s*true'
+
+[[fix]]
+reboot = true
+steps = [{ op = "replace", path = "/etc/bluetooth/main.conf", pattern = '^#?[[:space:]]*Experimental[[:space:]]*=.*$', replacement = "Experimental = true", says = "Turn on BlueZ experimental features in /etc/bluetooth/main.conf" }]

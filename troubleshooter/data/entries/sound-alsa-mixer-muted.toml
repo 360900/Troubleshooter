@@ -1,0 +1,13 @@
+id = "sound-alsa-mixer-muted"
+title = "Sound: the hardware mixer is muted or turned down"
+summary = "Below PipeWire, the sound card has its own volume controls. If one of them is muted or set low, you get no sound or very quiet sound no matter how high the desktop volume is."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["alsamixer", "amixer", "alsactl", "auto-mute", "master", "headphone", "speaker", "alsa-utils"]
+symptoms = ["no sound but the volume is up", "volume is very low", "sound is quiet after reboot", "speakers muted after reboot", "headphones have no sound"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Low_volume"
+advice = "Run `alsamixer` in a terminal (from alsa-utils), press F6 to pick your real sound card, raise Master, Speaker, Headphone and PCM, and press M on any column marked MM to unmute it. If sound mutes itself when headphones are in or out, set Auto-Mute to Disabled. Save the levels with `sudo alsactl store`."
+
+[[when]]
+source = "file"
+path = "/sys/class/sound/card*"

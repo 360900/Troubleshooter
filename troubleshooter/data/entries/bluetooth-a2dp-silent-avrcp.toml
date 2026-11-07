@@ -1,0 +1,29 @@
+id = "bluetooth-a2dp-silent-avrcp"
+title = "Bluetooth audio: speaker connects but stays silent"
+summary = "Some speakers and music players in receiver mode keep their output muted until the computer says it is playing. With no media player registered, BlueZ always reports stopped. WirePlumber can register a stand-in player so they unmute."
+categories = ["bluetooth", "sound"]
+systems = ["arch-and-based"]
+keywords = ["avrcp", "bluez5.dummy-avrcp-player", "playback status", "a2dp", "wireplumber", "mpris-proxy", "receiver mode"]
+symptoms = ["bluetooth speaker connected but no sound", "bluetooth receiver silent", "a2dp connected but nothing plays", "no sound from bluetooth dac"]
+source = "https://wiki.archlinux.org/title/Bluetooth_headset#A2DP_device_connects_and_streams_but_stays_silent"
+
+[[when]]
+source = "package"
+names = ["wireplumber"]
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-avrcp.conf"
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-avrcp.conf", says = "Tell Bluetooth devices that something is playing", content = '''
+# Added by Troubleshooter: bluetooth-a2dp-silent-avrcp
+monitor.bluez.properties = {
+  bluez5.dummy-avrcp-player = true
+}
+''' }]

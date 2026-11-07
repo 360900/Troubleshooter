@@ -1,0 +1,13 @@
+id = "sound-hdmi-no-audio"
+title = "Sound: no sound over HDMI or DisplayPort"
+summary = "Sound for a TV or monitor goes through a separate HDMI output or profile, which often isn't selected. Some screens also disable audio if no sound was playing when they were connected."
+categories = ["sound", "display"]
+systems = ["any"]
+keywords = ["hdmi", "displayport", "hdmi audio", "card profile", "wpctl set-profile", "aplay -l", "digital stereo"]
+symptoms = ["no sound through hdmi", "tv has no sound from my pc", "monitor speakers don't work", "displayport audio not working", "hdmi output missing in sound settings"]
+source = "https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture/Troubleshooting#HDMI_output_does_not_work"
+advice = "In your sound settings (or pavucontrol's Configuration tab), switch the card's profile to the Digital Stereo (HDMI) one and pick it as the output. If it still stays silent, turn the TV or monitor off and on again while something is playing, so it notices the audio stream."
+
+[[when]]
+source = "file"
+path = "/sys/class/sound/card*"

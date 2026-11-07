@@ -1,0 +1,13 @@
+id = "sound-after-suspend"
+title = "Sound: missing or garbled after waking from sleep"
+summary = "Sometimes the sound card doesn't come back properly after sleep, and sound stays silent or distorted until PipeWire restarts."
+categories = ["sound", "sleep"]
+systems = ["any"]
+keywords = ["pipewire", "wireplumber", "resume", "suspend", "standby", "systemctl --user restart"]
+symptoms = ["no sound after waking up laptop", "sound broken after sleep", "audio distorted after resume", "sound device gone after suspend"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Audio_problems_after_standby"
+advice = "Run `systemctl --user restart pipewire pipewire-pulse wireplumber` as your normal user to bring sound back without rebooting. If it happens after every sleep, check for a kernel or firmware update for your sound hardware."
+
+[[when]]
+source = "package"
+names = ["pipewire"]

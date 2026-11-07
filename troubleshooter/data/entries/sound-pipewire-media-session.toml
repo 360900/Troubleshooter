@@ -1,0 +1,26 @@
+id = "sound-pipewire-media-session"
+title = "Sound: PipeWire uses the old media session"
+summary = "pipewire-media-session is deprecated and no longer recommended. Replacing it with WirePlumber, the maintained session manager, avoids devices and Bluetooth audio that don't get set up properly."
+categories = ["sound", "bluetooth"]
+systems = ["arch-and-based"]
+keywords = ["pipewire-media-session", "wireplumber", "session manager", "pipewire"]
+symptoms = ["audio devices don't show up", "bluetooth headphones have no sound", "sound settings don't stick", "no sound after connecting a device"]
+source = "https://wiki.archlinux.org/title/PipeWire#PipeWire_Media_Session"
+
+[[when]]
+source = "package"
+names = ["pipewire-media-session"]
+
+[[fixed_when]]
+source = "package"
+names = ["wireplumber"]
+
+[[signals]]
+says = "The deprecated pipewire-media-session is installed"
+weight = 0.3
+source = "package"
+names = ["pipewire-media-session"]
+
+[[fix]]
+reboot = true
+steps = [{ op = "install_aur", packages = ["wireplumber"], replaces = ["pipewire-media-session"], says = "Replace pipewire-media-session with WirePlumber" }]

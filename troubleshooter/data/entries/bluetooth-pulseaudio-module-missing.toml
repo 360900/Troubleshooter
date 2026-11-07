@@ -1,0 +1,39 @@
+id = "bluetooth-pulseaudio-module-missing"
+title = "Bluetooth audio: PulseAudio's Bluetooth module is missing"
+summary = "You use PulseAudio, but pulseaudio-bluetooth isn't installed, so headphones and speakers pair but can't connect as audio devices."
+categories = ["bluetooth", "sound"]
+systems = ["arch-and-based"]
+keywords = ["pulseaudio-bluetooth", "pulseaudio", "a2dp", "a2dp-sink", "protocol not available", "org.bluez.Error.Failed", "module-bluetooth-discover"]
+symptoms = ["bluetooth headphones won't connect", "headphones pair but don't connect", "no sound from bluetooth speaker", "bluetooth headset doesn't show up as output", "failed to connect org.bluez.Error.Failed"]
+auto_detect = true
+reproduce = "Try to connect your Bluetooth headphones or speaker."
+source = "https://wiki.archlinux.org/title/Bluetooth_headset#Pairing_works,_but_connecting_does_not"
+
+[[when]]
+source = "package"
+names = ["pulseaudio"]
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[fixed_when]]
+source = "package"
+names = ["pulseaudio-bluetooth"]
+
+[[signals]]
+says = "bluetoothd couldn't hand the audio connection to any sound server"
+weight = 0.85
+source = "journal"
+regex = 'bluetoothd.*a2dp-(sink|source) profile connect failed for .*Protocol not available'
+
+[[signals]]
+says = "pulseaudio-bluetooth isn't installed"
+weight = 0.3
+source = "package"
+names = ["pulseaudio-bluetooth"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["pulseaudio-bluetooth"] }]

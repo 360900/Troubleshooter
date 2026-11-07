@@ -1,0 +1,13 @@
+id = "sound-wireplumber-state"
+title = "Sound: WirePlumber remembers a broken setting"
+summary = "WirePlumber saves volumes, mutes, profiles and default devices between sessions. A bad saved state can keep an app muted or stop outputs from switching. Clearing it resets everything to defaults."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["wireplumber", "~/.local/state/wireplumber", "auto-switching", "muted stream", "default device", "pavucontrol"]
+symptoms = ["no sound in some apps but sound in the browser", "one app is always muted", "sound doesn't switch to headphones", "wrong output device every time", "audio settings keep coming back wrong"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Auto-switching_is_not_working"
+advice = "Run `rm -r ~/.local/state/wireplumber` as your normal user, then `systemctl --user restart pipewire pipewire-pulse wireplumber`. Your saved volumes and device choices are reset, so set them again afterwards."
+
+[[when]]
+source = "package"
+names = ["wireplumber"]

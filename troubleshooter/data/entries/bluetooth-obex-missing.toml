@@ -1,0 +1,26 @@
+id = "bluetooth-obex-missing"
+title = "Bluetooth: can't send or receive files"
+summary = "File transfer over Bluetooth needs the OBEX service, which Arch ships separately in bluez-obex. Without it, sending files to or from a phone fails."
+categories = ["bluetooth"]
+systems = ["arch-and-based"]
+keywords = ["bluez-obex", "obex", "obexd", "obex.service", "file transfer", "bluetooth-sendto", "send via bluetooth"]
+symptoms = ["can't send files over bluetooth", "phone can't send files to my pc", "bluetooth file transfer fails", "send via bluetooth does nothing", "receive files over bluetooth not working"]
+source = "https://wiki.archlinux.org/title/Bluetooth#Installation"
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[fixed_when]]
+source = "package"
+names = ["bluez-obex"]
+
+[[signals]]
+says = "bluez-obex isn't installed"
+weight = 0.4
+source = "package"
+names = ["bluez-obex"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["bluez-obex"] }]

@@ -1,0 +1,18 @@
+id = "sound-headset-jack-mic-realtek"
+title = "Sound: headset mic in the combo jack isn't detected"
+summary = "On many Realtek sound chips the driver guesses the wrong pin layout, so a headset's microphone in the 4-pole headphone jack isn't detected, or headphones stay silent. Forcing a model setting usually fixes it."
+categories = ["sound", "drivers"]
+systems = ["any"]
+keywords = ["snd_hda_intel", "model", "dell-headset-multi", "realtek", "alc", "trrs", "combo jack", "headset mic", "hdajackretask"]
+symptoms = ["headset microphone not detected", "mic in headphone jack doesn't work", "headphones plugged in but no sound", "phone headset mic doesn't work on laptop"]
+source = "https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture/Troubleshooting#Wrong_model_autodetection"
+advice = "Create /etc/modprobe.d/alsa-model.conf containing `options snd_hda_intel model=dell-headset-multi` and reboot; despite the name it helps on many non-Dell laptops with Realtek ALC chips. If it makes things worse, delete the file and reboot, or try another model from the kernel's HD-Audio models list."
+
+[[when]]
+source = "module"
+names = ["snd_hda_intel"]
+
+[[when]]
+source = "file"
+path = "/proc/asound/card*/codec#*"
+regex = '^Codec: Realtek ALC(2[2-9][0-9]|66[0-9]|67[0-9]|892)'

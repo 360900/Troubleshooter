@@ -1,0 +1,13 @@
+id = "sound-mic-distorted"
+title = "Sound: microphone sounds distorted or too loud"
+summary = "A high Mic Boost level on the sound card clips the signal before any app sees it, which makes your voice crackly or distorted."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["mic boost", "internal mic boost", "alsamixer", "capture", "distortion", "clipping"]
+symptoms = ["my microphone sounds distorted", "people say my mic crackles", "mic is way too loud", "voice sounds clipped on calls"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Audio_is_distorted"
+advice = "Run `alsamixer`, press F6 to pick your sound card and F4 for capture controls, and lower Mic Boost or Internal Mic Boost to 0 or the first step. Then set the input volume in your sound settings, and save with `sudo alsactl store`."
+
+[[when]]
+source = "file"
+path = "/sys/class/sound/card*"

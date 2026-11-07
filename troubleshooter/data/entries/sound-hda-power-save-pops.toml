@@ -1,0 +1,28 @@
+id = "sound-hda-power-save-pops"
+title = "Sound: pops or clicks when sound starts or stops"
+summary = "The Intel HD Audio driver powers the sound chip down when it's idle, which can make a pop or click each time it wakes. Turning that power saving off stops it, at a small battery cost."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["snd_hda_intel", "power_save", "power_save_controller", "hda", "pop", "click", "crackle"]
+symptoms = ["speakers pop when sound starts", "clicking noise from speakers", "crackle when a video starts", "popping sound in headphones", "click when changing volume"]
+source = "https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture/Troubleshooting#Power_saving"
+
+[[when]]
+source = "module"
+names = ["snd_hda_intel"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/snd_hda_intel/parameters/power_save"
+regex = '^0$'
+
+[[signals]]
+says = "HD Audio power saving is on"
+weight = 0.15
+source = "file"
+path = "/sys/module/snd_hda_intel/parameters/power_save"
+regex = '^[1-9]'
+
+[[fix]]
+reboot = true
+steps = [{ op = "module_options", module = "snd_hda_intel", options = ["power_save=0", "power_save_controller=N"], says = "Keep the sound chip powered while it's idle" }]

@@ -1,0 +1,13 @@
+id = "bluetooth-br-connection-key-missing"
+title = "Bluetooth: device is paired here but doesn't recognize the computer"
+summary = "Some older headphones can't pair over Bluetooth Low Energy, but BlueZ tries that first, so the pairing only half works (br-connection-key-missing). Limiting the adapter to classic Bluetooth fixes it, but stops Low Energy devices from working."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["br-connection-key-missing", "ControllerMode", "bredr", "low energy", "ble", "main.conf", "org.bluez.Error.Failed"]
+symptoms = ["paired but won't connect", "br-connection-key-missing", "headphones say not paired", "bluetooth pairing doesn't stick", "bose headphones won't connect"]
+source = "https://wiki.archlinux.org/title/Bluetooth_headset#PC_shows_device_as_paired,_but_is_not_recognized_by_device"
+advice = "Set `ControllerMode = bredr` in the [General] section of /etc/bluetooth/main.conf, run `sudo systemctl restart bluetooth`, then remove and re-pair the device. Low Energy devices such as many mice, keyboards and game controllers stop working in that mode, so change it back to `dual` if you need them."
+
+[[when]]
+source = "package"
+names = ["bluez"]

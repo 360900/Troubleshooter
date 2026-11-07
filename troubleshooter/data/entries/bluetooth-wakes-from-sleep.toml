@@ -1,0 +1,48 @@
+id = "bluetooth-wakes-from-sleep"
+title = "Bluetooth: laptop wakes up right after going to sleep"
+summary = "On laptops that use modern standby (suspend-to-idle), a connected Bluetooth device can wake the system immediately. Turning Bluetooth off just before sleep and back on after waking stops it, but Bluetooth keyboards and mice can then no longer wake the computer."
+categories = ["bluetooth", "sleep"]
+systems = ["any"]
+keywords = ["s2idle", "suspend-to-idle", "modern standby", "s0ix", "bluetoothctl power off", "sleep.target", "wakeup"]
+symptoms = ["laptop wakes up immediately after sleep", "suspend doesn't stay asleep", "computer wakes when bluetooth headphones are connected", "sleep fails with bluetooth on"]
+source = "https://wiki.archlinux.org/title/Bluetooth#Bluetooth_immediately_waking_up_suspend-to-idle_devices"
+
+[[when]]
+source = "file"
+path = "/sys/class/bluetooth/hci*"
+
+[[when]]
+source = "package"
+names = ["bluez-utils"]
+
+[[when]]
+source = "file"
+path = "/sys/power/mem_sleep"
+regex = '\[s2idle\]'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/system/sleep.target.d/troubleshooter-bluetooth-sleep.conf"
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/systemd/system/troubleshooter-bluetooth-sleep.service", says = "Add a service that turns Bluetooth off during sleep", content = '''
+# Added by Troubleshooter: bluetooth-wakes-from-sleep
+[Unit]
+Description=Turn Bluetooth off before sleep and on after waking
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/bluetoothctl power off
+ExecStop=/usr/bin/bluetoothctl power on
+''' },
+  { op = "write_file", path = "/etc/systemd/system/sleep.target.d/troubleshooter-bluetooth-sleep.conf", says = "Run that service every time the computer goes to sleep", content = '''
+# Added by Troubleshooter: bluetooth-wakes-from-sleep
+[Unit]
+Wants=troubleshooter-bluetooth-sleep.service
+''' },
+  { op = "command", run = "systemctl daemon-reload", undo = "systemctl daemon-reload", says = "Reload systemd" },
+]

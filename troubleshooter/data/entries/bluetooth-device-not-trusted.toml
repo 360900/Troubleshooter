@@ -1,0 +1,21 @@
+id = "bluetooth-device-not-trusted"
+title = "Bluetooth: device won't reconnect by itself"
+summary = "A paired device that isn't marked as trusted gets rejected when it tries to reconnect on its own, for example after it or the computer wakes from sleep."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["trust", "bluetoothctl trust", "Authentication attempt without agent", "org.bluez.Error.Rejected", "reconnect", "agent"]
+symptoms = ["bluetooth device doesn't reconnect after sleep", "have to connect my headphones manually every time", "keyboard doesn't reconnect after suspend", "mouse doesn't reconnect automatically"]
+source = "https://wiki.archlinux.org/title/Bluetooth#Cannot_reconnect_after_sleep"
+advice = "Mark the device as trusted: run `bluetoothctl devices` to find its address, then `bluetoothctl trust <address>`. Most desktop Bluetooth settings also have a Trusted switch for each device."
+
+[[signals]]
+says = "bluetoothd rejected a device that tried to connect without an agent"
+weight = 0.5
+source = "journal"
+regex = 'bluetoothd.*Authentication attempt without agent'
+
+[[signals]]
+says = "bluetoothd refused a connection request"
+weight = 0.3
+source = "journal"
+regex = 'bluetoothd.*Access denied: org\.bluez\.Error\.Rejected'

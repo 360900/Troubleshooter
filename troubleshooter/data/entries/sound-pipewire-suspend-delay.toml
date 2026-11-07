@@ -1,0 +1,35 @@
+id = "sound-pipewire-suspend-delay"
+title = "Sound: start of sounds is cut off or pops"
+summary = "WirePlumber suspends sound devices after a few seconds of silence. Waking them can cut off the first moment of a sound or make a pop. Keeping them awake fixes it, at a small power cost."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["wireplumber", "session.suspend-timeout-seconds", "suspend", "node suspension", "delay", "pop"]
+symptoms = ["first second of sound is missing", "notification sounds are cut off", "pop when playback starts", "audio delay when starting a video", "speakers click before sound plays"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Noticeable_audio_delay_or_audible_pop/crack_when_starting_playback"
+
+[[when]]
+source = "package"
+names = ["wireplumber"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-no-suspend.conf"
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-no-suspend.conf", says = "Keep sound devices awake when they go quiet", content = '''
+# Added by Troubleshooter: sound-pipewire-suspend-delay
+monitor.alsa.rules = [
+  {
+    matches = [
+      { node.name = "~alsa_input.*" }
+      { node.name = "~alsa_output.*" }
+    ]
+    actions = {
+      update-props = {
+        session.suspend-timeout-seconds = 0
+      }
+    }
+  }
+]
+''' }]

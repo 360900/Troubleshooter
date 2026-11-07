@@ -1,0 +1,13 @@
+id = "sound-mic-not-detected"
+title = "Sound: built-in or jack microphone doesn't show up"
+summary = "The sound card's active profile may be output-only, so PipeWire offers no microphone even though the hardware works."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["microphone", "analog stereo duplex", "card profile", "pavucontrol", "arecord", "capture", "input device"]
+symptoms = ["microphone isn't detected", "no input devices in sound settings", "laptop mic doesn't work", "headset mic not found", "can't select a microphone"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Microphone_is_not_detected_by_PipeWire"
+advice = "In pavucontrol's Configuration tab (or your desktop's sound settings), choose a profile that includes input, such as Analog Stereo Duplex or one ending in \"+ Analog Stereo Input\". If no microphone appears at all, run `arecord -l` to see whether the kernel sees one; on recent Intel laptops a missing sof-firmware is the usual cause."
+
+[[when]]
+source = "file"
+path = "/sys/class/sound/card*"

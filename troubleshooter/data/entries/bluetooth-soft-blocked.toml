@@ -1,0 +1,27 @@
+id = "bluetooth-soft-blocked"
+title = "Bluetooth is switched off (soft-blocked)"
+summary = "The Bluetooth adapter is there, but it's blocked in software, for example by airplane mode or a Bluetooth off toggle. Nothing can pair or connect until it's unblocked."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["rfkill", "soft blocked", "rfkill unblock bluetooth", "airplane mode", "no default controller available", "org.bluez.Error.NotReady"]
+symptoms = ["bluetooth won't turn on", "bluetooth switch is greyed out", "no default controller available", "bluetooth says it's blocked", "can't scan for devices"]
+source = "https://wiki.archlinux.org/title/Bluetooth#bluetoothctl:_No_default_controller_available"
+
+[[when]]
+source = "file"
+path = "/sys/class/bluetooth/hci*/rfkill*/soft"
+
+[[fixed_when]]
+source = "file"
+path = "/sys/class/bluetooth/hci*/rfkill*/soft"
+regex = '^0$'
+
+[[signals]]
+says = "The Bluetooth adapter is soft-blocked by rfkill"
+weight = 0.85
+source = "file"
+path = "/sys/class/bluetooth/hci*/rfkill*/soft"
+regex = '^1$'
+
+[[fix]]
+steps = [{ op = "command", run = "rfkill unblock bluetooth", undo = "rfkill block bluetooth", says = "Unblock Bluetooth" }]

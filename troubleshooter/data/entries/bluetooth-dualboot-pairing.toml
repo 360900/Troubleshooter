@@ -1,0 +1,16 @@
+id = "bluetooth-dualboot-pairing"
+title = "Bluetooth: device connects, then drops right away"
+summary = "The device accepts the connection and then refuses it. This usually happens when it was also paired with another system on the same computer (dual boot), so the pairing keys no longer match."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["dual boot", "pairing keys", "link key", "connection refused", "getpeername", "bt-dualboot", "/var/lib/bluetooth", "multipoint"]
+symptoms = ["bluetooth headphones connect then disconnect", "device disconnects after a few seconds", "have to re-pair after using windows", "bluetooth works in windows but not linux", "headset keeps dropping"]
+reproduce = "Try to connect the device that keeps dropping."
+source = "https://wiki.archlinux.org/title/Bluetooth#Device_connects,_then_disconnects_after_a_few_moments"
+advice = "Remove the device in your Bluetooth settings (or `bluetoothctl remove <address>`), restart Bluetooth, and pair it again. If you dual boot, copy the pairing keys between systems (the bt-dualboot tool can do this) so you don't have to re-pair after each switch. With multipoint headsets on recent BlueZ, `sudo systemctl restart bluetooth` is a known workaround, and on KDE closing KDE Connect can help."
+
+[[signals]]
+says = "bluetoothd saw a headset connection get refused or torn down"
+weight = 0.6
+source = "journal"
+regex = 'bluetoothd.*(Unable to get connect data for Headset Voice gateway|connect error: Connection refused \(111\))'

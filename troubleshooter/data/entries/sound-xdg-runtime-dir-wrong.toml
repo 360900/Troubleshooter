@@ -1,0 +1,21 @@
+id = "sound-xdg-runtime-dir-wrong"
+title = "Sound: XDG_RUNTIME_DIR points to the wrong place"
+summary = "Apps and the desktop find PipeWire through the XDG_RUNTIME_DIR variable. It's set to an unusual path here, which typically means it was overridden by hand, so sound devices and screen sharing can disappear."
+categories = ["sound", "desktop"]
+systems = ["any"]
+keywords = ["XDG_RUNTIME_DIR", "pam_systemd", "/run/user", "pipewire context failed", "environment variable"]
+symptoms = ["no sound devices after login", "sound devices missing in plasma", "screen sharing fails with pipewire context failed", "sound works only after restarting pipewire"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#No_sound_devices_show_up_in_KDE_Plasma"
+advice = "XDG_RUNTIME_DIR is set automatically at login, so remove any line that sets it from files like ~/.bashrc, ~/.zshrc, ~/.profile, ~/.xprofile or /etc/profile.d. Then log out and back in."
+
+[[when]]
+source = "package"
+names = ["pipewire"]
+
+[[signals]]
+says = "XDG_RUNTIME_DIR isn't the usual /run/user/<your id>"
+weight = 0.8
+source = "env"
+name = "XDG_RUNTIME_DIR"
+regex = '^XDG_RUNTIME_DIR=(?!/run/user/[0-9]+/?$)'

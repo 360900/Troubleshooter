@@ -1,0 +1,20 @@
+id = "sound-dell-i8kutils-crackle"
+title = "Sound: crackling on Dell laptops with i8kutils"
+summary = "i8kutils talks to the Dell firmware for fan control, and those calls can stall the kernel for a moment. That shows up as crackles or pops in audio."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["i8kutils", "i8kmon", "i8kmon.service", "dell", "dell-smm-hwmon", "crackling", "popping"]
+symptoms = ["sound crackles on my dell laptop", "audio pops every few seconds", "music stutters on dell", "crackling sound"]
+source = "https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture/Troubleshooting#Crackling/popping_on_Dell_laptops"
+advice = "Stop i8kmon with `sudo systemctl disable --now i8kmon.service` (and anything else that polls the i8k interface) and listen again. If the crackling stops, use a different fan control tool or poll less often."
+
+[[when]]
+source = "package"
+names = ["i8kutils"]
+
+[[signals]]
+says = "i8kmon is running and polling the Dell firmware"
+weight = 0.4
+source = "service"
+name = "i8kmon.service"
+state = "active"

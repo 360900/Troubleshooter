@@ -1,0 +1,28 @@
+id = "bluetooth-broadcom-firmware"
+title = "Bluetooth: Broadcom adapter is missing its firmware patch"
+summary = "Many Broadcom Bluetooth chips (also sold as Foxconn, Lite-On or Azurewave) need a firmware file that isn't in linux-firmware. Without it they work badly or not at all. The fix builds broadcom-bt-firmware from the AUR."
+categories = ["bluetooth", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["broadcom-bt-firmware", "btbcm", "bcm", "hcd", "patch file not found", "brcm", "foxconn", "lite-on", "aur"]
+symptoms = ["bluetooth doesn't work", "bluetooth finds no devices", "bluetooth adapter not working on my laptop", "bluetooth keeps disconnecting", "bluetooth headset has no sound"]
+auto_detect = false
+source = "https://wiki.archlinux.org/title/Bluetooth#Foxconn_/_Hon_Hai_/_Lite-On_Broadcom_device"
+
+[[when]]
+source = "module"
+names = ["btbcm"]
+
+[[fixed_when]]
+source = "package"
+names = ["broadcom-bt-firmware"]
+
+[[signals]]
+says = "The Broadcom Bluetooth driver couldn't find its firmware patch file"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'Bluetooth: hci[0-9]+: BCM: .*(Patch file not found|Patch .*not found)'
+
+[[fix]]
+reboot = true
+steps = [{ op = "install_aur", packages = ["broadcom-bt-firmware"], aur_bases = { "broadcom-bt-firmware" = "broadcom-bt-firmware" } }]

@@ -1,0 +1,28 @@
+id = "bluetooth-btusb-autosuspend"
+title = "Bluetooth: USB power saving makes the adapter drop out"
+summary = "The Bluetooth driver lets the adapter sleep when idle. On some chips it doesn't wake up properly, so the adapter vanishes or devices disconnect. Turning autosuspend off costs a little battery."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["btusb", "enable_autosuspend", "autosuspend", "usb power saving", "no default controller available", "tx timeout"]
+symptoms = ["bluetooth adapter disappears", "bluetooth stops working after a while", "no default controller available", "bluetooth devices keep disconnecting", "bluetooth gone after idle"]
+source = "https://wiki.archlinux.org/title/Bluetooth#bluetoothctl:_No_default_controller_available"
+
+[[when]]
+source = "module"
+names = ["btusb"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/btusb/parameters/enable_autosuspend"
+regex = '^N'
+
+[[signals]]
+says = "The Bluetooth chip stopped answering commands"
+weight = 0.4
+source = "journal"
+kernel = true
+regex = 'Bluetooth: hci[0-9]+: command 0x[0-9a-f]+ tx timeout'
+
+[[fix]]
+reboot = true
+steps = [{ op = "module_options", module = "btusb", options = ["enable_autosuspend=N"], says = "Stop the Bluetooth adapter from sleeping when idle" }]

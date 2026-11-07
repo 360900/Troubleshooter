@@ -1,0 +1,24 @@
+id = "bluetooth-audio-no-sound-server"
+title = "Bluetooth audio: PipeWire wasn't ready to take the connection"
+summary = "Your headphones or speaker tried to connect, but no PipeWire session was running to accept the audio, so the connection was refused (br-connection-profile-unavailable)."
+categories = ["bluetooth", "sound"]
+systems = ["arch-and-based"]
+keywords = ["br-connection-profile-unavailable", "protocol not available", "a2dp-sink", "pipewire", "wireplumber", "bluetoothd"]
+symptoms = ["bluetooth headphones won't connect", "br-connection-profile-unavailable", "bluetooth speaker connects then fails", "headset pairs but no audio device appears"]
+reproduce = "Try to connect your Bluetooth headphones or speaker."
+source = "https://wiki.archlinux.org/title/Bluetooth#Audio_device_fails_to_connect_with_br-connection-profile-unavailable"
+advice = "Log in to your desktop first, then run `systemctl --user restart pipewire wireplumber` as your normal user (or just play some sound) and connect again. If that doesn't help, restart Bluetooth with `sudo systemctl restart bluetooth` and retry."
+
+[[when]]
+source = "package"
+names = ["pipewire-audio"]
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[signals]]
+says = "bluetoothd couldn't hand the audio connection to any sound server"
+weight = 0.6
+source = "journal"
+regex = 'bluetoothd.*a2dp-(sink|source) profile connect failed for .*Protocol not available'

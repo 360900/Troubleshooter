@@ -1,0 +1,49 @@
+id = "sound-pipewire-pulse-missing"
+title = "Sound: PipeWire can't talk to most apps"
+summary = "PipeWire is installed, but its PulseAudio replacement isn't, and PulseAudio itself isn't either. Most apps, including browsers and games, then have no sound server to play through."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["pipewire-pulse", "pipewire", "pulseaudio", "wireplumber", "pactl", "libpulse", "sound server"]
+symptoms = ["no sound in any app", "no sound in firefox", "pactl says connection refused", "volume control shows no devices", "sound settings are empty"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/PipeWire#PulseAudio_clients"
+
+[[when]]
+source = "package"
+names = ["pipewire"]
+
+[[when]]
+source = "package"
+names = ["pulseaudio"]
+absent = true
+
+[[when]]
+source = "package"
+names = ["pipewire-media-session"]
+absent = true
+
+[[when]]
+source = "file"
+path = "/sys/class/sound/card*"
+
+[[fixed_when]]
+source = "package"
+names = ["pipewire-pulse"]
+
+[[signals]]
+says = "Neither pipewire-pulse nor pulseaudio is installed, so PulseAudio apps have nothing to connect to"
+weight = 0.75
+source = "package"
+names = ["pipewire-pulse"]
+absent = true
+
+[[signals]]
+says = "JACK is installed, so this may be a deliberate pro-audio setup without PulseAudio"
+weight = 0.6
+counter = true
+source = "package"
+names = ["jack2", "jack"]
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["pipewire-pulse", "wireplumber"], says = "Install pipewire-pulse and the WirePlumber session manager" }]

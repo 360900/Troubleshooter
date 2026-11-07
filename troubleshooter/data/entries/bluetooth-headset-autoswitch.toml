@@ -1,0 +1,29 @@
+id = "bluetooth-headset-autoswitch"
+title = "Bluetooth audio: sound turns muffled when an app opens the mic"
+summary = "When an app starts listening to the microphone, WirePlumber switches the headset to its hands-free mode, which sounds mono and muffled. You can turn the switching off, but then the headset mic is only used when you pick the headset profile yourself."
+categories = ["bluetooth", "sound"]
+systems = ["arch-and-based"]
+keywords = ["hsp", "hfp", "a2dp", "headset profile", "bluetooth.autoswitch-to-headset-profile", "wireplumber", "muffled", "mono"]
+symptoms = ["bluetooth headphones sound bad", "sound becomes muffled during calls", "headphones switch to mono", "audio quality drops when discord opens", "bluetooth sound like a phone call"]
+source = "https://wiki.archlinux.org/title/Bluetooth_headset#Disable_WirePlumber_auto-switching"
+
+[[when]]
+source = "package"
+names = ["wireplumber"]
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-autoswitch.conf"
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-autoswitch.conf", says = "Stop switching Bluetooth headsets to hands-free mode automatically", content = '''
+# Added by Troubleshooter: bluetooth-headset-autoswitch
+wireplumber.settings = {
+  bluetooth.autoswitch-to-headset-profile = false
+}
+''' }]

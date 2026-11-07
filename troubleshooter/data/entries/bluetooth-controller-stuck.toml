@@ -1,0 +1,23 @@
+id = "bluetooth-controller-stuck"
+title = "Bluetooth: the adapter stopped responding"
+summary = "The Bluetooth chip timed out during startup, which usually means its firmware got stuck. A normal reboot often doesn't reset it, but fully cutting the power does."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["command tx timeout", "Reading Intel version command failed", "hci0", "btusb", "btintel", "no default controller available", "cold boot"]
+symptoms = ["bluetooth stopped working", "no default controller available", "bluetooth adapter not found", "bluetooth disappeared", "bluetooth doesn't work after reboot"]
+source = "https://wiki.archlinux.org/title/Bluetooth#bluetoothctl:_No_default_controller_available"
+advice = "Shut the computer down, unplug the power cable (and on a laptop, wait until it is fully off) for about 30 seconds, then start it again so the chip reloads its firmware. Reloading the driver with `sudo modprobe -r btusb && sudo modprobe btusb` sometimes brings it back without a restart."
+
+[[signals]]
+says = "The kernel couldn't read the Intel Bluetooth chip's version"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'Bluetooth: hci[0-9]+: Reading Intel version command failed'
+
+[[signals]]
+says = "The Bluetooth chip stopped answering commands"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'Bluetooth: hci[0-9]+: command 0x[0-9a-f]+ tx timeout'

@@ -1,0 +1,42 @@
+id = "sound-pipewire-underflow"
+title = "Sound: audio cuts out when several things play"
+summary = "PipeWire logged buffer underflows: the sound card ran out of audio to play. Giving it larger buffers usually stops the dropouts, at the cost of slightly more latency."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["underflow", "underrun", "pipewire-pulse", "api.alsa.period-size", "api.alsa.headroom", "wireplumber", "crackling", "stutter"]
+symptoms = ["sound cuts out", "audio stutters when two apps play", "crackling sound", "sound drops for a moment", "audio glitches in games"]
+reproduce = "Play sound from two apps at once, for example a video and music."
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Audio_cutting_out_when_multiple_streams_start_playing"
+
+[[when]]
+source = "package"
+names = ["wireplumber"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-buffers.conf"
+
+[[signals]]
+says = "pipewire-pulse logged buffer underflows"
+weight = 0.6
+source = "journal"
+regex = 'pulse-server .*UNDERFLOW channel'
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-buffers.conf", says = "Give sound outputs larger buffers", content = '''
+# Added by Troubleshooter: sound-pipewire-underflow
+monitor.alsa.rules = [
+  {
+    matches = [
+      { node.name = "~alsa_output.*" }
+    ]
+    actions = {
+      update-props = {
+        api.alsa.period-size = 1024
+        api.alsa.headroom = 8192
+      }
+    }
+  }
+]
+''' }]

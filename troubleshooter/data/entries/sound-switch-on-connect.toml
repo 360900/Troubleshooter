@@ -1,0 +1,25 @@
+id = "sound-switch-on-connect"
+title = "Sound: doesn't switch to newly connected devices"
+summary = "When you plug in a USB headset or connect Bluetooth headphones, sound can keep playing through the old output. PipeWire can be told to switch to new devices automatically."
+categories = ["sound", "bluetooth"]
+systems = ["arch-and-based"]
+keywords = ["module-switch-on-connect", "pipewire-pulse", "default sink", "auto switch", "pactl set-default-sink"]
+symptoms = ["sound still comes from speakers after connecting headphones", "bluetooth headphones connected but no sound", "usb headset not used automatically", "have to pick the output every time"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Sound_does_not_automatically_switch_when_connecting_a_new_device"
+
+[[when]]
+source = "package"
+names = ["pipewire-pulse"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/pipewire/pipewire-pulse.conf.d/90-troubleshooter-switch-on-connect.conf"
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/pipewire/pipewire-pulse.conf.d/90-troubleshooter-switch-on-connect.conf", says = "Switch sound to devices as soon as they connect", content = '''
+# Added by Troubleshooter: sound-switch-on-connect
+pulse.cmd = [
+  { cmd = "load-module" args = "module-switch-on-connect" }
+]
+''' }]

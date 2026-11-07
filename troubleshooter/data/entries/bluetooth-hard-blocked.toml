@@ -1,0 +1,25 @@
+id = "bluetooth-hard-blocked"
+title = "Bluetooth is turned off by a hardware switch"
+summary = "The Bluetooth adapter is hard-blocked, which means a physical switch, a function key or a firmware setting has turned the radio off. Software can't override it."
+categories = ["bluetooth"]
+systems = ["any"]
+keywords = ["rfkill", "hard blocked", "wireless switch", "airplane key", "bios", "no default controller available"]
+symptoms = ["bluetooth won't turn on", "bluetooth is hard blocked", "rfkill says hard blocked", "bluetooth toggle does nothing"]
+source = "https://wiki.archlinux.org/title/Bluetooth#bluetoothctl:_No_default_controller_available"
+advice = "Look for a wireless switch on the side of the laptop, or a key with an antenna or airplane icon (often together with Fn), and turn wireless on. If there is none, check the firmware (BIOS/UEFI) setup for a Bluetooth or wireless option that is disabled."
+
+[[when]]
+source = "file"
+path = "/sys/class/bluetooth/hci*/rfkill*/hard"
+
+[[fixed_when]]
+source = "file"
+path = "/sys/class/bluetooth/hci*/rfkill*/hard"
+regex = '^0$'
+
+[[signals]]
+says = "The Bluetooth adapter is hard-blocked"
+weight = 0.85
+source = "file"
+path = "/sys/class/bluetooth/hci*/rfkill*/hard"
+regex = '^1$'

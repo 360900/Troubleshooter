@@ -1,0 +1,13 @@
+id = "sound-usb-dac-volume-cutoff"
+title = "Sound: USB DAC or headset is silent at low volume"
+summary = "Some USB sound devices stay silent until the volume reaches 15 to 30 percent, so low volumes are impossible. Making PipeWire use software volume for that device fixes it."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["usb dac", "snd_usb_audio", "api.alsa.soft-mixer", "wireplumber", "hardware mixer", "volume cutoff"]
+symptoms = ["usb headset has no sound at low volume", "dac only plays above 30 percent", "usb speakers too loud at lowest volume", "no sound until volume is high"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#No_sound_from_USB_DAC_until_30%25_volume"
+advice = "Create /etc/wireplumber/wireplumber.conf.d/alsa-soft-mixer.conf with a monitor.alsa.rules entry that matches your device (device.name = \"alsa_card.usb-...\", shown by `wpctl status` and `wpctl inspect`) and sets api.alsa.soft-mixer = true. Restart with `systemctl --user restart wireplumber pipewire`, set the hardware level in `alsamixer`, and save it with `sudo alsactl store`."
+
+[[when]]
+source = "module"
+names = ["snd_usb_audio"]

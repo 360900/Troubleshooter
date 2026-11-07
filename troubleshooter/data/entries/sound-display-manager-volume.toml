@@ -1,0 +1,17 @@
+id = "sound-display-manager-volume"
+title = "Sound: volume isn't restored after login (SDDM or LightDM)"
+summary = "The login screen runs its own copy of PipeWire and WirePlumber, which can fight with yours and reset device volumes. Stopping PipeWire for the login screen's user fixes it."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["sddm", "lightdm", "pipewire.socket", "mask", "volume restore", "wireplumber"]
+symptoms = ["volume resets after login", "volume is wrong every boot", "sound settings not remembered after reboot", "speakers at 100% after login"]
+source = "https://wiki.archlinux.org/title/PipeWire/Troubleshooting#Device_volume_for_SDDM_and_LightDM_users_is_not_restored_on_login"
+advice = "Run `sudo systemctl --user -M sddm@ mask pipewire.socket` (use lightdm@ instead of sddm@ for LightDM), then reboot. The login screen will have no sound, which is usually fine."
+
+[[when]]
+source = "package"
+names = ["wireplumber"]
+
+[[when]]
+source = "package"
+names = ["sddm", "lightdm"]

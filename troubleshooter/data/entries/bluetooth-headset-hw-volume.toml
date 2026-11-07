@@ -1,0 +1,29 @@
+id = "bluetooth-headset-hw-volume"
+title = "Bluetooth audio: even the lowest volume is too loud"
+summary = "PipeWire links your system volume to the headphones' own volume. On some headphones that makes the lowest step far too loud and the steps very coarse. Turning it off lets PipeWire control volume in software instead."
+categories = ["bluetooth", "sound"]
+systems = ["arch-and-based"]
+keywords = ["bluez5.enable-hw-volume", "hardware volume", "absolute volume", "avrcp", "wireplumber", "bluetooth headphones"]
+symptoms = ["bluetooth headphones too loud", "lowest volume is still loud", "volume steps are too big on bluetooth", "volume jumps on bluetooth headset", "can't turn bluetooth volume down"]
+source = "https://wiki.archlinux.org/title/Bluetooth_headset#High_audio_volume_due_to_synchronization_between_headphones_and_PipeWire"
+
+[[when]]
+source = "package"
+names = ["wireplumber"]
+
+[[when]]
+source = "package"
+names = ["bluez"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-hw-volume.conf"
+
+[[fix]]
+reboot = true
+steps = [{ op = "write_file", path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-bluez-hw-volume.conf", says = "Control Bluetooth headphone volume in software", content = '''
+# Added by Troubleshooter: bluetooth-headset-hw-volume
+monitor.bluez.properties = {
+  bluez5.enable-hw-volume = false
+}
+''' }]

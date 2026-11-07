@@ -1,0 +1,13 @@
+id = "sound-headphone-static"
+title = "Sound: static or hiss in headphones"
+summary = "Constant noise in the headphone jack can come from the sound card's Loopback mixing, which feeds the input back into the output."
+categories = ["sound"]
+systems = ["any"]
+keywords = ["loopback", "alsamixer", "static", "hiss", "noise", "headphone jack"]
+symptoms = ["static noise in headphones", "hissing sound from headphone jack", "background noise in headphones", "buzzing in headphones when nothing plays"]
+source = "https://wiki.archlinux.org/title/PulseAudio/Troubleshooting#Static_noise_when_using_headphones"
+advice = "Run `alsamixer`, press F6 to pick your sound card, scroll left to the Loopback control and set it to Disabled, then save with `sudo alsactl store`. If you changed audio power saving settings before, undo them and check again."
+
+[[when]]
+source = "file"
+path = "/sys/class/sound/card*"
