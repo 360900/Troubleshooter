@@ -22,17 +22,29 @@ state = "enabled"
 source = "file"
 path = "/etc/systemd/network/90-tun-ignore.network"
 
+# Set up by hand under another name. Matched per file set, not per file, which is close enough.
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/etc/systemd/network/*.network", regex = '^\s*Name\s*=.*\btun' },
+  { source = "file", path = "/etc/systemd/network/*.network", regex = '^\s*Unmanaged\s*=\s*(yes|true|on|1)\s*$' },
+]
+
+# A route can fail to be added for many reasons, such as a route the server pushes that
+# clashes with a local one. networkd taking over the tun device shows up as the network being
+# unreachable just before. OpenVPN 2.4 ran ip ("RTNETLINK answers"), 2.5 on use netlink itself.
 [[signals]]
-says = "OpenVPN failed to add a route"
+says = "OpenVPN failed to add a route because the network was unreachable"
 weight = 0.6
-source = "journal"
-regex = 'openvpn.*Linux route add command failed'
+all_of = [
+  { source = "journal", regex = 'openvpn.*Linux route add command failed' },
+  { source = "journal", regex = 'openvpn.*(RTNETLINK answers|rtnl: generic error \(-?\d+\)): Network is unreachable' },
+]
 
 [[signals]]
-says = "OpenVPN was told the network is unreachable while setting up routes"
-weight = 0.2
+says = "OpenVPN failed to add a route"
+weight = 0.3
 source = "journal"
-regex = 'openvpn.*RTNETLINK answers: Network is unreachable'
+regex = 'openvpn.*Linux route add command failed'
 
 [[fix]]
 steps = [

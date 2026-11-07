@@ -105,5 +105,31 @@ class UsbEthernetTests(NetworkCase):
         self.assertEqual(d.status, engine.FIXED)
 
 
+class OpenVpnNetworkdTests(NetworkCase):
+    FAILED = "openvpn[812]: ERROR: Linux route add command failed\n"
+    UNREACHABLE = "openvpn[812]: sitnl_send: rtnl: generic error (-101): Network is unreachable\n"
+
+    def vpn(self, journal):
+        m = self.machine()
+        m.packages = {"openvpn"}
+        m.outputs["services"] = {"systemd-networkd.service": "enabled"}
+        m.journal(journal)
+        return m
+
+    def test_unreachable_network_from_netlink_is_recommended(self):
+        d = self.evaluate("vpn-openvpn-networkd-tun-routes", self.vpn(self.UNREACHABLE + self.FAILED))
+        self.assertTrue(d.recommended)
+
+    def test_any_failed_route_alone_is_not_recommended(self):
+        d = self.evaluate("vpn-openvpn-networkd-tun-routes", self.vpn(self.FAILED))
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+    def test_tun_left_alone_under_another_name_is_fixed(self):
+        m = self.vpn(self.UNREACHABLE + self.FAILED)
+        m.write("/etc/systemd/network/10-vpn.network", "[Match]\nName=tun0\n\n[Link]\nUnmanaged=yes\n")
+        self.assertEqual(self.evaluate("vpn-openvpn-networkd-tun-routes", m).status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
