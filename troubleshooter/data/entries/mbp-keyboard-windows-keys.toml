@@ -33,5 +33,5 @@ absent = true
 
 [[fix]]
 steps = [
-  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "dad1e086ed196338b8ed2ef9a898ac3fbe342c14", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--windows-keys"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub"], says = "Set Windows-style modifier keys with mbp132-setup (pinned version, downloaded from GitHub)" },
+  { op = "run_from_repo", repo = "https://github.com/360900/mbp132-setup", commit = "22d8a54bb364acf9993e12aaba6b00efe67465bb", script = "mbp132-setup-cli.sh", args = ["--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub", "--windows-keys"], undo_args = ["--uninstall", "--no-audio", "--no-touchbar", "--no-sleep", "--no-wifi", "--no-grub"], says = "Set Windows-style modifier keys with mbp132-setup (pinned version, downloaded from GitHub)" },
 ]
