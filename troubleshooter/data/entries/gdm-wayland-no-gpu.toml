@@ -1,0 +1,27 @@
+id = "gdm-wayland-no-gpu"
+title = "GDM: login screen falls back to Xorg or doesn't appear"
+summary = "GDM started before the graphics driver was ready, so GNOME Shell found no GPU and couldn't start on Wayland. The login screen then uses Xorg, shows only a text console, or doesn't appear. Loading the graphics driver earlier (early KMS) fixes it."
+categories = ["desktop", "display", "boot"]
+systems = ["arch-and-based"]
+keywords = ["gdm", "gnome-shell", "No GPUs found", "Failed to create backend", "early kms", "mkinitcpio", "wayland", "org.gnome.Shell@wayland.service"]
+symptoms = ["gdm uses x11 instead of wayland", "no wayland option on gnome login", "gdm doesn't show up at boot", "only a text console after boot with gnome", "gnome login screen missing"]
+advice = "Load your GPU driver from the initramfs: add it (amdgpu, i915, xe, nouveau, or nvidia nvidia_modeset nvidia_uvm nvidia_drm) to MODULES in /etc/mkinitcpio.conf, run `sudo mkinitcpio -P` and reboot. Also make sure /etc/gdm/custom.conf has no active `WaylandEnable=false` line."
+reproduce = "Reboot and wait for the login screen."
+source = "https://wiki.archlinux.org/title/GDM#GDM_ignores_Wayland_and_uses_X.Org_by_default"
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["gdm"]
+
+[[signals]]
+says = "GNOME Shell found no GPU when it started"
+weight = 0.7
+source = "journal"
+regex = 'gnome-shell\[\d+\]: Failed to create backend: No GPUs found'
+
+[[signals]]
+says = "GNOME Shell wasn't allowed to open the graphics device"
+weight = 0.3
+source = "journal"
+regex = 'gnome-shell\[\d+\]: Failed to open gpu .?/dev/dri/card\d+'

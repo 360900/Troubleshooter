@@ -1,0 +1,14 @@
+id = "electron-blurry-wayland"
+title = "Electron apps: blurry or wrong size on Wayland"
+summary = "Electron apps such as Signal, Obsidian or Element may run through Xwayland and get stretched on a scaled screen, which makes them blurry. Telling them to run natively on Wayland, or setting a scale factor, fixes it."
+categories = ["desktop", "display"]
+systems = ["arch-and-based"]
+keywords = ["electron", "electron-flags.conf", "ozone-platform", "ozone-platform-hint", "force-device-scale-factor", "xwayland", "hidpi", "wayland"]
+symptoms = ["electron app is blurry", "signal desktop is blurry on wayland", "obsidian looks fuzzy", "electron app blurry with scaling", "electron app too small on hidpi"]
+advice = "For apps using Arch's electron package, put `--ozone-platform=wayland` on its own line in ~/.config/electron-flags.conf (some apps read ~/.config/APPNAME-flags.conf instead), and remove any old `--ozone-platform-hint` line, which Electron 38 dropped. Apps that bundle their own Electron need the flag, or `--force-device-scale-factor=1.5`, added to the Exec line of a copy of their .desktop file in ~/.local/share/applications."
+source = "https://wiki.archlinux.org/title/Electron#Configuration_files"
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'

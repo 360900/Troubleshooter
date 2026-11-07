@@ -1,0 +1,27 @@
+id = "qt5-svg-missing"
+title = "Qt 5 apps: icons are missing"
+summary = "Qt 5 can't draw SVG icons without the qt5-svg package, and most icon themes are SVG. Qt 5 apps then show blank buttons or seem to ignore your icon theme."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["qt5-svg", "qt5-base", "svg", "icon theme", "qt5ct", "breeze", "papirus"]
+symptoms = ["icons missing in qt apps", "qt app has no icons", "icon theme not applied to qt apps", "blank toolbar buttons", "qt5ct icon theme does nothing"]
+source = "https://wiki.archlinux.org/title/Qt#Icon_theme_is_not_applied"
+auto_detect = false
+
+[[when]]
+source = "package"
+names = ["qt5-base"]
+
+[[fixed_when]]
+source = "package"
+names = ["qt5-svg"]
+
+[[signals]]
+says = "Qt 5 is installed without SVG support"
+weight = 0.6
+source = "package"
+names = ["qt5-svg"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["qt5-svg"], says = "Install SVG support for Qt 5" }]

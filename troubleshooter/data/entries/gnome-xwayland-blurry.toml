@@ -1,0 +1,19 @@
+id = "gnome-xwayland-blurry"
+title = "GNOME: older apps look blurry with fractional scaling"
+summary = "With fractional scaling on Wayland, GNOME draws X11 apps (running through Xwayland) at 100% and stretches them, so they look blurry. GNOME 47 and later can let those apps scale themselves instead."
+categories = ["desktop", "display"]
+systems = ["any"]
+keywords = ["xwayland", "fractional scaling", "scale-monitor-framebuffer", "xwayland-native-scaling", "mutter", "hidpi", "blurry"]
+symptoms = ["apps are blurry on gnome", "blurry apps with 125% scaling", "steam is blurry on gnome wayland", "electron apps blurry on gnome", "xwayland apps look fuzzy"]
+advice = "Run `gsettings set org.gnome.mutter experimental-features \"['scale-monitor-framebuffer', 'xwayland-native-scaling']\"`, then log out and back in. X11 apps that can't scale themselves may then look small instead of blurry."
+source = "https://wiki.archlinux.org/title/HiDPI#Xwayland"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = 'GNOME'
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'

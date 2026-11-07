@@ -1,0 +1,29 @@
+id = "sway-invisible-cursor"
+title = "Sway: mouse cursor is invisible"
+summary = "Some graphics drivers, such as the proprietary NVIDIA driver or VMware's virtual GPU, don't show Sway's hardware cursor. Switching wlroots to a software cursor makes it visible again."
+categories = ["display", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["sway", "wlroots", "WLR_NO_HARDWARE_CURSORS", "hardware cursor", "nvidia", "vmwgfx", "vmsvga"]
+symptoms = ["no mouse cursor in sway", "cursor invisible on wayland", "mouse pointer missing in sway vm", "can't see the cursor after starting sway"]
+advice = "Add `WLR_NO_HARDWARE_CURSORS=1` to /etc/environment (or export it before starting Sway) and log in again."
+source = "https://wiki.archlinux.org/title/Sway#No_visible_cursor"
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=sway$'
+
+[[when]]
+source = "module"
+names = ["nvidia", "vmwgfx"]
+
+[[fixed_when]]
+source = "env"
+name = "WLR_NO_HARDWARE_CURSORS"
+regex = '=1$'
+
+[[signals]]
+says = "Sway runs on a driver known to hide the hardware cursor"
+weight = 0.3
+source = "module"
+names = ["nvidia", "vmwgfx"]

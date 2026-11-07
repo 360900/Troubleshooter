@@ -1,0 +1,28 @@
+id = "xfce-gvfs-missing"
+title = "Thunar: trash and external drives don't work"
+summary = "Thunar needs gvfs for the trash, for mounting USB drives and for network locations. Without it the trash icon is missing and plugged in drives don't show up."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["thunar", "xfce", "gvfs", "trash", "xfdesktop", "automount", "udisks2", "trash applet"]
+symptoms = ["thunar has no trash", "trash icon missing on xfce desktop", "usb drive doesn't show in thunar", "can't delete to trash in thunar", "xfce trash applet doesn't work"]
+source = "https://wiki.archlinux.org/title/Xfce#Trash_icon_not_visible_and_trash_applet_does_not_work"
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["thunar"]
+
+[[fixed_when]]
+source = "package"
+names = ["gvfs"]
+
+[[signals]]
+says = "Thunar is installed without gvfs"
+weight = 0.7
+source = "package"
+names = ["gvfs"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["gvfs"], says = "Install gvfs for trash, drive and network support" }]

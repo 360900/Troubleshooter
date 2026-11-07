@@ -1,0 +1,33 @@
+id = "sway-nvidia-output-power-freeze"
+title = "Sway: desktop freezes when screens turn off (hybrid NVIDIA)"
+summary = "On laptops with an external monitor on the NVIDIA GPU, turning outputs off (for example through swayidle) can deadlock the NVIDIA driver and freeze the whole desktop."
+categories = ["nvidia", "crashes", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["sway", "swayidle", "output power off", "nvidia-modeset", "hung task", "blocked for more than", "wlroots", "dpms"]
+symptoms = ["sway freezes when screen turns off", "laptop freezes after idle with external monitor", "can't wake screen in sway", "system hangs when monitor goes to sleep", "swayidle freezes desktop"]
+advice = "Don't power off outputs connected to the NVIDIA GPU. Change your swayidle command to turn off only the laptop's own screen (for example `swaymsg 'output eDP-1 power off'`), or suspend the machine instead."
+source = "https://wiki.archlinux.org/title/Sway#System_freezes_when_toggling_output_power_on_hybrid_NVIDIA_setups"
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["sway", "sway-git", "swayfx"]
+
+[[when]]
+source = "module"
+names = ["nvidia_modeset"]
+
+[[signals]]
+says = "Last boot, Sway hung waiting on the NVIDIA driver"
+weight = 0.8
+source = "journal"
+kernel = true
+boot = -1
+regex = 'sway.*blocked on a semaphore likely last held by task:?\s*nvidia-modeset'
+
+[[signals]]
+says = "This boot, Sway hung waiting on the NVIDIA driver"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'sway.*blocked on a semaphore likely last held by task:?\s*nvidia-modeset'

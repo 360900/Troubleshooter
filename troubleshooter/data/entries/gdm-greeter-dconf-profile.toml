@@ -1,0 +1,21 @@
+id = "gdm-greeter-dconf-profile"
+title = "GDM: login screen shows no user list"
+summary = "GDM 50 reads its settings through /etc/dconf/profile/gdm. If that file exists but lacks the standard lines, the greeter starts without the user list and you can't pick an account."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["gdm", "dconf", "/etc/dconf/profile/gdm", "greeter-dconf-defaults", "gdm-greeter", "gnome 50", "user list"]
+symptoms = ["gdm doesn't show users", "login screen has no user list", "can't select my user on gnome login", "gdm broken after gnome 50 update", "gnome login screen empty"]
+advice = "Make /etc/dconf/profile/gdm contain these three lines: `user-db:user`, `system-db:gdm` and `file-db:/usr/share/gdm/greeter-dconf-defaults`. Then run `sudo dconf update` and reboot. Also check that /etc/security/pam_env.conf doesn't set a custom XDG_CONFIG_HOME."
+source = "https://wiki.archlinux.org/title/GDM#GDM_greeter_does_not_show_user_list_after_upgrade_to_GNOME_50"
+
+[[when]]
+source = "package"
+names = ["gdm"]
+
+[[signals]]
+says = "/etc/dconf/profile/gdm exists but doesn't load GDM's own defaults"
+weight = 0.6
+all_of = [
+  { source = "file", path = "/etc/dconf/profile/gdm" },
+  { source = "file", path = "/etc/dconf/profile/gdm", regex = '^\s*file-db:/usr/share/gdm/greeter-dconf-defaults', absent = true },
+]

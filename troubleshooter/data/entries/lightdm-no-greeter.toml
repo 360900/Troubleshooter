@@ -1,0 +1,32 @@
+id = "lightdm-no-greeter"
+title = "LightDM: no login screen because no greeter is installed"
+summary = "LightDM needs a separate greeter package to draw the login screen, and none is installed. The screen flashes or stays black at boot instead of asking for your password."
+categories = ["desktop", "boot"]
+systems = ["arch-and-based"]
+keywords = ["lightdm", "greeter", "lightdm-gtk-greeter", "lightdm-slick-greeter", "/usr/share/xgreeters", "greeter-session"]
+symptoms = ["lightdm doesn't start", "screen keeps flashing at boot", "black screen instead of login screen", "lightdm shows nothing", "no login screen after installing lightdm"]
+source = "https://wiki.archlinux.org/title/LightDM#Greeter"
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["lightdm", "lightdm-git"]
+
+[[when]]
+source = "service"
+name = "lightdm.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "file"
+path = "/usr/share/xgreeters/*.desktop"
+
+[[signals]]
+says = "LightDM is enabled, but no greeter is installed in /usr/share/xgreeters"
+weight = 0.85
+source = "file"
+path = "/usr/share/xgreeters/*.desktop"
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["lightdm-gtk-greeter"], says = "Install the GTK greeter, which LightDM uses by default" }]

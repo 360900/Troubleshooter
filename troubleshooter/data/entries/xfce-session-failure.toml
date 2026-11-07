@@ -1,0 +1,25 @@
+id = "xfce-session-failure"
+title = "Xfce: session fails to load, no window decorations"
+summary = "A corrupted saved Xfce session can stop the window manager from starting, so windows have no title bars, the desktop turns grey and Xfce may say it can't load a failsafe session."
+categories = ["desktop"]
+systems = ["any"]
+keywords = ["xfce", "xfce4-session", "xfwm4", "failsafe session", "~/.cache/sessions", "No window manager registered", "xfconfd"]
+symptoms = ["unable to load a failsafe session", "xfce windows have no title bar", "xfce desktop is grey with no icons", "can't close windows in xfce", "xfce broken after login"]
+advice = "Log out, switch to a text console (Ctrl+Alt+F3), log in there and run `rm -r ~/.cache/sessions/`, then log in to Xfce again. Also check that the files in your home folder are owned by your user."
+source = "https://wiki.archlinux.org/title/Xfce#Session_failure"
+
+[[when]]
+source = "package"
+names = ["xfce4-session"]
+
+[[signals]]
+says = "Xfce couldn't load a failsafe session"
+weight = 0.7
+source = "journal"
+regex = 'Unable to load a failsafe session'
+
+[[signals]]
+says = "No window manager took over the screen"
+weight = 0.4
+source = "journal"
+regex = 'No window manager registered on screen'

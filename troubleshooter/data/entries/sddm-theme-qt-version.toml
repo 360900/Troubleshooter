@@ -1,0 +1,20 @@
+id = "sddm-theme-qt-version"
+title = "SDDM: custom login theme is replaced by the default one"
+summary = "Your SDDM theme doesn't say which Qt version it needs, so SDDM loads it with the wrong greeter and it fails. SDDM then falls back to its plain default theme."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["sddm", "sddm-greeter", "QtVersion", "metadata.desktop", "Library import requires a version", "qt6", "qml", "theme"]
+symptoms = ["sddm theme not working", "login screen theme reverts to default", "sddm shows default theme after reboot", "custom sddm theme crashes", "sddm theme broke after update"]
+advice = "Open /usr/share/sddm/themes/THEME_NAME/metadata.desktop and add the line `QtVersion=6` under [SddmGreeterTheme], then reboot. If the theme is from the AUR, check for a Qt 6 version of it."
+source = "https://wiki.archlinux.org/title/SDDM#Some_themes_crash"
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["sddm", "sddm-git"]
+
+[[signals]]
+says = "The SDDM greeter couldn't load the theme's QML files"
+weight = 0.75
+source = "journal"
+regex = 'sddm.*Library import requires a version'

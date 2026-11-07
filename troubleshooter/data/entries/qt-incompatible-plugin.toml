@@ -1,0 +1,21 @@
+id = "qt-incompatible-plugin"
+title = "Qt apps: won't start after a Qt update"
+summary = "A Qt style or platform theme plugin, usually from the AUR, was built against an older Qt and now makes every Qt app that loads it abort. Rebuilding or removing that plugin fixes it."
+categories = ["desktop", "crashes", "updates"]
+systems = ["arch-and-based"]
+keywords = ["Cannot mix incompatible Qt library", "Qt FATAL", "QT_QPA_PLATFORMTHEME", "QT_STYLE_OVERRIDE", "qt5ct", "qt6ct", "kvantum", "aur rebuild"]
+symptoms = ["qt apps don't open after update", "all kde apps crash on start", "cannot mix incompatible qt library", "qt programs won't launch", "app closes immediately after qt update"]
+advice = "Run `env | grep QT_` to see which theme or style QT_QPA_PLATFORMTHEME and QT_STYLE_OVERRIDE point at, then rebuild the AUR package that provides it. Unsetting those variables gets apps running again in the meantime."
+reproduce = "Start a Qt app that won't open."
+source = "https://wiki.archlinux.org/title/Qt#All_Qt_5-based_applications_fail_to_run_after_Qt_5_update"
+auto_detect = true
+
+[[when]]
+source = "package"
+names = ["qt5-base", "qt6-base"]
+
+[[signals]]
+says = "A Qt app refused a plugin built for a different Qt version"
+weight = 0.75
+source = "journal"
+regex = 'Cannot mix incompatible Qt library'

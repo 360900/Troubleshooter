@@ -1,0 +1,36 @@
+id = "gtk4-hybrid-dgpu"
+title = "Hybrid graphics: GTK 4 apps wake up the NVIDIA GPU"
+summary = "GTK 4 renders with Vulkan and picks the first GPU it finds, which is often the NVIDIA one. GTK 4 apps then keep the dedicated GPU awake, which costs battery."
+categories = ["nvidia", "desktop", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["gtk4", "GSK_RENDERER", "ngl", "vulkan renderer", "GDK_VULKAN_DEVICE", "optimus", "prime", "dgpu", "libadwaita"]
+symptoms = ["gnome apps use the nvidia gpu", "nvidia gpu never sleeps", "battery drains fast with gtk apps", "nautilus wakes up dedicated gpu", "nvidia-smi shows gnome apps"]
+advice = "Add `GSK_RENDERER=ngl` to /etc/environment and log in again, so GTK 4 uses OpenGL on the integrated GPU. Or set GDK_VULKAN_DEVICE to the integrated GPU's index (start a GTK app with GDK_VULKAN_DEVICE=list to see them)."
+source = "https://wiki.archlinux.org/title/GTK#GTK4_applications_using_the_dGPU_on_NVIDIA_Optimus_setups"
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+any_of = [
+  { source = "pci", vendor = "8086", class = "03" },
+  { source = "pci", vendor = "1002", class = "03", driver = "amdgpu" },
+]
+
+[[when]]
+source = "package"
+names = ["gtk4"]
+
+[[fixed_when]]
+any_of = [
+  { source = "env", name = "GSK_RENDERER" },
+  { source = "env", name = "GDK_VULKAN_DEVICE" },
+]
+
+[[signals]]
+says = "Nothing stops GTK 4 from picking the NVIDIA GPU"
+weight = 0.3
+source = "env"
+name = "GSK_RENDERER"
+absent = true

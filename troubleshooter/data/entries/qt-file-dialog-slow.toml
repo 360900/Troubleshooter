@@ -1,0 +1,9 @@
+id = "qt-file-dialog-slow"
+title = "Qt apps: file dialog is very slow or crashes the app"
+summary = "The shared Qt settings file ~/.config/QtProject.conf can fill up with junk and grow to hundreds of megabytes. Every open or save dialog then takes ages or crashes the app."
+categories = ["desktop", "crashes"]
+systems = ["any"]
+keywords = ["QtProject.conf", "file dialog", "qfiledialog", "krita", "open dialog", "save dialog"]
+symptoms = ["open file dialog is very slow", "app crashes when opening a file", "save dialog freezes", "krita file dialog takes forever", "qt file chooser hangs"]
+advice = "Check the size of ~/.config/QtProject.conf with `ls -lh ~/.config/QtProject.conf`. If it is very large, close your Qt apps and delete it. Qt creates a fresh one."
+source = "https://wiki.archlinux.org/title/Qt#File_dialog_are_very_slow_and_crash_the_related_application"

@@ -1,0 +1,23 @@
+id = "sysrq-restricted"
+title = "Magic SysRq: emergency keys don't work"
+summary = "systemd only allows the sync part of the SysRq keys by default, so Alt+SysRq+REISUB can't kill programs or reboot a frozen machine. Allowing all SysRq functions makes those recovery keys work, but anyone at the keyboard can then use them."
+categories = ["crashes", "input"]
+systems = ["arch-and-based"]
+keywords = ["sysrq", "magic sysrq", "reisub", "kernel.sysrq", "sysrq_always_enabled", "oom killer", "alt+sysrq+f"]
+symptoms = ["reisub doesn't work", "alt sysrq b doesn't reboot", "can't reboot frozen system with keyboard", "magic sysrq key not working", "alt+sysrq+f does nothing"]
+source = "https://wiki.archlinux.org/title/Keyboard_shortcuts#Enabling"
+
+[[fixed_when]]
+source = "file"
+path = "/proc/sys/kernel/sysrq"
+regex = '^(?!0$|16$)\d+$'
+
+[[signals]]
+says = "SysRq is limited to the default set, which can't kill programs or reboot"
+weight = 0.4
+source = "file"
+path = "/proc/sys/kernel/sysrq"
+regex = '^(0|16)$'
+
+[[fix]]
+steps = [{ op = "sysctl", values = { "kernel.sysrq" = "1" }, says = "Allow all Magic SysRq functions" }]

@@ -1,0 +1,24 @@
+id = "gtk-amd-dmabuf-corruption"
+title = "GTK apps: glitched thumbnails and images on older AMD cards"
+summary = "On AMD cards older than RDNA (for example Polaris and Vega), GTK can show thumbnails, previews and some images corrupted when it hands them to the GPU through dmabuf. Turning that path off avoids it."
+categories = ["amd", "desktop", "display"]
+systems = ["arch-and-based"]
+keywords = ["gtk4", "GDK_DISABLE", "dmabuf", "polaris", "vega", "gcn", "thumbnails", "corruption"]
+symptoms = ["thumbnails look corrupted", "image previews are glitched in nautilus", "pictures show garbage in gtk apps", "corrupted images in gnome apps on amd"]
+advice = "If your AMD card is older than the RX 5000 series, add `GDK_DISABLE=dmabuf` to /etc/environment and log in again."
+source = "https://wiki.archlinux.org/title/GTK#Preview_and_image_corruption_issues_on_older_AMD_graphics_cards"
+
+[[when]]
+source = "pci"
+vendor = "1002"
+class = "03"
+driver = "amdgpu"
+
+[[when]]
+source = "package"
+names = ["gtk4"]
+
+[[fixed_when]]
+source = "env"
+name = "GDK_DISABLE"
+regex = 'dmabuf'
