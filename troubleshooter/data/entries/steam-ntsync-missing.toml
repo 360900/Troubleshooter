@@ -1,0 +1,35 @@
+id = "steam-ntsync-missing"
+title = "Proton: NTSync isn't loaded"
+summary = "Windows games that juggle many threads run faster and smoother with NTSync, a kernel driver that Proton uses when it's loaded. Your kernel has it, but nothing loads it at boot."
+categories = ["games", "wine"]
+systems = ["arch-and-based"]
+keywords = ["ntsync", "ntsync-autoload", "/dev/ntsync", "fsync", "esync", "synchronization", "proton"]
+symptoms = ["windows games stutter", "low fps in proton games", "game is cpu bound under proton", "proton performance worse than windows"]
+source = "https://wiki.archlinux.org/title/Wine#NTSync"
+
+[[when]]
+source = "package"
+names = ["steam", "lutris", "heroic-games-launcher*", "umu-launcher"]
+
+[[when]]
+source = "file"
+path = "/usr/lib/modules/*/kernel/drivers/misc/ntsync.ko*"
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/dev/ntsync" },
+  { source = "package", names = ["ntsync-autoload"] },
+]
+
+[[signals]]
+says = "The NTSync device isn't there, so the module isn't loaded"
+weight = 0.5
+source = "file"
+path = "/dev/ntsync"
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["ntsync-autoload"], says = "Install ntsync-autoload so NTSync loads at every boot" },
+  { op = "command", says = "Load NTSync now", run = "modprobe ntsync" },
+]

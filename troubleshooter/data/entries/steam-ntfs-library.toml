@@ -1,0 +1,20 @@
+id = "steam-ntfs-library"
+title = "Steam: games on an NTFS drive won't start"
+summary = "Proton needs file names with a colon in its prefix folders. NTFS drives mounted by the desktop use the windows_names option, which forbids them, so Windows games stored there fail to launch."
+categories = ["games", "wine", "boot"]
+systems = ["any"]
+keywords = ["ntfs", "ntfs3", "ntfs-3g", "windows_names", "fstab", "compatdata", "udisks", "dual boot"]
+symptoms = ["games on my windows drive won't start", "steam games on ntfs don't launch", "proton fails on second drive", "shared steam library with windows doesn't work"]
+advice = "Add an /etc/fstab line for that drive using the ntfs3 driver and leave out windows_names, then unmount and mount it again. Valve discourages NTFS libraries in general, so moving Linux games to an ext4 or Btrfs drive is the most reliable fix."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Steam_Library_in_NTFS_partition"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[signals]]
+says = "An NTFS drive is mounted with windows_names"
+weight = 0.4
+source = "file"
+path = "/proc/self/mounts"
+regex = '\sntfs3?\s\S*windows_names'

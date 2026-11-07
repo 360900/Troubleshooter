@@ -1,0 +1,25 @@
+id = "playstation-touchpad-mouse"
+title = "PlayStation controller's touchpad moves the mouse"
+summary = "The touchpad on DualShock 4 and DualSense controllers is treated as a mouse by the desktop, so touching it moves the pointer. A device rule can tell the desktop to ignore it. Games that read the controller directly still see the touchpad."
+categories = ["input", "games"]
+systems = ["any"]
+keywords = ["dualshock 4", "dualsense", "touchpad", "LIBINPUT_IGNORE_DEVICE", "udev", "ps4 controller", "ps5 controller"]
+symptoms = ["ps5 controller moves my mouse", "ps4 touchpad controls the cursor", "controller touchpad acts like a mouse", "mouse jumps when i touch the controller"]
+source = "https://wiki.archlinux.org/title/Gamepad#Disable_touchpad_acting_as_mouse"
+
+[[when]]
+any_of = [
+  { source = "usb", vendor = "054c" },
+  { source = "file", path = "/sys/bus/hid/devices/0005:054C:*" },
+]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/udev/rules.d/*.rules"
+regex = 'Controller Touchpad.*LIBINPUT_IGNORE_DEVICE'
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/udev/rules.d/72-troubleshooter-ps-touchpad.rules", content = "# Ignore the DualShock 4 and DualSense touchpads as mice\nATTRS{name}==\"Sony Interactive Entertainment Wireless Controller Touchpad\", ENV{LIBINPUT_IGNORE_DEVICE}=\"1\"\nATTRS{name}==\"Wireless Controller Touchpad\", ENV{LIBINPUT_IGNORE_DEVICE}=\"1\"\nATTRS{name}==\"Sony Interactive Entertainment DualSense Wireless Controller Touchpad\", ENV{LIBINPUT_IGNORE_DEVICE}=\"1\"\nATTRS{name}==\"DualSense Wireless Controller Touchpad\", ENV{LIBINPUT_IGNORE_DEVICE}=\"1\"\n", says = "Add a rule that stops the desktop using the controller touchpad as a mouse" },
+  { op = "command", says = "Reload device rules (reconnect the controller afterwards)", run = "udevadm control --reload", undo = "udevadm control --reload" },
+]

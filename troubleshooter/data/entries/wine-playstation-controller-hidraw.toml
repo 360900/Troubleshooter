@@ -1,0 +1,21 @@
+id = "wine-playstation-controller-hidraw"
+title = "Wine: PlayStation controller doesn't work in Windows games"
+summary = "Wine passes DualShock 4 and DualSense controllers to games as raw devices, like Windows does. Many games only look for Xbox-style controllers, so they don't see the pad at all."
+categories = ["wine", "input", "games"]
+systems = ["any"]
+keywords = ["dualshock 4", "dualsense", "ps4 controller", "ps5 controller", "hidraw", "DisableHidraw", "winebus", "xinput", "joy.cpl"]
+symptoms = ["ps5 controller doesn't work in wine", "ps4 controller not detected in windows game", "dualsense not working in lutris", "controller works in steam but not in wine games"]
+advice = "Run wine control joy.cpl in the game's prefix and turn off raw (hidraw) access for the controller, so Wine shows it as an XInput pad. On Wine older than 9.18, set the DWORD DisableHidraw to 1 under HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\winebus with regedit."
+source = "https://wiki.archlinux.org/title/Gamepad#Using_with_Wine"
+
+[[when]]
+source = "package"
+names = ["wine", "wine-*", "lutris", "bottles", "heroic-games-launcher*"]
+
+[[signals]]
+says = "A Sony controller is connected"
+weight = 0.3
+any_of = [
+  { source = "usb", vendor = "054c", devices = ["05c4", "09cc", "0ce6", "0df2"] },
+  { source = "file", path = "/sys/bus/hid/devices/0005:054C:*" },
+]

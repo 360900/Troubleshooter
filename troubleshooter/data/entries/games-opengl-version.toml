@@ -1,0 +1,13 @@
+id = "games-opengl-version"
+title = "Game says your graphics card doesn't support its OpenGL version"
+summary = "With Mesa, a game has to ask for a modern OpenGL profile to get it. Some games don't, see only OpenGL 3.0, and refuse to start even though the card supports much more."
+categories = ["games", "display"]
+systems = ["any"]
+keywords = ["MESA_GL_VERSION_OVERRIDE", "MESA_GLSL_VERSION_OVERRIDE", "opengl", "mesa", "glsl", "GLXBadFBConfig"]
+symptoms = ["game says opengl 3.3 is required", "game says my graphics card is not supported", "native linux game won't start on amd", "opengl version too low error"]
+advice = "Add MESA_GL_VERSION_OVERRIDE=4.1 MESA_GLSL_VERSION_OVERRIDE=410 %command% to the game's launch options in Steam, or set those variables before starting it elsewhere. Use the version the game asks for if it names one."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Mesa:_Game_does_not_launch,_complaining_about_OpenGL_version_supported_by_the_card"
+
+[[when]]
+source = "package"
+names = ["mesa"]

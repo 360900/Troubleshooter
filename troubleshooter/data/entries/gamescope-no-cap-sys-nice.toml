@@ -1,0 +1,20 @@
+id = "gamescope-no-cap-sys-nice"
+title = "Gamescope: runs at normal priority and stutters"
+summary = "Gamescope reported that it can't raise its own priority, which can cause low frame rates and stutter. Granting it the capability helps, but it also stops the Steam overlay working inside Gamescope and makes it ignore some Vulkan settings."
+categories = ["games"]
+systems = ["any"]
+keywords = ["gamescope", "CAP_SYS_NICE", "setcap", "priority", "realtime", "ananicy"]
+symptoms = ["gamescope stutters", "low fps in gamescope", "games run worse with gamescope", "gamescope says performance will be affected"]
+advice = "Run sudo setcap 'CAP_SYS_NICE=eip' $(which gamescope) to let Gamescope raise its priority. If you need the Steam overlay or pick the GPU with MESA_VK_DEVICE_SELECT, undo it with sudo setcap -r $(which gamescope) and use a priority daemon such as ananicy-cpp instead."
+reproduce = "Start a game through Gamescope."
+source = "https://wiki.archlinux.org/title/Gamescope#Setting_Gamescopes_priority"
+
+[[when]]
+source = "package"
+names = ["gamescope*"]
+
+[[signals]]
+says = "Gamescope logged that it fell back to regular priority"
+weight = 0.7
+source = "journal"
+regex = 'No CAP_SYS_NICE, falling back to regular-priority'

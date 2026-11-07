@@ -1,0 +1,46 @@
+id = "steam-nvidia-vulkan-on-intel"
+title = "Steam: NVIDIA's 32-bit driver is installed on an Intel system"
+summary = "When Steam is installed, pacman picks lib32-nvidia-utils as the 32-bit Vulkan driver unless you choose another. With Intel graphics and no NVIDIA card it can't work, and it can conflict with Intel's driver. The fix swaps it for Intel's 32-bit Vulkan driver."
+categories = ["games", "intel", "wine"]
+systems = ["arch-and-based"]
+keywords = ["lib32-nvidia-utils", "lib32-vulkan-intel", "lib32-vulkan-driver", "vulkan", "dxvk", "DxvkError"]
+symptoms = ["games won't start on intel graphics", "vulkan doesn't work in steam", "dxvk error when starting a game", "proton games crash right away", "steam installed the nvidia driver"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Game_crashes_immediately"
+
+[[when]]
+source = "pci"
+vendor = "8086"
+class = "03"
+
+[[when]]
+source = "module"
+names = ["i915", "xe"]
+
+[[when]]
+source = "pci"
+vendor = "10de"
+class = "03"
+absent = true
+
+[[when]]
+source = "package"
+names = ["lib32-nvidia-utils", "lib32-nvidia-*-utils"]
+
+[[signals]]
+says = "lib32-nvidia-utils is installed, but there is no NVIDIA card"
+weight = 0.85
+source = "package"
+names = ["lib32-nvidia-utils", "lib32-nvidia-*-utils"]
+
+[[signals]]
+says = "A game crashed with a DXVK error"
+weight = 0.5
+source = "journal"
+regex = "terminate called after throwing an instance of 'dxvk::DxvkError'"
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["vulkan-intel", "lib32-vulkan-intel"], says = "Install Intel's 64-bit and 32-bit Vulkan drivers" },
+  { op = "remove", packages = ["lib32-nvidia-utils", "lib32-nvidia-*-utils"], says = "Remove the NVIDIA 32-bit driver" },
+]

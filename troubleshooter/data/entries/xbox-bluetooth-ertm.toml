@@ -1,0 +1,30 @@
+id = "xbox-bluetooth-ertm"
+title = "Xbox controller pairs over Bluetooth but no buttons work"
+summary = "The controller connects, but the kernel couldn't read its input description, so no gamepad appears. Some Bluetooth adapters corrupt it through a feature called ERTM. Turning ERTM off fixes this, applies to every Bluetooth device, and needs the controller to be removed and paired again afterwards."
+categories = ["input", "bluetooth", "games"]
+systems = ["any"]
+keywords = ["xbox", "xbox one", "xbox series", "disable_ertm", "ertm", "hid-microsoft", "unbalanced collection", "045e"]
+symptoms = ["xbox controller connected but not working", "bluetooth controller paired but no input", "xbox controller doesn't work over bluetooth", "gamepad shows as connected but games don't see it"]
+auto_detect = true
+reproduce = "Turn the controller on and let it connect over Bluetooth."
+source = "https://wiki.archlinux.org/title/Gamepad#ERTM"
+
+[[when]]
+source = "module"
+names = ["bluetooth"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/bluetooth/parameters/disable_ertm"
+regex = '^Y'
+
+[[signals]]
+says = "The kernel failed to read the Xbox controller's input description"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = '(microsoft|hid-generic) 0005:045E:[0-9A-F]+\.[0-9A-F]+: (unbalanced collection at end of report description|parse failed|probe with driver (microsoft|hid-generic) failed)'
+
+[[fix]]
+reboot = true
+steps = [{ op = "module_options", module = "bluetooth", options = ["disable_ertm=1"], says = "Turn off Bluetooth ERTM (remove and pair the controller again after restarting)" }]

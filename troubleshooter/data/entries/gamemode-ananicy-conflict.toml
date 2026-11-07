@@ -1,0 +1,24 @@
+id = "gamemode-ananicy-conflict"
+title = "GameMode and Ananicy Cpp are both running"
+summary = "GameMode and Ananicy Cpp both change process priorities, and using them together isn't recommended. They can undo each other's work and make game performance less predictable."
+categories = ["games"]
+systems = ["any"]
+keywords = ["gamemode", "gamemoderun", "ananicy-cpp", "ananicy", "nice", "priority", "cachyos-ananicy-rules"]
+symptoms = ["gamemode doesn't help", "games stutter with gamemode", "inconsistent fps", "game priority keeps changing"]
+advice = "Pick one. Either stop adding gamemoderun to your games, or turn off Ananicy Cpp with sudo systemctl disable --now ananicy-cpp.service."
+source = "https://wiki.archlinux.org/title/Improving_performance#Ananicy_Cpp"
+
+[[when]]
+source = "package"
+names = ["gamemode"]
+
+[[when]]
+source = "package"
+names = ["ananicy-cpp"]
+
+[[signals]]
+says = "Ananicy Cpp is running"
+weight = 0.5
+source = "service"
+name = "ananicy-cpp.service"
+state = "active"

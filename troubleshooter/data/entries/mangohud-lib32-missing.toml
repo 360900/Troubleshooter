@@ -1,0 +1,37 @@
+id = "mangohud-lib32-missing"
+title = "MangoHud doesn't show in 32-bit games"
+summary = "MangoHud needs a separate 32-bit library to appear in 32-bit games, which many older games are. It isn't installed."
+categories = ["games"]
+systems = ["arch-and-based"]
+keywords = ["mangohud", "lib32-mangohud", "overlay", "fps counter", "32-bit"]
+symptoms = ["mangohud doesn't show up", "fps overlay missing in old games", "mangohud works in some games but not others", "no fps counter in game"]
+source = "https://wiki.archlinux.org/title/MangoHud#Installation"
+
+[[when]]
+source = "package"
+names = ["mangohud"]
+
+[[when]]
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^\[multilib\]'
+
+[[fixed_when]]
+source = "package"
+names = ["lib32-mangohud"]
+
+[[signals]]
+says = "lib32-mangohud isn't installed"
+weight = 0.5
+source = "package"
+names = ["lib32-mangohud"]
+absent = true
+
+[[signals]]
+says = "Steam is installed, and many Steam games are 32-bit"
+weight = 0.2
+source = "package"
+names = ["steam"]
+
+[[fix]]
+steps = [{ op = "install", packages = ["lib32-mangohud"] }]

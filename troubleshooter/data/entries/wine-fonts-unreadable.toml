@@ -1,0 +1,13 @@
+id = "wine-fonts-unreadable"
+title = "Wine: text is missing, boxes or hard to read"
+summary = "Windows programs expect Microsoft's fonts, and Wine's font rendering defaults don't suit every program. Text can show as boxes, be missing, or look smeared."
+categories = ["wine", "desktop"]
+systems = ["any"]
+keywords = ["corefonts", "winetricks", "fonts", "FREETYPE_PROPERTIES", "fontsmooth", "ttf"]
+symptoms = ["text is missing in wine", "wine shows boxes instead of letters", "fonts look blurry in a windows app", "unreadable text in wine program"]
+advice = "Run winetricks corefonts in the program's prefix, then restart it. If text still looks wrong, start the program with FREETYPE_PROPERTIES=\"truetype:interpreter-version=35\", and try winetricks fontsmooth=rgb for smoother text."
+source = "https://wiki.archlinux.org/title/Wine#Fonts"
+
+[[when]]
+source = "package"
+names = ["wine", "wine-*"]

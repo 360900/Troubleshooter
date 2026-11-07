@@ -1,0 +1,24 @@
+id = "gamepad-shanwan-android-mode"
+title = "Cheap gamepad shows up as \"Android Gamepad\""
+summary = "Some ShanWan-based gamepads send a broken USB descriptor, the kernel rejects it, and the pad falls back to a limited Android mode with no rumble and a low polling rate. A USB quirk lets the kernel accept it, but the right one depends on the pad's revision."
+categories = ["input", "games"]
+systems = ["any"]
+keywords = ["shanwan", "android gamepad", "usbcore.quirks", "can't read configurations", "057e:2009", "045e:028e", "clone controller"]
+symptoms = ["controller shows up as android gamepad", "no vibration on my cheap controller", "generic gamepad doesn't work like xbox controller", "usb gamepad keeps reconnecting", "games don't recognize my clone controller"]
+advice = "Check which ID the pad shows first with lsusb right after plugging it in. If it starts as a Switch Pro Controller (057e:2009), add the kernel parameter usbcore.quirks=057e:2009:ik. If it starts as an Xbox 360 Controller (045e:028e), use usbcore.quirks=045e:028e:gi. Reboot and replug, then check that lsusb keeps the first ID."
+reproduce = "Unplug the gamepad and plug it back in."
+source = "https://wiki.archlinux.org/title/Gamepad#ShanWan"
+
+[[signals]]
+says = "A gamepad fell back to its Android mode"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'usb .*: (Manufacturer: SHANWAN|Product: Android Gamepad)'
+
+[[signals]]
+says = "A USB device sent a configuration the kernel couldn't read"
+weight = 0.3
+source = "journal"
+kernel = true
+regex = "usb .*: (can't read configurations, error -(32|71)|unable to read config index 0 descriptor)"

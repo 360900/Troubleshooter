@@ -1,0 +1,29 @@
+id = "games-split-lock"
+title = "Games slowed down by split lock detection"
+summary = "Some Windows games under Wine or Proton trigger the kernel's split lock protection, which pauses them on purpose and can cut performance badly. Turning the mitigation off is the usual fix on a desktop. It removes a protection meant for shared servers."
+categories = ["games", "wine"]
+systems = ["any"]
+keywords = ["split_lock_mitigate", "kernel.split_lock_mitigate", "split lock", "bus lock", "split_lock trap", "sysctl"]
+symptoms = ["game runs very slowly under proton", "game stutters badly", "fps drops for no reason", "game is much slower than on windows", "game freezes for a moment every few seconds"]
+auto_detect = true
+reproduce = "Start the game that runs slowly and play for a minute."
+source = "https://wiki.archlinux.org/title/Gaming#Disable_kernel_split-lock_mitigation"
+
+[[when]]
+source = "file"
+path = "/proc/sys/kernel/split_lock_mitigate"
+
+[[fixed_when]]
+source = "file"
+path = "/proc/sys/kernel/split_lock_mitigate"
+regex = '^0$'
+
+[[signals]]
+says = "The kernel caught a program doing split locks and slowed it down"
+weight = 0.75
+source = "journal"
+kernel = true
+regex = 'split lock detection: #(AC|DB): .* took a (split|bus)_lock trap'
+
+[[fix]]
+steps = [{ op = "sysctl", values = { "kernel.split_lock_mitigate" = "0" }, says = "Turn off the split lock slowdown" }]

@@ -1,0 +1,13 @@
+id = "gamescope-cursor-grab"
+title = "Gamescope: mouse isn't captured, or game crashes in a window"
+summary = "Some Wine and Proton games under Gamescope don't capture the mouse, so the camera stops turning or spins on its own. Some also crash when Gamescope isn't fullscreen."
+categories = ["games", "input"]
+systems = ["any"]
+keywords = ["gamescope", "--force-grab-cursor", "--fullscreen", "cursor", "mouse capture"]
+symptoms = ["camera keeps spinning in gamescope", "mouse not captured in game", "cursor stays visible in game", "can't turn the camera all the way", "game crashes with gamescope in a window"]
+advice = "Add --force-grab-cursor to the Gamescope options, for example gamescope --force-grab-cursor -- %command%. If the game crashes on launch, also add -f to start Gamescope fullscreen instead of using its fullscreen hotkey."
+source = "https://wiki.archlinux.org/title/Gamescope#Cursor_doesn't_behave_properly"
+
+[[when]]
+source = "package"
+names = ["gamescope*"]

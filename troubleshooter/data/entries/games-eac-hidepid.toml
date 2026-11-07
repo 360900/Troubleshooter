@@ -1,0 +1,20 @@
+id = "games-eac-hidepid"
+title = "Easy Anti-Cheat games fail with Launch Error 261"
+summary = "The hidepid hardening option on /proc hides other processes, which Easy Anti-Cheat needs to see under Proton. Games using it then refuse to start."
+categories = ["games", "wine"]
+systems = ["any"]
+keywords = ["easy anti-cheat", "eac", "launch error 261", "hidepid", "/proc", "procfs", "fstab", "anti-cheat"]
+symptoms = ["launch error 261", "easy anti-cheat won't start", "anti-cheat game won't launch on linux", "eac error in proton"]
+advice = "Remove the hidepid option from the /proc line in /etc/fstab (or from the systemd unit that sets it) and reboot. If the game still fails, check areweanticheatyet.com: the developer may not have enabled Linux support."
+source = "https://wiki.archlinux.org/title/Steam#Proton_Steam_Play"
+
+[[when]]
+source = "package"
+names = ["steam", "lutris", "heroic-games-launcher*"]
+
+[[signals]]
+says = "/proc is mounted with hidepid"
+weight = 0.7
+source = "file"
+path = "/proc/self/mounts"
+regex = '^proc /proc proc \S*hidepid=(1|2|invisible|noaccess|ptraceable)'

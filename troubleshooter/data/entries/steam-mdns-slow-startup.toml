@@ -1,0 +1,35 @@
+id = "steam-mdns-slow-startup"
+title = "Steam: takes ages to start and the window barely responds"
+summary = "Steam talks to itself through the name steamloopback.host. With the full mdns lookup in /etc/nsswitch.conf, every lookup of that name waits for a network timeout, which makes Steam hang. The limited mdns_minimal lookup avoids it and still resolves .local names."
+categories = ["games", "network"]
+systems = ["arch-and-based"]
+keywords = ["nsswitch.conf", "mdns", "mdns_minimal", "nss-mdns", "steamloopback.host", "avahi"]
+symptoms = ["steam takes forever to start", "steam window doesn't respond", "steam is stuck loading", "steam interface is extremely slow"]
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Very_long_startup_and_slow_user_interface_response"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[when]]
+source = "package"
+names = ["nss-mdns"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/nsswitch.conf"
+regex = '^hosts:.*\smdns[46]?(\s|$)'
+absent = true
+
+[[signals]]
+says = "The hosts line in /etc/nsswitch.conf uses the full mdns lookup"
+weight = 0.6
+source = "file"
+path = "/etc/nsswitch.conf"
+regex = '^hosts:.*\smdns[46]?(\s|$)'
+
+[[fix]]
+steps = [
+  { op = "replace", path = "/etc/nsswitch.conf", address = '/^hosts:/', pattern = '([[:space:]])mdns([46]?)\b', replacement = '\1mdns\2_minimal', says = "Switch the hosts lookup from mdns to mdns_minimal (restart Steam afterwards)" },
+  { op = "command", says = "Restart the name resolver if it's running", run = "systemctl try-restart systemd-resolved.service", undo = "systemctl try-restart systemd-resolved.service" },
+]

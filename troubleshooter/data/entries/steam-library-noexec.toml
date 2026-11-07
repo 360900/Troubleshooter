@@ -1,0 +1,20 @@
+id = "steam-library-noexec"
+title = "Steam: can't add a library folder on another drive"
+summary = "Steam refuses library folders on drives mounted without permission to run programs (noexec). Drives mounted with the user or users option in fstab get noexec by default."
+categories = ["games", "boot"]
+systems = ["any"]
+keywords = ["noexec", "exec", "fstab", "mount options", "library folder", "steamapps"]
+symptoms = ["steam says library folder must be on a filesystem mounted with execute permissions", "can't add a second drive to steam", "steam won't use my other disk", "games on second drive won't run"]
+advice = "Add exec to that drive's options in /etc/fstab, after any user or users option, then remount it. Also check that the library folder contains a lowercase steamapps folder."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Cannot_add_library_folder_because_of_missing_execute_permissions"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[signals]]
+says = "A data drive is mounted with noexec"
+weight = 0.4
+source = "file"
+path = "/proc/self/mounts"
+regex = '^\S+ /(run/media|media|mnt)/\S+ \S+ \S*\bnoexec\b'

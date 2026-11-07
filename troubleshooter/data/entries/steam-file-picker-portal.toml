@@ -1,0 +1,27 @@
+id = "steam-file-picker-portal"
+title = "Steam: file picker is empty or won't open"
+summary = "Steam uses the desktop portal to show its file picker. With no portal backend installed, you can't browse to add a library folder or a non-Steam game."
+categories = ["games", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["xdg-desktop-portal", "xdg-desktop-portal-gtk", "xdg-desktop-portal-impl", "file chooser", "library folder", "non-steam game"]
+symptoms = ["can't add a library folder in steam", "steam file picker is empty", "can't add non-steam game", "browse button does nothing in steam", "steam only shows its own folder"]
+auto_detect = false
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#File_picker_does_not_see_anything_but_Steam_library"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-desktop-portal-*"]
+
+[[signals]]
+says = "No desktop portal backend is installed"
+weight = 0.8
+source = "package"
+names = ["xdg-desktop-portal-*"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-desktop-portal-gtk"], says = "Install the desktop portal with a file picker that works on any desktop" }]

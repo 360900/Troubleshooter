@@ -1,0 +1,25 @@
+id = "steam-webview-gpu"
+title = "Steam: window is black, very slow or restarts during games"
+summary = "Steam draws its store, library and friends list with an embedded browser that uses the GPU. On some systems, especially Intel graphics on Wayland, that makes pages render black, the client crawl, or Steam restart while a game runs."
+categories = ["games", "display"]
+systems = ["any"]
+keywords = ["steamwebhelper", "web views", "gpu accelerated rendering", "cef", "black screen", "-cef-disable-gpu"]
+symptoms = ["steam window is black", "steam store doesn't load", "steam is very slow and laggy", "steam restarts while i'm playing", "steam library is blank but menus work"]
+advice = "In Steam, open Settings, Interface and turn off Enable GPU accelerated rendering in web views, then restart Steam. If the window is too broken to reach Settings, start it once with steam -cef-disable-gpu. For a slow friends list, also turn off animated avatars under Friends & Chat."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Slow_and_unresponsive_user_interface"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[signals]]
+says = "This system uses Intel graphics"
+weight = 0.15
+source = "module"
+names = ["i915", "xe"]
+
+[[signals]]
+says = "Steam's web helper crashed"
+weight = 0.5
+source = "journal"
+regex = 'systemd-coredump.*steamwebhelper'

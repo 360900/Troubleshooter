@@ -1,0 +1,35 @@
+id = "steam-flatpak-udev-rules"
+title = "Flatpak Steam: controllers and VR headsets aren't detected"
+summary = "Steam from Flatpak can't install the device rules that let it talk to controllers and VR headsets. They have to come from the steam-devices package on the system itself."
+categories = ["games", "input"]
+systems = ["arch-and-based"]
+keywords = ["steam-devices", "udev", "60-steam-input.rules", "flatpak", "com.valvesoftware.Steam", "steam input", "steamvr"]
+symptoms = ["controller doesn't work in flatpak steam", "steam doesn't see my controller", "steam asks me to install steam-devices", "steam controller not detected", "vr headset not found"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Steam#Flatpak"
+
+[[when]]
+any_of = [
+  { source = "file", path = "/var/lib/flatpak/app/com.valvesoftware.Steam" },
+  { source = "file", path = "/home/*/.local/share/flatpak/app/com.valvesoftware.Steam" },
+]
+
+[[when]]
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^\[multilib\]'
+
+[[fixed_when]]
+source = "package"
+names = ["steam-devices", "steam-devices-git", "steam"]
+
+[[signals]]
+says = "Steam's device rules aren't installed"
+weight = 0.75
+source = "file"
+path = "/usr/lib/udev/rules.d/*steam-input*.rules"
+absent = true
+
+[[fix]]
+reboot = true
+steps = [{ op = "install", packages = ["steam-devices"], says = "Install Steam's controller and VR device rules" }]

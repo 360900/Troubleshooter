@@ -1,0 +1,13 @@
+id = "games-slowdown-after-playing"
+title = "Steam: games slow down after 20 to 30 minutes"
+summary = "A known Steam bug makes frame rates drop or stutter set in after playing for about half an hour, with Proton or under Gamescope. It comes from the Steam overlay being loaded into the game."
+categories = ["games"]
+systems = ["any"]
+keywords = ["steam overlay", "LD_PRELOAD", "gameoverlayrenderer", "lag spikes", "gamescope lag bomb", "proton"]
+symptoms = ["fps drops after playing for a while", "game starts stuttering after 30 minutes", "lag spikes after some time in game", "game gets slower the longer i play", "gamescope stutters after 20 minutes"]
+advice = "Set the game's launch options to LD_PRELOAD=\"\" %command% (or LD_PRELOAD=\"\" gamescope -- %command% with Gamescope). This turns off the Steam overlay and features that depend on it, such as game recording."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Periodic_lag_spikes_with_Proton_Steam_Play"
+
+[[when]]
+source = "package"
+names = ["steam"]

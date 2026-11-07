@@ -1,0 +1,31 @@
+id = "xbox-wireless-adapter-driver"
+title = "Xbox Wireless Adapter has no driver"
+summary = "Microsoft's USB wireless adapter for Xbox controllers isn't supported by the kernel itself. It needs the community xone driver and the adapter's firmware, which are built from the AUR."
+categories = ["input", "games", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["xone", "xone-dkms", "xone-dongle-firmware", "xbox wireless adapter", "dongle", "045e:02fe", "045e:02e6", "xpad"]
+symptoms = ["xbox controller won't connect to the wireless adapter", "xbox dongle doesn't work", "xbox adapter light doesn't turn on", "controller keeps flashing with the usb dongle"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Gamepad#Connect_Xbox_Wireless_Controller_with_Microsoft_Xbox_Wireless_Adapter"
+
+[[when]]
+source = "usb"
+vendor = "045e"
+devices = ["02e6", "02fe", "02f9", "091e"]
+
+[[fixed_when]]
+source = "module"
+names = ["xone_dongle"]
+
+[[signals]]
+says = "An Xbox Wireless Adapter is plugged in, but its driver isn't loaded"
+weight = 0.85
+source = "module"
+names = ["xone_dongle"]
+absent = true
+
+[[fix]]
+reboot = true
+steps = [
+  { op = "install_aur", packages = ["xone-dkms", "xone-dongle-firmware", "{headers}"], aur_bases = { "xone-dkms" = "xone-dkms", "xone-dongle-firmware" = "xone-dongle-firmware" }, says = "Build the xone driver and the adapter firmware from the AUR (community-maintained)" },
+]

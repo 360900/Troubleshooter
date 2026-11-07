@@ -1,0 +1,36 @@
+id = "steam-locale-missing"
+title = "Steam: the en_US.UTF-8 locale isn't generated"
+summary = "Steam and many games expect the en_US.UTF-8 locale to exist, even on non-English systems. Without it they can crash at start with invalid pointer errors, or typing accented characters fails. Generating it adds a few megabytes and doesn't change your language."
+categories = ["games"]
+systems = ["arch-and-based"]
+keywords = ["locale", "en_US.UTF-8", "locale-gen", "locale.gen", "SetLocale", "invalid pointer", "free(): invalid pointer", "munmap_chunk"]
+symptoms = ["steam crashes with invalid pointer", "game crashes on start with setlocale error", "can't type special characters in steam", "steam won't start on my non-english system", "game says setlocale failed"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Steam#Installation"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[when]]
+source = "file"
+path = "/etc/locale.gen"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/locale.gen"
+regex = '^en_US\.UTF-8 UTF-8'
+
+[[signals]]
+says = "en_US.UTF-8 is not enabled in /etc/locale.gen"
+weight = 0.8
+source = "file"
+path = "/etc/locale.gen"
+regex = '^en_US\.UTF-8 UTF-8'
+absent = true
+
+[[fix]]
+steps = [
+  { op = "replace", path = "/etc/locale.gen", pattern = '^#[[:space:]]*(en_US\.UTF-8 UTF-8)', replacement = '\1', says = "Turn on en_US.UTF-8 in /etc/locale.gen" },
+  { op = "command", says = "Generate the enabled locales", run = "locale-gen", undo = "locale-gen" },
+]

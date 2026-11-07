@@ -1,0 +1,17 @@
+id = "gamescope-mangohud-swapchain"
+title = "Gamescope: swapchain errors or no overlay with MangoHud"
+summary = "The normal MangoHud overlay isn't supported inside Gamescope and is a common cause of swapchain errors there. Gamescope has its own way to show MangoHud."
+categories = ["games"]
+systems = ["any"]
+keywords = ["gamescope", "mangohud", "mangoapp", "--mangoapp", "swapchain", "vkCreateSwapchainKHR"]
+symptoms = ["game crashes with gamescope and mangohud", "swapchain error in gamescope", "mangohud doesn't show in gamescope", "game won't start with gamescope"]
+advice = "Remove mangohud and MANGOHUD=1 from the game's launch command and add --mangoapp to the Gamescope options instead, for example gamescope --mangoapp -- %command%."
+source = "https://wiki.archlinux.org/title/Gamescope#Swapchain_Errors"
+
+[[when]]
+source = "package"
+names = ["gamescope*"]
+
+[[when]]
+source = "package"
+names = ["mangohud*"]

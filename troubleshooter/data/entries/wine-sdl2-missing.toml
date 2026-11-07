@@ -1,0 +1,26 @@
+id = "wine-sdl2-missing"
+title = "Wine: controllers don't work in Windows games"
+summary = "Wine uses SDL to give games DirectInput and XInput controllers. SDL isn't installed, so Wine falls back to a basic path that many controllers don't work well with."
+categories = ["wine", "input", "games"]
+systems = ["arch-and-based"]
+keywords = ["sdl2", "sdl2-compat", "joystick", "gamepad", "xinput", "directinput", "joy.cpl"]
+symptoms = ["controller doesn't work in wine", "gamepad not detected in windows game", "joy.cpl shows no controller", "xbox controller not working in lutris"]
+source = "https://wiki.archlinux.org/title/Wine#Other_dependencies"
+
+[[when]]
+source = "package"
+names = ["wine", "wine-staging", "wine-cachyos*"]
+
+[[fixed_when]]
+source = "package"
+names = ["sdl2", "sdl2-compat"]
+
+[[signals]]
+says = "Wine is installed without SDL"
+weight = 0.6
+source = "package"
+names = ["sdl2", "sdl2-compat"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["sdl2-compat"], says = "Install SDL so Wine can use your controllers" }]

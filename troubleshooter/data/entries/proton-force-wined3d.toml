@@ -1,0 +1,13 @@
+id = "proton-force-wined3d"
+title = "Proton: older game won't run or shows a black screen"
+summary = "Proton translates DirectX to Vulkan with DXVK by default. Some older games don't work with it and run better on WineD3D, which uses OpenGL."
+categories = ["games", "wine"]
+systems = ["any"]
+keywords = ["PROTON_USE_WINED3D", "wined3d", "dxvk", "directx 9", "opengl", "launch options"]
+symptoms = ["old game shows a black screen in proton", "old windows game won't start in steam", "directx 9 game crashes on proton", "game renders wrong with dxvk"]
+advice = "Add PROTON_USE_WINED3D=1 %command% to the game's launch options in Steam. If that doesn't help, also try a different Proton version under Properties, Compatibility."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Force_OpenGL_emulation"
+
+[[when]]
+source = "package"
+names = ["steam"]

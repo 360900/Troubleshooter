@@ -1,0 +1,13 @@
+id = "wine-keyboard-focus"
+title = "Wine: keyboard stops working in a Windows program"
+summary = "Typing in a Wine program does nothing, often after switching to another window and back. It's usually a focus problem between Wine and the window manager."
+categories = ["wine", "input"]
+systems = ["any"]
+keywords = ["UseTakeFocus", "winecfg", "keyboard", "focus", "alt-tab", "winetricks usetakefocus"]
+symptoms = ["keyboard doesn't work in wine", "can't type in a wine app", "game ignores keyboard after alt-tab", "keys stop working in windows game"]
+advice = "Run winetricks usetakefocus=n in that prefix, or add the string UseTakeFocus with the value N under HKEY_CURRENT_USER\\Software\\Wine\\X11 Driver. If that doesn't help, turn off the window manager options in the Graphics tab of winecfg, or turn on Emulate a virtual desktop."
+source = "https://wiki.archlinux.org/title/Wine#Keyboard_input_not_working"
+
+[[when]]
+source = "package"
+names = ["wine", "wine-*"]

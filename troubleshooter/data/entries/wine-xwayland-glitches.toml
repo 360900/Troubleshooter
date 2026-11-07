@@ -1,0 +1,19 @@
+id = "wine-xwayland-glitches"
+title = "Wine: windows flicker or clicks land in the wrong place on Wayland"
+summary = "Windows programs running through Xwayland can flicker, open in the wrong spot, put the cursor in the wrong place or miss keyboard input. Running them in a Wine virtual desktop, or on Wine's Wayland driver, usually avoids it."
+categories = ["wine", "display"]
+systems = ["any"]
+keywords = ["xwayland", "winecfg", "virtual desktop", "wayland driver", "flicker", "cursor offset"]
+symptoms = ["wine app flickers on wayland", "clicks are offset in wine", "wine window opens in the wrong place", "mouse cursor in the wrong position in a windows app", "keyboard doesn't work in a wine app on wayland"]
+advice = "Open winecfg for that prefix and turn on Emulate a virtual desktop in the Graphics tab. Or try Wine's Wayland driver by starting the program with env -u DISPLAY wine program.exe."
+source = "https://wiki.archlinux.org/title/Wine#Xwayland_problems"
+
+[[when]]
+source = "package"
+names = ["wine", "wine-*"]
+
+[[signals]]
+says = "You're in a Wayland session"
+weight = 0.2
+source = "env"
+name = "WAYLAND_DISPLAY"

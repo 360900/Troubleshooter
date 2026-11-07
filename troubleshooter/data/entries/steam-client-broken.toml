@@ -1,0 +1,26 @@
+id = "steam-client-broken"
+title = "Steam: client won't open or keeps crashing"
+summary = "Steam's own files can get damaged during an update, and the beta client sometimes ships breaking bugs. Both leave Steam crashing or stuck before the window appears."
+categories = ["games", "crashes"]
+systems = ["any"]
+keywords = ["steam --reset", "publicbeta", "steam beta", "steam.sh", "package/beta", "steamwebhelper"]
+symptoms = ["steam won't open", "steam crashes on start", "steam is stuck updating", "steam closes right after the splash screen", "steam broke after an update"]
+advice = "Run steam --reset in a terminal and start Steam again. If you joined the Steam beta, leave it by deleting ~/.local/share/Steam/package/beta and restarting Steam. Starting steam from a terminal shows its errors if it still fails."
+reproduce = "Start Steam and wait until it fails."
+source = "https://wiki.archlinux.org/title/Steam/Troubleshooting#Steam_fails_to_start_correctly"
+
+[[when]]
+source = "package"
+names = ["steam"]
+
+[[signals]]
+says = "Steam crashed during this boot"
+weight = 0.5
+source = "journal"
+regex = 'systemd-coredump.*Process .*\((steam|steamwebhelper)\)'
+
+[[signals]]
+says = "Steam is running its beta client"
+weight = 0.2
+source = "journal"
+regex = "You are in the 'publicbeta' client beta"

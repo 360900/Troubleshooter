@@ -1,0 +1,38 @@
+id = "xbox360-receiver-tlp"
+title = "Xbox 360 wireless receiver drops out with TLP"
+summary = "TLP's USB power saving puts the Xbox 360 wireless receiver to sleep, so its light goes out, controllers fail to connect or all four LEDs keep blinking. Excluding the receiver from power saving fixes it."
+categories = ["input", "games"]
+systems = ["any"]
+keywords = ["xbox 360", "wireless receiver", "045e:0719", "tlp", "USB_DENYLIST", "usb autosuspend", "xpad"]
+symptoms = ["xbox 360 controller won't connect", "xbox 360 receiver light turns off", "all four lights keep blinking on my controller", "wireless controller disconnects on my laptop"]
+source = "https://wiki.archlinux.org/title/Gamepad#Xbox_360_controller"
+
+[[when]]
+source = "usb"
+vendor = "045e"
+devices = ["0719"]
+
+[[when]]
+source = "service"
+name = "tlp.service"
+state = "enabled"
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/tlp.conf", regex = '^USB_(DENYLIST|BLACKLIST)=.*045e:0719' },
+  { source = "file", path = "/etc/tlp.d/*.conf", regex = '^USB_(DENYLIST|BLACKLIST)=.*045e:0719' },
+  { source = "file", path = "/etc/tlp.conf", regex = '^USB_AUTOSUSPEND=0' },
+]
+
+[[signals]]
+says = "TLP is managing USB power and the receiver isn't excluded"
+weight = 0.6
+source = "service"
+name = "tlp.service"
+state = "enabled"
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/tlp.d/90-troubleshooter-xbox360.conf", content = "USB_DENYLIST=\"045e:0719\"\n", says = "Exclude the Xbox 360 receiver from TLP's USB power saving" },
+  { op = "command", says = "Apply the TLP settings", run = "tlp start", undo = "tlp start" },
+]

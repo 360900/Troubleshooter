@@ -1,0 +1,13 @@
+id = "wine-program-fails"
+title = "Wine: a Windows program won't install or start"
+summary = "Wine prefixes keep a lot of state, and a program that broke the default prefix, or one that expects to start from its own folder, can refuse to install or run."
+categories = ["wine"]
+systems = ["any"]
+keywords = ["wineprefix", "~/.wine", "prefix", "winetricks", "working directory", "wineboot"]
+symptoms = ["windows program won't install in wine", "exe does nothing when i open it", "wine app won't start", "installer fails in wine", "old game won't launch in wine"]
+advice = "Try the program in a fresh prefix, for example WINEPREFIX=~/.wine-test wine setup.exe, so other installs can't interfere. For older programs, open a terminal in the folder that holds the .exe and start it from there. Check the Wine AppDB for that program's known fixes."
+source = "https://wiki.archlinux.org/title/Wine#General_installation_issues"
+
+[[when]]
+source = "package"
+names = ["wine", "wine-*"]
