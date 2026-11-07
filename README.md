@@ -1,6 +1,6 @@
 # Troubleshooter
 
-Finds and fixes common Linux problems. Part of oneSuite.
+Finds and fixes common Linux problems.
 
 Describe the problem or pick a category. It reads your logs and hardware, tells you what it would change and how confident it is, and backs up files so you can undo. Known problems are checked on launch.
 
