@@ -63,3 +63,17 @@ class NvidiaXidTests(EngineCase):
         # Xid 45 is the driver cleaning up after a process was killed.
         d = self.evaluate("kernel: NVRM: Xid (PCI:0000:01:00): 45, pid=4242, name=python3, Ch 00000010\n")
         self.assertFalse(d.found)
+
+
+class NvidiaBootRaceTests(EngineCase):
+    def test_waits_for_the_nvidia_card_not_card0(self):
+        # simpledrm takes card0 at boot, so the NVIDIA card usually ends up as card1.
+        m = self.machine()
+        m.modules("nvidia")
+        m.journal("Xorg[812]: (EE) NVIDIA(0): Failed to initialize the NVIDIA kernel module. Please see the\n")
+        d = engine.evaluate(DB.entries["nvidia-xorg-boot-race"], m.system())
+        self.assertTrue(d.recommended)
+        script = engine.build_plan(d, m.system()).script
+        self.assertNotIn("card0", script)
+        self.assertIn('DRIVERS=="nvidia", TAG+="systemd", ENV{SYSTEMD_ALIAS}+="/dev/dri/nvidia"', script)
+        self.assertIn("After=dev-dri-nvidia.device", script)

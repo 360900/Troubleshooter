@@ -28,9 +28,12 @@ weight = 0.6
 source = "journal"
 regex = 'NVIDIA\(\d+\): Failed to initialize the NVIDIA kernel module'
 
+# The wiki waits for dev-dri-card0.device, but with simpledrm (built into Arch kernels) the
+# NVIDIA card is usually card1 and card0 is gone by then, so the login screen would wait
+# out the 90 second device timeout. Give the NVIDIA card a fixed name to wait for instead.
 [[fix]]
 reboot = true
 steps = [
-  { op = "write_file", path = "/etc/udev/rules.d/99-systemd-dri-devices.rules", content = "ACTION==\"add\", KERNEL==\"card*\", SUBSYSTEM==\"drm\", TAG+=\"systemd\"\n", says = "Let systemd track graphics devices" },
-  { op = "write_file", path = "/etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf", content = "[Unit]\nWants=dev-dri-card0.device\nAfter=dev-dri-card0.device\n", says = "Make the login screen wait for the graphics device" },
+  { op = "write_file", path = "/etc/udev/rules.d/99-systemd-dri-devices.rules", content = "ACTION==\"add\", KERNEL==\"card*\", SUBSYSTEM==\"drm\", DRIVERS==\"nvidia\", TAG+=\"systemd\", ENV{SYSTEMD_ALIAS}+=\"/dev/dri/nvidia\"\n", says = "Let systemd track the NVIDIA graphics device" },
+  { op = "write_file", path = "/etc/systemd/system/display-manager.service.d/10-wait-for-dri-devices.conf", content = "[Unit]\nWants=dev-dri-nvidia.device\nAfter=dev-dri-nvidia.device\n", says = "Make the login screen wait for the NVIDIA graphics device" },
 ]
