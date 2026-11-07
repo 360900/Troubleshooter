@@ -1,9 +1,9 @@
 id = "network-nm-dhcpcd-conflict"
 title = "Network: dhcpcd and NetworkManager both start on their own"
-summary = "dhcpcd.service is enabled next to NetworkManager. Both try to configure the same connection, which causes lost addresses, drops and slow connections."
+summary = "dhcpcd is set to start on its own next to NetworkManager. Both try to configure the same connection, which causes lost addresses, drops and slow connections."
 categories = ["network"]
 systems = ["arch-and-based"]
-keywords = ["dhcpcd", "dhcpcd.service", "networkmanager", "dhcp", "conflict", "ip address"]
+keywords = ["dhcpcd", "dhcpcd.service", "dhcpcd@.service", "networkmanager", "dhcp", "conflict", "ip address"]
 symptoms = ["internet keeps dropping", "connected but no internet", "wifi connects and drops over and over", "ip address keeps changing", "ethernet doesn't get an address"]
 auto_detect = true
 source = "https://wiki.archlinux.org/title/NetworkManager#DHCP_client"
@@ -22,17 +22,23 @@ name = "NetworkManager.service"
 state = "enabled"
 
 [[fixed_when]]
-source = "service"
-name = "dhcpcd.service"
-state = "disabled"
+all_of = [
+  { source = "service", name = "dhcpcd.service", state = "disabled" },
+  { source = "file", path = "/etc/systemd/system/multi-user.target.wants/dhcpcd@*.service", absent = true },
+]
 
+# dhcpcd runs either for every interface (dhcpcd.service) or for one (dhcpcd@eth0.service),
+# and both conflict with NetworkManager. Instances can't be named ahead of time, so they're
+# found by their link in multi-user.target.wants.
 [[signals]]
-says = "dhcpcd.service is enabled although NetworkManager manages the network"
+says = "dhcpcd.service or a dhcpcd@ instance is enabled although NetworkManager manages the network"
 weight = 0.85
-source = "service"
-name = "dhcpcd.service"
-state = "enabled"
+any_of = [
+  { source = "service", name = "dhcpcd.service", state = "enabled" },
+  { source = "file", path = "/etc/systemd/system/multi-user.target.wants/dhcpcd@*.service" },
+]
 
+# The units it turns off are listed in the backup, so undo turns exactly those on again.
 [[fix]]
 reboot = true
-steps = [{ op = "service", action = "disable", names = ["dhcpcd.service"], says = "Stop dhcpcd from starting on its own" }]
+steps = [{ op = "command", says = "Stop dhcpcd from starting on its own", run = '{ if systemctl -q is-enabled dhcpcd.service; then echo dhcpcd.service; fi; for u in /etc/systemd/system/multi-user.target.wants/dhcpcd@*.service; do if [ -e "$u" ]; then basename "$u"; fi; done; } > "$TS_BACKUP/dhcpcd-units"; xargs -r systemctl disable < "$TS_BACKUP/dhcpcd-units"', undo = 'xargs -r systemctl enable < "$TS_BACKUP/dhcpcd-units"' }]
