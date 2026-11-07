@@ -16,15 +16,23 @@ devices = ["8156"]
 source = "package"
 names = ["tlp"]
 
+# TLP only reads NAME=value or NAME+=value at the start of a line, without spaces
+# (tlp-readconfs). Turning USB autosuspend off altogether also keeps the card awake.
 [[fixed_when]]
 source = "file"
 path = "/etc/tlp.d/*.conf"
-regex = '^\s*USB_DENYLIST=.*0bda:8156'
+regex = '^USB_DENYLIST\+?="?[^"#]*0bda:8156'
 
 [[fixed_when]]
 source = "file"
 path = "/etc/tlp.conf"
-regex = '^\s*USB_DENYLIST=.*0bda:8156'
+regex = '^USB_DENYLIST\+?="?[^"#]*0bda:8156'
+
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/tlp.d/*.conf", regex = '^USB_AUTOSUSPEND="?0"?\s*(#|$)' },
+  { source = "file", path = "/etc/tlp.conf", regex = '^USB_AUTOSUSPEND="?0"?\s*(#|$)' },
+]
 
 [[signals]]
 says = "TLP is enabled and manages USB power saving"
@@ -33,8 +41,9 @@ source = "service"
 name = "tlp.service"
 state = "enabled"
 
+# += keeps devices other drop-ins already deny (https://linrunner.de/tlp/settings/introduction.html).
 [[fix]]
 steps = [
-  { op = "write_file", path = "/etc/tlp.d/90-troubleshooter-usb-ethernet.conf", content = "USB_DENYLIST=\"0bda:8156\"\n", says = "Exclude the Ethernet card from TLP's USB power saving" },
+  { op = "write_file", path = "/etc/tlp.d/90-troubleshooter-usb-ethernet.conf", content = "USB_DENYLIST+=\"0bda:8156\"\n", says = "Exclude the Ethernet card from TLP's USB power saving" },
   { op = "command", says = "Apply the TLP settings", run = "tlp start", undo = "tlp start" },
 ]

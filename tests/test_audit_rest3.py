@@ -128,3 +128,38 @@ class PolkitAgentTests(EngineCase):
             with self.subTest(agent=agent):
                 d = self.evaluate("sway", ["sway", agent])
                 self.assertLess(d.confidence, 10)
+
+
+class TlpEthernetTests(EngineCase):
+    def machine_with_card(self):
+        m = self.machine()
+        m.packages = {"tlp"}
+        m.outputs["services"] = {"tlp.service": "enabled"}
+        m.write("/sys/bus/usb/devices/2-1/idVendor", "0bda\n")
+        m.write("/sys/bus/usb/devices/2-1/idProduct", "8156\n")
+        return m
+
+    def evaluate(self, m):
+        return engine.evaluate(DB.entries["power-tlp-framework-ethernet"], m.system())
+
+    def test_fix_appends_to_other_drop_ins(self):
+        m = self.machine_with_card()
+        m.write("/etc/tlp.d/50-mine.conf", 'USB_DENYLIST="1234:5678"\n')
+        d = self.evaluate(m)
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertIn('USB_DENYLIST+="0bda:8156"', engine.build_plan(d, m.system()).script)
+
+    def test_settings_tlp_reads_count(self):
+        for line in ('USB_DENYLIST+="0bda:8156"\n', 'USB_DENYLIST="1234:5678 0bda:8156"\n', "USB_AUTOSUSPEND=0\n"):
+            with self.subTest(line=line):
+                m = self.machine_with_card()
+                m.write("/etc/tlp.d/01-mine.conf", line)
+                self.assertEqual(self.evaluate(m).status, engine.FIXED)
+
+    def test_settings_tlp_ignores_do_not(self):
+        # tlp-readconfs only accepts NAME=value at the start of a line.
+        for line in ('#USB_DENYLIST="0bda:8156"\n', ' USB_DENYLIST = "0bda:8156"\n', "USB_AUTOSUSPEND=1\n"):
+            with self.subTest(line=line):
+                m = self.machine_with_card()
+                m.write("/etc/tlp.d/01-mine.conf", line)
+                self.assertEqual(self.evaluate(m).status, engine.APPLIES)
