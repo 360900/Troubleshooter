@@ -105,5 +105,30 @@ class MicrocodeTests(EngineCase):
         self.assertNotIn("microcode-intel-missing", self.scan_ids(m))
 
 
+class NtfsTests(EngineCase):
+    def plugin(self, tag):
+        m = self.machine()
+        m.packages = {"ntfs-3g"}
+        m.journal(f"ntfs-3g[2211]: Could not load plugin /usr/lib/ntfs-3g/ntfs-plugin-{tag}.so: Success\n")
+        return "ntfs3g-unsupported-reparse-point" in self.scan_ids(m)
+
+    def test_compressed_and_onedrive_files_are_recommended(self):
+        self.assertTrue(self.plugin("80000017"))
+        self.assertTrue(self.plugin("9000001a"))
+
+    def test_store_app_aliases_are_ignored(self):
+        self.assertFalse(self.plugin("8000001b"))
+
+    def test_each_driver_refusing_a_windows_drive_is_caught(self):
+        for line in ('kernel: ntfs3(nvme0n1p3): volume is dirty and "force" flag is not set!',
+                     "kernel: ntfs3(nvme0n1p3): failed to replay log file. Can't mount rw!",
+                     "kernel: ntfs: (device sda3): ntfs_fill_super(): Windows is hibernated.  Mounting read-only.",
+                     "mount[812]: Windows is hibernated, refused to mount."):
+            m = self.machine()
+            m.modules("ntfs3")
+            m.journal(line + "\n")
+            self.assertIn("ntfs-windows-fast-startup", self.scan_ids(m), line)
+
+
 if __name__ == "__main__":
     unittest.main()

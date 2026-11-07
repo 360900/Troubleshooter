@@ -18,4 +18,7 @@ names = ["ntfs-3g"]
 says = "NTFS-3G hit a Windows file format it has no plugin for"
 weight = 0.8
 source = "journal"
-regex = 'Could not load plugin \S*ntfs-plugin-[0-9a-f]+\.so'
+# Only the formats the advice covers: system compression (WOF, 0x80000017) and OneDrive
+# (cloud, 0x9000001a after ntfs-3g masks the variant bits). Every Windows system drive
+# also has Store app aliases (0x8000001b) that log the same line and matter to no one.
+regex = 'Could not load plugin \S*ntfs-plugin-(80000017|9000001a)\.so'
