@@ -47,6 +47,7 @@ class DatabaseTests(unittest.TestCase):
             ["iw", "reg", "get"],  # prints the regulatory domain, needs no privileges
             ["nmcli", "networking"],  # prints enabled or disabled, changes nothing without on/off
             ["efibootmgr"],  # lists boot entries; changing them needs options
+            ["rfkill", "-n", "-o", "TYPE,HARD"],  # lists switches; blocking needs block/unblock
             ["id", "-nG"],  # prints the groups of the current session
         ]
 

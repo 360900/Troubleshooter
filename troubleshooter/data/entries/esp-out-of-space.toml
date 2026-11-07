@@ -9,8 +9,10 @@ advice = "Don't restart yet. Check usage with df -h /boot /efi, then make room: 
 source = "https://wiki.archlinux.org/title/EFI_system_partition#Replace_the_partition_with_a_larger_one"
 
 [[signals]]
-says = "pacman's log shows a write to the boot partition failed for lack of space"
+says = "pacman's log shows a write to the boot partition failed for lack of space in the last 30 days"
 weight = 0.6
 source = "file"
 path = "/var/log/pacman.log"
+# The log is never cleared, so a partition that filled up once would match for years.
+max_age_days = 30
 regex = '(/boot|/efi)/\S*.*No space left on device'

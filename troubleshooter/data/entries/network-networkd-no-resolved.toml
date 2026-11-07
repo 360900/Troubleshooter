@@ -31,10 +31,11 @@ state = "active"
 [[signals]]
 says = "/etc/resolv.conf lists no DNS server"
 weight = 0.7
-source = "file"
-path = "/etc/resolv.conf"
-regex = '^\s*nameserver\s'
-absent = true
+any_of = [
+  { source = "file", path = "/etc/resolv.conf", regex = '^\s*nameserver\s', absent = true },
+  # Linked to systemd-resolved's file, which isn't there while it's off.
+  { source = "file", path = "/etc/resolv.conf", broken_link = true },
+]
 
 [[fix]]
 steps = [{ op = "service", names = ["systemd-resolved.service"], now = true, says = "Turn on systemd-resolved so the DNS servers from systemd-networkd are used" }]

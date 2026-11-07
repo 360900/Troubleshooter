@@ -8,18 +8,22 @@ symptoms = ["bluetooth won't turn on", "bluetooth is hard blocked", "rfkill says
 source = "https://wiki.archlinux.org/title/Bluetooth#bluetoothctl:_No_default_controller_available"
 advice = "Look for a wireless switch on the side of the laptop, or a key with an antenna or airplane icon (often together with Fn), and turn wireless on. If there is none, check the firmware (BIOS/UEFI) setup for a Bluetooth or wireless option that is disabled."
 
+# rfkill lists every switch with its type, including platform ones such as dell-bluetooth.
+# A blocked platform switch can hide the adapter entirely, so /sys/class/bluetooth isn't enough.
 [[when]]
-source = "file"
-path = "/sys/class/bluetooth/hci*/rfkill*/hard"
+source = "command"
+argv = ["rfkill", "-n", "-o", "TYPE,HARD"]
+regex = '^bluetooth\s'
 
 [[fixed_when]]
-source = "file"
-path = "/sys/class/bluetooth/hci*/rfkill*/hard"
-regex = '^0$'
+source = "command"
+argv = ["rfkill", "-n", "-o", "TYPE,HARD"]
+regex = '^bluetooth\s+blocked'
+absent = true
 
 [[signals]]
-says = "The Bluetooth adapter is hard-blocked"
+says = "A Bluetooth radio switch is hard-blocked"
 weight = 0.85
-source = "file"
-path = "/sys/class/bluetooth/hci*/rfkill*/hard"
-regex = '^1$'
+source = "command"
+argv = ["rfkill", "-n", "-o", "TYPE,HARD"]
+regex = '^bluetooth\s+blocked'

@@ -1,6 +1,6 @@
 id = "podman-subuid-missing"
 title = "Podman: rootless containers have no subordinate user IDs"
-summary = "Rootless Podman needs a range of spare user and group IDs for your account in /etc/subuid and /etc/subgid. Nobody has one, which happens for accounts created before 2022 or managed by systemd-homed, so many images fail to unpack or run."
+summary = "Rootless Podman needs a range of spare user and group IDs for your account in /etc/subuid and /etc/subgid. Yours has none, which happens for accounts created before 2022 or managed by systemd-homed, so many images fail to unpack or run."
 categories = ["vms"]
 systems = ["arch-and-based"]
 keywords = ["subuid", "subgid", "rootless", "usermod --add-subuids", "podman system migrate", "newuidmap", "user namespace"]
@@ -13,11 +13,16 @@ source = "https://wiki.archlinux.org/title/Podman#Set_subuid_and_subgid"
 source = "package"
 names = ["podman"]
 
-# Only checks that anyone has a range: a probe can't name the current user yet.
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/etc/subuid", regex = '^{user}:\d+:\d+' },
+  { source = "file", path = "/etc/subgid", regex = '^{user}:\d+:\d+' },
+]
+
 [[signals]]
-says = "/etc/subuid or /etc/subgid has no entries for any user"
+says = "/etc/subuid or /etc/subgid has no range for your account"
 weight = 0.6
 any_of = [
-  { source = "file", path = "/etc/subuid", regex = '^[^:#\s]+:\d+:\d+', absent = true },
-  { source = "file", path = "/etc/subgid", regex = '^[^:#\s]+:\d+:\d+', absent = true },
+  { source = "file", path = "/etc/subuid", regex = '^{user}:\d+:\d+', absent = true },
+  { source = "file", path = "/etc/subgid", regex = '^{user}:\d+:\d+', absent = true },
 ]

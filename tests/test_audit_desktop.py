@@ -121,11 +121,18 @@ class PodmanTests(DesktopCase):
     def test_missing_subgid_ranges_are_found(self):
         m = self.machine()
         m.packages = {"podman"}
-        m.write("/etc/subuid", "alice:100000:65536\n")
+        m.write("/etc/subuid", "tester:100000:65536\n")
         m.write("/etc/subgid", "")
         self.assertTrue(self.evaluate("podman-subuid-missing", m).recommended)
+        m.write("/etc/subgid", "tester:100000:65536\n")
+        self.assertEqual(self.evaluate("podman-subuid-missing", m).status, engine.FIXED)
+
+    def test_another_users_range_does_not_count(self):
+        m = self.machine()
+        m.packages = {"podman"}
+        m.write("/etc/subuid", "alice:100000:65536\n")
         m.write("/etc/subgid", "alice:100000:65536\n")
-        self.assertFalse(self.evaluate("podman-subuid-missing", m).recommended)
+        self.assertTrue(self.evaluate("podman-subuid-missing", m).recommended)
 
 
 class VirtualBoxTests(DesktopCase):
