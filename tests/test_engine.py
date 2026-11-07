@@ -3,6 +3,7 @@ import unittest
 from tests.fakes import CACHY, DEBIAN, FakeMachine
 from troubleshooter import engine
 from troubleshooter.database import load_database
+from troubleshooter.search import SearchIndex
 
 DB = load_database()
 
@@ -243,18 +244,31 @@ class AvahiTests(EngineCase):
     WARNING = ("avahi-daemon[1247]: *** WARNING: Detected another IPv6 mDNS stack running on this host. "
                "This makes mDNS unreliable and is thus not recommended. ***\n")
 
-    def avahi(self, mdns):
+    RENAMED = "avahi-daemon[1247]: Host name conflict, retrying with thinx-2\n"
+
+    def avahi(self, mdns, journal=WARNING):
         m = self.machine()
         m.packages = {"avahi"}
         m.outputs["services"] = {"avahi-daemon.service": "active", "systemd-resolved.service": "active"}
         m.outputs["commands"] = {("resolvectl", "mdns"): mdns}
-        m.journal(self.WARNING)
+        m.journal(journal)
         return engine.evaluate(DB.entries["avahi-resolved-mdns-conflict"], m.system())
 
-    def test_resolved_answering_mdns_is_the_conflict(self):
+    def test_warning_alone_is_not_recommended_on_launch(self):
+        # It only means the setup could conflict, and it's gone once the log rotates.
         d = self.avahi("Global: yes\nLink 3 (wlan0): yes\n")
         self.assertEqual(d.status, engine.APPLIES)
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+    def test_a_renamed_host_is_recommended(self):
+        d = self.avahi("Global: yes\nLink 3 (wlan0): yes\n", self.WARNING + self.RENAMED)
         self.assertTrue(d.recommended)
+        self.assertTrue(self.avahi("Global: yes\nLink 3 (wlan0): yes\n", self.RENAMED).recommended)
+
+    def test_still_found_by_searching_for_the_symptom(self):
+        hits = SearchIndex(DB).search("my computer shows up as hostname-2", 12)
+        self.assertIn("avahi-resolved-mdns-conflict", [h.target.id for h in hits if not h.is_category][:3])
 
     def test_another_app_on_the_mdns_port_is_not_blamed_on_resolved(self):
         # Browsers, Steam or adb holding UDP 5353 make Avahi log the same warning.

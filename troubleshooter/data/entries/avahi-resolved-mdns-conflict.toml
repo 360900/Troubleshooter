@@ -46,15 +46,17 @@ source = "file"
 path = "/etc/systemd/resolved.conf"
 regex = '^\s*MulticastDNS\s*=\s*(no|false|0|resolve)\s*$'
 
+# The warning is logged once at startup, and only means the setup could conflict. Recommended
+# on launch only when Avahi actually had to rename the host.
 [[signals]]
 says = "Avahi noticed another mDNS stack running on this machine"
-weight = 0.8
+weight = 0.3
 source = "journal"
 regex = 'Detected another IPv[46] mDNS stack running on this host'
 
 [[signals]]
 says = "Avahi had to rename the host because of a name conflict"
-weight = 0.4
+weight = 0.7
 source = "journal"
 regex = 'Host name conflict, retrying with'
 
