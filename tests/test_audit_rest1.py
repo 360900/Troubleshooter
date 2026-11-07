@@ -205,3 +205,20 @@ class DnsDelayTests(EngineCase):
         self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.APPLIES)
         m.write("/etc/resolv.conf", "nameserver 192.168.1.1\noptions single-request-reopen\n")
         self.assertEqual(engine.diagnose_entry(entry, m.system()).status, engine.FIXED)
+
+
+class DockerTests(EngineCase):
+    def docker(self, groups, group_line="docker:x:956:\n"):
+        m = self.machine()
+        m.packages = {"docker"}
+        m.write("/etc/group", group_line)
+        m.outputs["commands"] = {("id", "-nG"): groups}
+        return engine.diagnose_entry(DB.entries["docker-permission-denied"], m.system())
+
+    def test_member_of_the_docker_group_is_fixed(self):
+        self.assertEqual(self.docker("tarik wheel docker\n", "docker:x:956:tarik\n").status, engine.FIXED)
+
+    def test_not_in_the_group_applies(self):
+        d = self.docker("tarik wheel dockerx\n")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertTrue(d.found)

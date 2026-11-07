@@ -1,6 +1,6 @@
 id = "docker-permission-denied"
 title = "Docker: permission denied unless you use sudo"
-summary = "Only root and members of the docker group may talk to the Docker daemon. Nobody is in that group, so docker commands fail for your account. Joining it is effectively the same as having root access."
+summary = "Only root and members of the docker group may talk to the Docker daemon. Your account isn't in that group, so docker commands fail without sudo. Joining it is effectively the same as having root access."
 categories = ["vms"]
 systems = ["arch-and-based"]
 keywords = ["docker group", "docker.sock", "permission denied", "usermod", "rootless", "root equivalent"]
@@ -11,6 +11,13 @@ source = "https://wiki.archlinux.org/title/Docker#Installation"
 [[when]]
 source = "package"
 names = ["docker"]
+
+# The groups this session has. Someone added to the group who hasn't logged in again
+# still gets permission denied, so that still counts as the problem.
+[[fixed_when]]
+source = "command"
+argv = ["id", "-nG"]
+regex = '(^|\s)docker(\s|$)'
 
 [[signals]]
 says = "The docker group has no members"
