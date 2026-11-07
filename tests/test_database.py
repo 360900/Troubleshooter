@@ -38,6 +38,8 @@ class DatabaseTests(unittest.TestCase):
                     self.assertEqual(parts - {a.removeprefix("--no-") for a in step["undo_args"][1:]}, kept)
 
     def test_probes_only_run_read_only_commands(self):
+        reviewed = [["resolvectl", "mdns"]]  # status only, no arguments that change anything
+
         def commands(spec):
             for group in ("all_of", "any_of"):
                 for part in spec.get(group, []):
@@ -47,7 +49,8 @@ class DatabaseTests(unittest.TestCase):
         for entry in self.db.entries.values():
             specs = [*entry.when, *entry.fixed_when, *(s.spec for s in entry.signals)]
             for spec in specs:
-                self.assertEqual(list(commands(spec)), [], f"{entry.id}: review new command probes for safety")
+                for argv in commands(spec):
+                    self.assertIn(argv, reviewed, f"{entry.id}: review new command probes for safety")
 
     def test_entries_are_toml_1_0(self):
         """Python 3.11 to 3.13 only read TOML 1.0: no inline tables over several lines, no

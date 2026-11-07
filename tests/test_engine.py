@@ -239,6 +239,33 @@ class MacBookProTests(EngineCase):
                          engine.NOT_APPLICABLE)
 
 
+class AvahiTests(EngineCase):
+    WARNING = ("avahi-daemon[1247]: *** WARNING: Detected another IPv6 mDNS stack running on this host. "
+               "This makes mDNS unreliable and is thus not recommended. ***\n")
+
+    def avahi(self, mdns):
+        m = self.machine()
+        m.packages = {"avahi"}
+        m.outputs["services"] = {"avahi-daemon.service": "active", "systemd-resolved.service": "active"}
+        m.outputs["commands"] = {("resolvectl", "mdns"): mdns}
+        m.journal(self.WARNING)
+        return engine.evaluate(DB.entries["avahi-resolved-mdns-conflict"], m.system())
+
+    def test_resolved_answering_mdns_is_the_conflict(self):
+        d = self.avahi("Global: yes\nLink 3 (wlan0): yes\n")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertTrue(d.recommended)
+
+    def test_another_app_on_the_mdns_port_is_not_blamed_on_resolved(self):
+        # Browsers, Steam or adb holding UDP 5353 make Avahi log the same warning.
+        d = self.avahi("Global: yes\nLink 3 (wlan0): no\n")
+        self.assertEqual(d.status, engine.NOT_APPLICABLE)
+
+    def test_resolved_limited_to_lookups_is_fixed_wherever_it_was_set(self):
+        d = self.avahi("Global: resolve\nLink 3 (wlan0): yes\n")
+        self.assertEqual(d.status, engine.FIXED)
+
+
 class ConfidenceTests(EngineCase):
     def setUp(self):
         self.m = self.machine()

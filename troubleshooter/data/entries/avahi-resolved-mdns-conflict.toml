@@ -23,6 +23,19 @@ source = "service"
 name = "systemd-resolved.service"
 state = "active"
 
+# Avahi's warning only means something held UDP 5353 when it started. Browsers, Steam,
+# adb and others do that too, so the conflict needs resolved itself to be answering.
+[[when]]
+source = "command"
+argv = ["resolvectl", "mdns"]
+regex = '^Link .*: yes$'
+
+[[fixed_when]]
+source = "command"
+argv = ["resolvectl", "mdns"]
+regex = '^Global: yes$'
+absent = true
+
 [[fixed_when]]
 source = "file"
 path = "/etc/systemd/resolved.conf.d/*.conf"

@@ -81,6 +81,8 @@ class FakeMachine:
         if tool == "systemctl":
             state = self.outputs.get("services", {}).get(argv[2], "disabled")
             return Result(0 if state == "enabled" else 1, state + "\n")
+        if tuple(argv) in self.outputs.get("commands", {}):
+            return Result(0, self.outputs["commands"][tuple(argv)])
         if tool == "dpkg-query" or tool == "rpm":
             return Result(0, "\n".join(sorted(self.packages)) + "\n")
         return None
