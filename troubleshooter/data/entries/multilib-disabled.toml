@@ -5,6 +5,7 @@ categories = ["games", "wine"]
 systems = ["arch-and-based"]
 keywords = ["multilib", "pacman.conf", "lib32", "32-bit", "target not found"]
 symptoms = ["can't install steam", "steam not found in pacman", "pacman says target not found lib32", "wine won't install", "32-bit games don't run"]
+source = "https://wiki.archlinux.org/title/Official_repositories#Enabling_multilib"
 
 [[when]]
 source = "file"

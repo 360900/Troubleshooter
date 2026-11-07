@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["nvidia-580xx-dkms", "580xx", "legacy driver", "maxwell", "pascal", "gtx 1080", "gtx 1070", "gtx 1060", "gtx 1050", "gtx 970", "gtx 960"]
 symptoms = ["black screen after nvidia update", "no display after updating", "driver won't load after update", "nvidia stopped working after upgrade", "card no longer supported"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/NVIDIA#Installation"
 
 [[when]]
 source = "pci"

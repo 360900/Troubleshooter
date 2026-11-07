@@ -38,6 +38,7 @@ keywords = ["modeset"]                     # search
 symptoms = ["black screen at login"]       # search
 auto_detect = true                         # check on launch, recommend at 50% or more
 reproduce = "What to do to trigger it."    # optional
+source = "https://wiki.archlinux.org/title/NVIDIA#DRM_kernel_mode_setting"  # optional, shown as "Read more"
 
 [[when]]                                   # all must match, or the entry doesn't apply
 source = "module"

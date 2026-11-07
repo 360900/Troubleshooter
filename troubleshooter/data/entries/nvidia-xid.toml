@@ -7,6 +7,7 @@ keywords = ["xid", "NVRM", "gpu has fallen off the bus", "gpu hang", "overclock"
 symptoms = ["game freezes then screen goes black", "gpu crash", "whole system hangs while gaming", "screen flickers and freezes under load", "fans spin up and pc freezes"]
 advice = "Remove any GPU overclock and check temperatures first. Update the driver. If errors continue on stock settings, test the card in another machine or with another power supply. Xid 79 (GPU fallen off the bus) usually means power or hardware."
 reproduce = "Open the game or app that goes wrong and use it until the problem happens."
+source = "https://wiki.archlinux.org/title/NVIDIA/Troubleshooting#Crashes_and_hangs"
 
 [[when]]
 source = "module"

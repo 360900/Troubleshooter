@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import time
+from urllib.parse import unquote, urlsplit
 
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLineEdit, QPlainTextEdit, QVBoxLayout, QWidget
@@ -280,10 +281,21 @@ class ReproducePage(Page):
         self.body.addLayout(hbox(None, back, finished))
 
 
+def source_name(url: str) -> str:
+    """'ArchWiki: Intel graphics' for an ArchWiki link, else the site's name."""
+    parts = urlsplit(url)
+    if parts.netloc == "wiki.archlinux.org" and parts.path.startswith("/title/"):
+        page = unquote(parts.path.removeprefix("/title/")).replace("_", " ")
+        section = unquote(parts.fragment).replace("_", " ")
+        return f"ArchWiki: {page}" + (f", {section}" if section else "")
+    return parts.netloc.removeprefix("www.")
+
+
 class FixPage(Page):
     title = "Fix"
     apply = Signal(object, str, bool)  # plan, script, edited
     reproduce = Signal(object)
+    open_url = Signal(str)
 
     def show_waiting(self) -> None:
         waiting(self, "Reading your logs and hardware…")
@@ -291,6 +303,15 @@ class FixPage(Page):
     def show_diagnosis(self, d: engine.Diagnosis, plan, plan_error: str | None, os_name: str) -> None:
         self.reset()
         self.diagnosis, self.plan = d, plan
+        self._show_diagnosis(d, plan, plan_error, os_name)
+        if d.entry.source:
+            self.section("Learn more")
+            box = BoxedList()
+            box.add(Row("Read more about this problem", source_name(d.entry.source), "help-browser", chevron=True,
+                        on_click=lambda url=d.entry.source: self.open_url.emit(url)))
+            self.body.addWidget(box)
+
+    def _show_diagnosis(self, d: engine.Diagnosis, plan, plan_error: str | None, os_name: str) -> None:
         entry = d.entry
         self.body.addSpacing(8)
         self.body.addWidget(label(entry.title, "title2"))

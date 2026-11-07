@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["vulkan-intel", "anv", "mesa", "dxvk", "vulkan"]
 symptoms = ["game won't start on intel graphics", "vulkan not found", "dxvk fails on intel", "proton games don't launch"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/Vulkan#Installation"
 
 [[when]]
 source = "pci"

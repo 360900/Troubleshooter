@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import os
 
-from PySide6.QtCore import QEvent, QObject, QPoint, QProcess, QRectF, QRunnable, Qt, QThreadPool, Signal
-from PySide6.QtGui import QColor, QKeySequence, QPainter, QShortcut
+from PySide6.QtCore import QEvent, QObject, QPoint, QProcess, QRectF, QRunnable, Qt, QThreadPool, QUrl, Signal
+from PySide6.QtGui import QColor, QDesktopServices, QKeySequence, QPainter, QShortcut
 from PySide6.QtWidgets import (QHBoxLayout, QLabel, QMainWindow, QPushButton, QScrollArea, QStackedWidget, QVBoxLayout,
                                QWidget)
 
@@ -190,6 +190,7 @@ class MainWindow(QMainWindow):
         self.fix = FixPage()
         self.fix.apply.connect(self.apply_plan)
         self.fix.reproduce.connect(lambda d: self.start_reproduce())
+        self.fix.open_url.connect(lambda url: QDesktopServices.openUrl(QUrl(url)))
         self.apply = ApplyPage()
         self.apply.done.connect(self.go_home)
         self.apply.undo.connect(self.undo_record)

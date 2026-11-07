@@ -7,6 +7,7 @@ keywords = ["suspend", "resume", "NVreg_PreserveVideoMemoryAllocations", "preser
 symptoms = ["black screen after waking from sleep", "screen is garbled after resume", "desktop freezes when I open the lid", "laptop won't wake up", "windows are corrupted after suspend", "apps crash after sleep", "can't wake from suspend with nvidia"]
 auto_detect = true
 reproduce = "Put the computer to sleep and wake it up again. If it doesn't come back, restart it and run this again."
+source = "https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend"
 
 [[when]]
 source = "module"

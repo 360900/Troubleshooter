@@ -7,6 +7,7 @@ keywords = ["mediatek", "mt7921", "mt7922", "mt7925", "filogic", "aspm", "power 
 symptoms = ["wifi keeps disconnecting", "wifi stops working after a while", "wifi dies after sleep", "wireless disappears until reboot", "internet cuts out"]
 auto_detect = true
 reproduce = "Use the internet normally until the connection drops."
+source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#mt7921_/_mt7922"
 
 [[when]]
 source = "module"

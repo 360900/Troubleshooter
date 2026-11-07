@@ -6,6 +6,7 @@ systems = ["any"]
 keywords = ["vm.max_map_count", "max_map_count", "sysctl", "mappings"]
 symptoms = ["game crashes on start", "game crashes after a few minutes", "game closes itself to desktop", "game crashes while loading", "proton game crashes"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/Gaming#Increase_vm.max_map_count"
 
 [[when]]
 source = "file"

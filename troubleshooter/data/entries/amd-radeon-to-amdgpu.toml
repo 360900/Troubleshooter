@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["radeon", "amdgpu", "si_support", "cik_support", "southern islands", "sea islands", "hd 7000", "r9 290", "r7 260"]
 symptoms = ["no vulkan on my old radeon card", "games are slow on old amd card", "vulkan not supported on hd 7970", "dxvk doesn't work on r9"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/AMDGPU#Enable_Southern_Islands_(SI)_and_Sea_Islands_(CIK)_support"
 
 [[when]]
 source = "pci"

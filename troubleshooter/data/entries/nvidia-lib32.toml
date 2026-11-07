@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["lib32-nvidia-utils", "32-bit", "multilib", "vulkan", "glx"]
 symptoms = ["steam won't start", "game doesn't launch with nvidia", "wine can't find vulkan", "steam says graphics driver is missing", "very low fps in old games"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/NVIDIA#Installation"
 
 [[when]]
 source = "module"

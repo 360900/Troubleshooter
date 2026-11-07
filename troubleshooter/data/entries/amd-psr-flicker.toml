@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["amdgpu.dcdebugmask", "psr", "panel self refresh", "flip_done", "dcn"]
 symptoms = ["screen flickers on my amd laptop", "display glitches for a moment", "cursor stutters and the screen flashes", "game is flickering on ryzen laptop", "screen freezes for a second"]
 reproduce = "Use the computer until the screen flickers or freezes."
+source = "https://wiki.archlinux.org/title/AMDGPU#Frozen_or_unresponsive_display_(flip_done_timed_out)"
 
 [[when]]
 source = "module"

@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["vulkan-radeon", "radv", "mesa", "dxvk", "vulkan"]
 symptoms = ["game won't start on my radeon card", "dxvk fails on amd", "proton games don't launch", "vulkan not found", "no vulkan device"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/Vulkan#Installation"
 
 [[when]]
 source = "pci"

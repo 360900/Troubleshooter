@@ -16,8 +16,9 @@ from .system import SCOPES
 
 DATA_DIR = Path(__file__).parent / "data"
 ENTRY_KEYS = {"id", "title", "summary", "categories", "systems", "keywords", "symptoms", "auto_detect",
-              "prior", "when", "fixed_when", "signals", "reproduce", "fix", "advice"}
+              "prior", "when", "fixed_when", "signals", "reproduce", "fix", "advice", "source"}
 FIX_KEYS = {"systems", "reboot", "steps"}
+_SOURCE_URL = re.compile(r"^https://[^\s]+$")
 
 
 class DatabaseError(Exception):
@@ -65,6 +66,7 @@ class Entry:
     reproduce: str | None = None
     fixes: list[Fix] = field(default_factory=list)
     advice: str | None = None
+    source: str | None = None  # where to read more, e.g. an ArchWiki page
 
 
 @dataclass
@@ -151,13 +153,15 @@ def parse_entry(raw: dict, where: str, categories: dict[str, Category]) -> Entry
         fixes.append(Fix(scopes, item.get("reboot", False), item["steps"]))
     if not fixes and not raw.get("advice"):
         raise DatabaseError(f"{where}: needs a fix or advice")
+    if "source" in raw and not _SOURCE_URL.match(str(raw["source"])):
+        raise DatabaseError(f"{where}: source must be an https URL")
 
     return Entry(
         id=raw["id"], title=raw["title"], summary=raw["summary"], categories=raw["categories"],
         systems=raw["systems"], keywords=raw.get("keywords", []), symptoms=raw.get("symptoms", []),
         auto_detect=raw.get("auto_detect", False), prior=raw.get("prior", 0.05),
         when=raw.get("when", []), fixed_when=raw.get("fixed_when", []), signals=signals,
-        reproduce=raw.get("reproduce"), fixes=fixes, advice=raw.get("advice"),
+        reproduce=raw.get("reproduce"), fixes=fixes, advice=raw.get("advice"), source=raw.get("source"),
     )
 
 

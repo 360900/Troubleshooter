@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["wine-mono", "wine-gecko", "dotnet", ".net", "mscoree"]
 symptoms = ["windows app won't start in wine", "installer fails under wine", ".net app crashes", "wine asks to download mono", "exe doesn't open"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/Wine#Installation"
 
 [[when]]
 source = "package"

@@ -55,6 +55,8 @@ class DatabaseTests(unittest.TestCase):
             {"fix": [{"steps": [{"op": "kernel_params", "add": ["a; rm -rf /"]}]}]},
             {"fix": [{"steps": [{"op": "install", "packages": ["a;b"]}]}]},
             {"fix": [{"steps": []}]},
+            {"source": "wiki.archlinux.org/title/GRUB"},
+            {"source": "http://wiki.archlinux.org/title/GRUB"},
         ]
         for extra in bad:
             with self.subTest(extra=extra), self.assertRaises(DatabaseError):

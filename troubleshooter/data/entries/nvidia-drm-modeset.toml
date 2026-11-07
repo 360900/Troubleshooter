@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["nvidia_drm.modeset", "modeset", "kms", "fbdev", "wayland", "tearing", "drm"]
 symptoms = ["wayland session doesn't start on nvidia", "screen tearing on nvidia", "black screen at login", "no wayland option at the login screen", "flickering on nvidia"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/NVIDIA#DRM_kernel_mode_setting"
 
 [[when]]
 source = "module"

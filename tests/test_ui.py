@@ -106,6 +106,16 @@ class UiTest(unittest.TestCase):
         self.assertIn("Add kernel parameters that save video memory during sleep", texts)
         self.assertIn("You'll need to restart afterwards.", texts)
 
+    def test_source_link_opens_the_page(self):
+        self.open_fix("nvidia-sleep")
+        opened = []
+        self.window.fix.open_url.connect(opened.append)
+        rows = [r for r in self.window.fix.findChildren(pages.Row) if r.title.text() == "Read more about this problem"]
+        self.assertEqual(len(rows), 1)
+        self.assertTrue(rows[0].subtitle.text().startswith("ArchWiki: NVIDIA"))
+        rows[0].clicked.emit()
+        self.assertEqual(opened, [self.db.entries["nvidia-sleep"].source])
+
     def test_advanced_warning_is_exact_and_gates_the_editor(self):
         self.open_fix("nvidia-sleep")
         fix = self.window.fix

@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["nouveau", "nvidia-open", "proprietary driver", "install nvidia driver", "turing", "ampere"]
 symptoms = ["low fps on nvidia", "games are slow on my rtx card", "nvidia driver not installed", "nvidia settings doesn't open", "no cuda", "screen flickers on nvidia"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/NVIDIA#Installation"
 
 [[when]]
 source = "pci"

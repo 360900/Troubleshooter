@@ -7,6 +7,7 @@ keywords = ["oom", "out of memory", "oom killer", "swap", "zram", "zram-generato
 symptoms = ["apps close by themselves", "browser disappears", "computer freezes when many apps are open", "game killed out of nowhere", "system locks up when memory is full"]
 auto_detect = true
 reproduce = "Do whatever you were doing when apps closed by themselves."
+source = "https://wiki.archlinux.org/title/Zram#Using_zram-generator"
 
 [[fixed_when]]
 source = "file"

@@ -6,6 +6,7 @@ systems = ["arch-and-based"]
 keywords = ["nouveau", "nvidia-580xx-dkms", "580xx", "legacy driver", "maxwell", "pascal", "reclocking", "gtx 1080", "gtx 1060", "gtx 970"]
 symptoms = ["games are very slow on my gtx card", "low fps on an old nvidia card", "nvidia driver not installed"]
 auto_detect = true
+source = "https://wiki.archlinux.org/title/NVIDIA#Installation"
 
 [[when]]
 source = "pci"
