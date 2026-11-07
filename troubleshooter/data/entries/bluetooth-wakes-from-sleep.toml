@@ -36,8 +36,9 @@ StopWhenUnneeded=yes
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/bin/bluetoothctl power off
-ExecStop=/usr/bin/bluetoothctl power on
+# Without a timeout bluetoothctl waits forever for bluetoothd, which would hold up sleep.
+ExecStart=-/usr/bin/bluetoothctl --timeout 5 power off
+ExecStop=-/usr/bin/bluetoothctl --timeout 5 power on
 ''' },
   { op = "write_file", path = "/etc/systemd/system/sleep.target.d/troubleshooter-bluetooth-sleep.conf", says = "Run that service every time the computer goes to sleep", content = '''
 # Added by Troubleshooter: bluetooth-wakes-from-sleep

@@ -74,3 +74,13 @@ class BluetoothTests(EngineCase):
         m = self.machine()
         m.journal("kernel: Bluetooth: hci0: command tx timeout\n")
         self.assertTrue(engine.evaluate(DB.entries["bluetooth-controller-stuck"], m.system()).found)
+
+    def test_sleep_service_cant_hang_waiting_for_bluetoothd(self):
+        # bluetoothctl waits for bluetoothd forever without --timeout, and a oneshot unit
+        # has no start timeout, so sleep would never happen with bluetooth.service stopped.
+        m = self.machine()
+        execs = [line for line in plan_for(m, "bluetooth-wakes-from-sleep").script.splitlines()
+                 if line.startswith("Exec")]
+        self.assertEqual(len(execs), 2)
+        for line in execs:
+            self.assertIn("bluetoothctl --timeout", line)
