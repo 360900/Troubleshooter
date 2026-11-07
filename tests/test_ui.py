@@ -124,6 +124,13 @@ class UiTest(unittest.TestCase):
         rows[0].clicked.emit()
         self.assertEqual(opened, [self.db.entries["nvidia-sleep"].source])
 
+    def test_source_names(self):
+        self.assertEqual(pages.source_name("https://wiki.archlinux.org/title/Intel_graphics#Screen_flickering"),
+                         "ArchWiki: Intel graphics, Screen flickering")
+        self.assertEqual(pages.source_name("https://github.com/360900/mbp132-setup#what-it-fixes-and-why"),
+                         "GitHub: 360900/mbp132-setup")
+        self.assertEqual(pages.source_name("https://www.kernel.org/doc/html/latest/"), "kernel.org")
+
     def test_advanced_warning_is_exact_and_gates_the_editor(self):
         self.open_fix("nvidia-sleep")
         fix = self.window.fix

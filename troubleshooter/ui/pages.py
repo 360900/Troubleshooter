@@ -282,12 +282,16 @@ class ReproducePage(Page):
 
 
 def source_name(url: str) -> str:
-    """'ArchWiki: Intel graphics' for an ArchWiki link, else the site's name."""
+    """'ArchWiki: Intel graphics' for an ArchWiki link, 'GitHub: owner/repo' for a repository,
+    else the site's name."""
     parts = urlsplit(url)
     if parts.netloc == "wiki.archlinux.org" and parts.path.startswith("/title/"):
         page = unquote(parts.path.removeprefix("/title/")).replace("_", " ")
         section = unquote(parts.fragment).replace("_", " ")
         return f"ArchWiki: {page}" + (f", {section}" if section else "")
+    repo = parts.path.strip("/").split("/")
+    if parts.netloc == "github.com" and len(repo) >= 2:
+        return f"GitHub: {repo[0]}/{repo[1]}"
     return parts.netloc.removeprefix("www.")
 
 
