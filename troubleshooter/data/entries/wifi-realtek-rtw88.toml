@@ -7,16 +7,19 @@ keywords = ["realtek", "rtw88", "rtl8821ce", "rtl8822ce", "rtl8723de", "aspm", "
 symptoms = ["wifi keeps disconnecting", "wifi is slow", "wireless drops every few minutes", "internet cuts out on my laptop", "weak wifi signal"]
 auto_detect = true
 reproduce = "Use the internet normally until the connection drops."
-source = "https://wiki.archlinux.org/title/Network_configuration/Wireless#RTW88"
+source = "https://lkml.iu.edu/2603.1/02883.html"
 
 [[when]]
 source = "module"
 names = ["rtw88_pci"]
 
+# Either option alone is a known workaround (one alone was enough in the reporter's tests
+# in the linked thread), so either counts as already handled.
 [[fixed_when]]
-source = "file"
-path = "/sys/module/rtw88_pci/parameters/disable_aspm"
-regex = '^Y'
+any_of = [
+  { source = "file", path = "/sys/module/rtw88_pci/parameters/disable_aspm", regex = '^Y' },
+  { source = "file", path = "/sys/module/rtw88_core/parameters/disable_lps_deep", regex = '^Y' },
+]
 
 [[signals]]
 # Most of these chips work fine, so the chip alone isn't enough to recommend the fix.

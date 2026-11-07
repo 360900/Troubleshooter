@@ -94,5 +94,34 @@ class IntelWifiTests(EngineCase):
         self.assertTrue(d.recommended)
 
 
+class RealtekTests(EngineCase):
+    def rtw89(self, line):
+        m = self.machine()
+        m.modules("rtw89_pci", "rtw89_core", "rtw89_8852be")
+        m.journal(f"kernel: rtw89_8852be 0000:02:00.0: {line}\n")
+        return engine.evaluate(DB.entries["wifi-realtek-rtw89"], m.system())
+
+    def test_rtw89_recovered_error_alone_is_not_recommended_on_launch(self):
+        d = self.rtw89("SER catches error: 0x1001")
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+    def test_rtw89_chip_stuck_asleep_is_recommended(self):
+        self.assertTrue(self.rtw89("failed to leave idle state").recommended)
+
+    def test_rtw89_chip_alone_is_no_evidence(self):
+        m = self.machine()
+        m.modules("rtw89_pci", "rtw89_8852be")
+        self.assertEqual(engine.evaluate(DB.entries["wifi-realtek-rtw89"], m.system()).found, [])
+
+    def test_rtw88_deep_power_saving_off_is_fixed(self):
+        m = self.machine()
+        m.modules("rtw88_pci", "rtw88_core", "rtw88_8821ce")
+        m.write("/sys/module/rtw88_pci/parameters/disable_aspm", "N\n")
+        m.write("/sys/module/rtw88_core/parameters/disable_lps_deep", "Y\n")
+        d = engine.evaluate(DB.entries["wifi-realtek-rtw88"], m.system())
+        self.assertEqual(d.status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
