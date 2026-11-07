@@ -29,7 +29,7 @@ says = "The Apple SSD failed to come back from a power-saving state"
 weight = 0.5
 source = "journal"
 kernel = true
-regex = 'nvme nvme\d+: .*(CSTS=0x|timeout)'
+regex = 'nvme nvme\d+: (.*CSTS=0x|I/O .*timeout)'
 
 [[fix]]
 reboot = true

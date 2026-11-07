@@ -25,6 +25,12 @@ source = "file"
 path = "/etc/modprobe.d/*.conf"
 regex = '^options applespi.*fnremap=1'
 
+# The driver's live setting, however it was set. Any remap at all is a choice already made.
+[[fixed_when]]
+source = "file"
+path = "/sys/module/applespi/parameters/fnremap"
+regex = '^[1-8]$'
+
 [[signals]]
 says = "Fn sits where Ctrl is on most keyboards; swapping them is optional"
 weight = 0.5

@@ -25,13 +25,19 @@ source = "file"
 path = "/etc/modprobe.d/*.conf"
 regex = '^options applespi.*iso_layout=1'
 
+# The driver's live setting, however it was set (kernel command line, another file).
+[[fixed_when]]
+source = "file"
+path = "/sys/module/applespi/parameters/iso_layout"
+regex = '^Y$'
+
 [[signals]]
 says = "Your keyboard layout isn't US English, so this MacBook most likely has an ISO keyboard"
 weight = 0.6
 any_of = [
   { source = "file", path = "~/.config/kxkbrc", regex = '^LayoutList=(?!us\b)[a-z]' },
-  { source = "file", path = "/etc/X11/xorg.conf.d/*.conf", regex = 'XkbLayout"\s+"(?!us")[a-z]' },
-  { source = "file", path = "/etc/vconsole.conf", regex = '^KEYMAP=(?!us$)[a-z]' },
+  { source = "file", path = "/etc/X11/xorg.conf.d/*.conf", regex = 'XkbLayout"\s+"(?!us\b)[a-z]' },
+  { source = "file", path = "/etc/vconsole.conf", regex = '^KEYMAP="?(?!us\b)[a-z]' },
 ]
 
 [[fix]]

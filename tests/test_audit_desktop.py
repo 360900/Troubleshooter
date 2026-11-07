@@ -165,5 +165,44 @@ class VirtualBoxTests(DesktopCase):
         self.assertFalse(self.vbox(self.NOT_BUILT)["vbox-driver-not-loaded"].recommended)
 
 
+class MacBookTests(DesktopCase):
+    def mac(self):
+        m = self.machine()
+        m.write("/sys/class/dmi/id/product_name", "MacBookPro14,3\n")
+        return m
+
+    def test_fn_remap_set_anywhere_is_fixed(self):
+        m = self.mac()
+        self.assertTrue(self.evaluate("mbp-keyboard-fn-ctrl", m).recommended)
+        m.write("/sys/module/applespi/parameters/fnremap", "1\n")
+        self.assertEqual(self.evaluate("mbp-keyboard-fn-ctrl", m).status, engine.FIXED)
+
+    def test_iso_layout_set_anywhere_is_fixed(self):
+        m = self.mac()
+        m.write("/etc/vconsole.conf", 'KEYMAP="de-latin1"\n')
+        self.assertTrue(self.evaluate("mbp-keyboard-iso", m).recommended)
+        m.write("/sys/module/applespi/parameters/iso_layout", "Y\n")
+        self.assertEqual(self.evaluate("mbp-keyboard-iso", m).status, engine.FIXED)
+
+    def test_us_variants_are_not_iso(self):
+        m = self.mac()
+        m.write("/etc/vconsole.conf", "KEYMAP=us-acentos\n")
+        self.assertFalse(self.evaluate("mbp-keyboard-iso", m).recommended)
+
+    def test_windows_keys_in_any_order_are_fixed(self):
+        m = self.mac()
+        (m.home / ".config").mkdir()
+        (m.home / ".config/kxkbrc").write_text("[Layout]\nOptions=lv3:rwin_switch,altwin:swap_lalt_lwin\n")
+        d = self.evaluate("mbp-keyboard-windows-keys", m, {"XDG_CURRENT_DESKTOP": "KDE"})
+        self.assertEqual(d.status, engine.FIXED)
+
+    def test_benign_nvme_lines_are_not_ssd_trouble(self):
+        m = self.mac()
+        m.journal("kernel: nvme nvme0: Shutdown timeout set to 10 seconds\n")
+        self.assertEqual(len(self.evaluate("mbp-sleep-fixes", m).found), 1)
+        m.journal("kernel: nvme nvme0: I/O tag 12 (100c) opcode 0x2 (Read) QID 1 timeout, aborting\n")
+        self.assertEqual(len(self.evaluate("mbp-sleep-fixes", m).found), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

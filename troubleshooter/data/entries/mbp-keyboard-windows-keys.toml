@@ -21,14 +21,14 @@ regex = '=(.*:)?KDE(:|$)'
 [[fixed_when]]
 source = "file"
 path = "~/.config/kxkbrc"
-regex = '^Options=.*altwin:swap_lalt_lwin.*lv3:rwin_switch'
+regex = '^Options=(?=.*altwin:swap_lalt_lwin)(?=.*lv3:rwin_switch)'
 
 [[signals]]
 says = "The modifier keys are in Mac order, and right Command doesn't work as AltGr"
 weight = 0.5
 source = "file"
 path = "~/.config/kxkbrc"
-regex = '^Options=.*altwin:swap_lalt_lwin.*lv3:rwin_switch'
+regex = '^Options=(?=.*altwin:swap_lalt_lwin)(?=.*lv3:rwin_switch)'
 absent = true
 
 [[fix]]
