@@ -14,7 +14,9 @@ says = "A gamepad fell back to its Android mode"
 weight = 0.6
 source = "journal"
 kernel = true
-regex = 'usb .*: (Manufacturer: SHANWAN|Product: Android Gamepad)'
+# Only the product name says Android mode. "Manufacturer: SHANWAN" alone doesn't, and
+# ShanWan also makes pads that work fine.
+regex = 'usb .*: Product: Android Gamepad'
 
 [[signals]]
 says = "A USB device sent a configuration the kernel couldn't read"

@@ -277,3 +277,11 @@ class GameTests(EngineCase):
 
     def test_gamemode_renicing_next_to_ananicy_is_found(self):
         self.assertGreaterEqual(self.ananicy("[general]\nrenice=10\n").confidence, engine.RECOMMEND_AT)
+
+    def test_shanwan_name_alone_is_not_android_mode(self):
+        entry = DB.entries["gamepad-shanwan-android-mode"]
+        m = self.machine()
+        m.journal("kernel: usb 1-5.3: Manufacturer: SHANWAN\n")
+        self.assertFalse(engine.evaluate(entry, m.system()).found)
+        m.journal("kernel: usb 1-5.3: Product: Android Gamepad\nkernel: usb 1-5.3: Manufacturer: SHANWAN\n")
+        self.assertTrue(engine.evaluate(entry, m.system()).found)
