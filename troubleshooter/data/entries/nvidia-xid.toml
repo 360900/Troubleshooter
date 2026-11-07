@@ -18,4 +18,7 @@ says = "The kernel log has NVIDIA Xid errors"
 weight = 0.85
 source = "journal"
 kernel = true
-regex = 'NVRM: Xid|GPU has fallen off the bus'
+# Xid 45 is logged whenever an app on the GPU is killed or quits after an error (Ctrl+C,
+# sigkill), so it isn't a fault by itself:
+# https://docs.nvidia.com/deploy/xid-errors/analyzing-xid-catalog.html
+regex = 'NVRM: Xid \([^)]*\): (?!45\b)\d+|GPU has fallen off the bus'

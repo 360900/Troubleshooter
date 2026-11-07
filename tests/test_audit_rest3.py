@@ -43,3 +43,23 @@ class NvidiaHibernateTests(EngineCase):
         d = self.evaluate("/dev/nvme0n1p3                          partition\t16777212\t0\t-2\n",
                           "kernel: PM: hibernation: hibernation entry\n")
         self.assertEqual(len(d.found), 2)
+
+
+class NvidiaXidTests(EngineCase):
+    def evaluate(self, journal):
+        m = self.machine()
+        m.modules("nvidia")
+        m.journal(journal)
+        return engine.evaluate(DB.entries["nvidia-xid"], m.system())
+
+    def test_a_real_xid_is_evidence(self):
+        d = self.evaluate("kernel: NVRM: Xid (PCI:0000:01:00): 79, pid='<unknown>', name=<unknown>, "
+                          "GPU has fallen off the bus.\n")
+        self.assertTrue(d.recommended)
+        self.assertTrue(self.evaluate("kernel: NVRM: Xid (PCI:0000:01:00): 13, pid=4242, name=game.exe, "
+                                      "Graphics Exception\n").found)
+
+    def test_an_app_being_closed_is_not(self):
+        # Xid 45 is the driver cleaning up after a process was killed.
+        d = self.evaluate("kernel: NVRM: Xid (PCI:0000:01:00): 45, pid=4242, name=python3, Ch 00000010\n")
+        self.assertFalse(d.found)
