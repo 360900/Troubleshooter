@@ -40,6 +40,18 @@ QUERIES = {
     "clock is wrong after using windows": {"time-dual-boot-offset"},
     "xbox controller won't connect": {"xbox-wireless-adapter-driver", "xbox-bluetooth-ertm"},
     "my laptop drains battery while sleeping": {"sleep-s2idle-battery-drain"},
+    "my virtual machine says kvm is not available": {"virt-hardware-virtualization-off"},
+    "docker says permission denied on the socket": {"docker-permission-denied"},
+    "fingerprint login stopped working": {"fprint-firmware-unsupported", "fprint-after-sleep"},
+    "can't type chinese characters": {"fcitx5-gnome-wayland-popup", "fcitx5-plasma-wayland-kwin", "fcitx5-gtk-missing"},
+    "brightness keys do nothing on my laptop": {"backlight-no-control"},
+    "thunderbolt dock is not recognized": {"thunderbolt-bolt-missing", "thunderbolt-device-pending"},
+    "wireguard tunnel has no dns": {"wireguard-resolvconf-missing"},
+    "network share isn't mounted after boot": {"nfs-remote-fs-disabled", "nfs-mount-before-network"},
+    "secure boot blocks my wifi driver": {"secureboot-unsigned-module-rejected"},
+    "yay fails to build anything": {"aur-base-devel-missing"},
+    "scanner is not found": {"sane-airscan-missing", "sane-ipp-usb-missing"},
+    "the login screen theme is broken": {"sddm-theme-qt-version"},
 }
 
 
