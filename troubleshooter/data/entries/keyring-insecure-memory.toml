@@ -16,7 +16,7 @@ names = ["gnome-keyring"]
 says = "gnome-keyring-daemon warned that it can't lock its memory"
 weight = 0.7
 source = "journal"
-regex = 'no process capabilities, insecure memory might get used'
+regex = '(no|insufficient) process capabilities, insecure memory might get used'
 
 [[fix]]
 steps = [{ op = "command", says = "Let gnome-keyring-daemon lock its memory", run = "setcap cap_ipc_lock=+ep /usr/bin/gnome-keyring-daemon", undo = "setcap -r /usr/bin/gnome-keyring-daemon" }]
