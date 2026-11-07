@@ -1,4 +1,6 @@
+import re
 import unittest
+from pathlib import Path
 
 from troubleshooter.database import DatabaseError, load_database, parse_entry
 from troubleshooter.system import SCOPES
@@ -35,6 +37,20 @@ class DatabaseTests(unittest.TestCase):
             specs = [*entry.when, *entry.fixed_when, *(s.spec for s in entry.signals)]
             for spec in specs:
                 self.assertEqual(list(commands(spec)), [], f"{entry.id}: review new command probes for safety")
+
+    def test_entries_are_toml_1_0(self):
+        """Python 3.11 to 3.13 only read TOML 1.0: no inline tables over several lines, no
+        trailing commas in them, no \\x or \\e escapes in basic strings."""
+        multiline = re.compile(r"'''.*?'''|\"\"\".*?\"\"\"", re.S)
+        basic = r'"(?:[^"\\]|\\.)*"'
+        for path in sorted((Path(__file__).parents[1] / "troubleshooter/data/entries").glob("*.toml")):
+            for number, line in enumerate(multiline.sub("", path.read_text()).splitlines(), 1):
+                where = f"{path.name}:{number}"
+                for string in re.findall(basic, line):
+                    self.assertNotRegex(string, r"(?<!\\)(\\\\)*\\[xe]", where)
+                code = re.sub(rf"'[^']*'|{basic}", "", line)
+                self.assertEqual(code.count("{"), code.count("}"), where)
+                self.assertNotRegex(code, r",\s*}", where)
 
     def _entry(self, **extra):
         base = {"id": "x", "title": "x", "summary": "x", "categories": ["display"], "systems": ["any"], "advice": "x"}

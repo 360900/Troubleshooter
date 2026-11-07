@@ -10,14 +10,8 @@ source = "https://wiki.archlinux.org/title/Power_management/Wakeup_triggers#ASRo
 
 [[when]]
 any_of = [
-  { all_of = [
-    { source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^ASRock' },
-    { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'B850M Pro' },
-  ] },
-  { all_of = [
-    { source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^Micro-Star' },
-    { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'X870 TOMAHAWK' },
-  ] },
+  { all_of = [{ source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^ASRock' }, { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'B850M Pro' }] },
+  { all_of = [{ source = "file", path = "/sys/class/dmi/id/board_vendor", regex = '^Micro-Star' }, { source = "file", path = "/sys/class/dmi/id/board_name", regex = 'X870 TOMAHAWK' }] },
 ]
 
 [[signals]]

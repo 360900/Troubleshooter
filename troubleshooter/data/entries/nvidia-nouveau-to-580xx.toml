@@ -26,10 +26,7 @@ absent = true
 # nouveau can, so the swap would cost battery life there.
 [[when]]
 any_of = [
-  { all_of = [
-    { source = "pci", vendor = "8086", class = "03", absent = true },
-    { source = "pci", vendor = "1002", class = "03", absent = true },
-  ] },
+  { all_of = [{ source = "pci", vendor = "8086", class = "03", absent = true }, { source = "pci", vendor = "1002", class = "03", absent = true }] },
   { source = "file", path = "/sys/class/power_supply/BAT*", absent = true },
 ]
 
