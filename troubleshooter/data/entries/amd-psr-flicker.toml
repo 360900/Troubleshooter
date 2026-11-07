@@ -28,7 +28,9 @@ says = "The kernel log shows display timeouts from amdgpu"
 weight = 0.6
 source = "journal"
 kernel = true
-regex = 'amdgpu.*(flip_done timed out|REG_WAIT timeout)|\[drm\].*(flip_done timed out)'
+# drm_err() prefixes the driver, so a bare "[drm]" match would also count Intel or NVIDIA
+# timeouts on hybrid laptops.
+regex = 'amdgpu.*(flip_done timed out|REG_WAIT timeout)'
 
 [[fix]]
 reboot = true
