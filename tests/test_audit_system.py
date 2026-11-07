@@ -53,5 +53,32 @@ class Ext4Tests(EngineCase):
         self.assertFalse(d.recommended)
 
 
+class BtrfsTests(EngineCase):
+    STATS = "write_errs 0\nread_errs 0\nflush_errs 0\ncorruption_errs {}\ngeneration_errs 0\n"
+
+    def btrfs(self, corrupt=0, journal=""):
+        m = self.machine()
+        m.write("/proc/self/mounts", "/dev/nvme0n1p2 / btrfs rw,noatime,compress=zstd:1 0 0\n")
+        m.write("/sys/fs/btrfs/164c189d/devinfo/1/error_stats", self.STATS.format(corrupt))
+        m.journal(journal)
+        return engine.evaluate(DB.entries["btrfs-checksum-errors"], m.system())
+
+    def test_counts_shown_at_mount_are_not_a_new_failure(self):
+        d = self.btrfs(journal="kernel: BTRFS info (device nvme0n1p2): bdev /dev/nvme0n1p2 errs: "
+                               "wr 0, rd 0, flush 0, corrupt 4, gen 0\n")
+        self.assertFalse(d.found)
+
+    def test_an_old_count_alone_is_only_a_hint(self):
+        d = self.btrfs(corrupt=4)
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+    def test_a_failed_checksum_is_recommended(self):
+        for line in ("BTRFS warning (device nvme0n1p2): csum failed root 5 ino 257 off 0 csum 0x1 expected csum 0x2 mirror 1",
+                     "BTRFS warning (device sda1): scrub: tree block 30408704 mirror 1 has bad csum, has 0x1 want 0x2",
+                     "BTRFS error (device sda1 state EA): bdev /dev/sda1 errs: wr 0, rd 0, flush 0, corrupt 1, gen 0"):
+            self.assertTrue(self.btrfs(journal=f"kernel: {line}\n").recommended, line)
+
+
 if __name__ == "__main__":
     unittest.main()

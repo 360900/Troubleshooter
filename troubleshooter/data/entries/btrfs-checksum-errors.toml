@@ -6,7 +6,7 @@ systems = ["any"]
 keywords = ["btrfs", "csum failed", "checksum error", "corrupt", "btrfs scrub", "btrfs device stats", "smart", "memtest"]
 symptoms = ["btrfs csum failed", "files are corrupted", "input/output error when copying files", "btrfs corruption errors", "can't read some files"]
 auto_detect = true
-advice = "Back up anything important now. Then run sudo btrfs scrub start / and check the result with sudo btrfs scrub status / to see which files are affected. Check the drive's health with smartctl or GNOME Disks, and test your RAM with Memtest86+, since bad memory causes these errors too."
+advice = "Back up anything important now. Then run sudo btrfs scrub start / and check the result with sudo btrfs scrub status / to see which files are affected. Check the drive's health with smartctl or GNOME Disks, and test your RAM with Memtest86+, since bad memory causes these errors too. Once the cause is fixed, reset the error counters with sudo btrfs device stats -z /."
 reproduce = "Open or copy the files that give errors."
 source = "https://wiki.archlinux.org/title/Btrfs#Scrub"
 
@@ -23,4 +23,13 @@ source = "journal"
 kernel = true
 # The errs line is also printed at every mount while old counts remain, but only
 # as "BTRFS info", so match the error level that comes with a new failure.
-regex = 'BTRFS (warning|error) .*(csum failed|checksum error|checksum verify failed)|BTRFS error .*errs: wr \d+, rd \d+, flush \d+, corrupt [1-9]'
+regex = 'BTRFS (warning|error) .*(csum failed|checksum error|checksum verify failed|has bad csum)|BTRFS error .*errs: wr \d+, rd \d+, flush \d+, corrupt [1-9]'
+
+# The same counters, kept on disk. They never go down on their own, so an old count
+# that was dealt with but not reset only hints at it.
+[[signals]]
+says = "Btrfs has counted corrupted data on this drive before"
+weight = 0.35
+source = "file"
+path = "/sys/fs/btrfs/*/devinfo/*/error_stats"
+regex = '^corruption_errs [1-9]'
