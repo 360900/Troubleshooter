@@ -77,3 +77,32 @@ class NvidiaBootRaceTests(EngineCase):
         self.assertNotIn("card0", script)
         self.assertIn('DRIVERS=="nvidia", TAG+="systemd", ENV{SYSTEMD_ALIAS}+="/dev/dri/nvidia"', script)
         self.assertIn("After=dev-dri-nvidia.device", script)
+
+
+class PodmanRegistryTests(EngineCase):
+    def evaluate(self, extra=None):
+        m = self.machine()
+        m.packages = {"podman"}
+        # What containers-common ships on Arch: the upstream file with the list commented out.
+        m.write("/usr/share/containers/registries.conf", '# unqualified-search-registries = ["example.com"]\n')
+        m.write("/usr/share/containers/registries.conf.d/00-shortnames.conf",
+                '[aliases]\n  "archlinux" = "docker.io/library/archlinux"\n')
+        if extra:
+            path, text = extra
+            target = m.home / path if not path.startswith("/") else m.root / path.lstrip("/")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text)
+        return engine.evaluate(DB.entries["podman-no-search-registries"], m.system())
+
+    def test_arch_defaults_have_no_search_registry(self):
+        d = self.evaluate()
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertEqual(len(d.found), 1)
+
+    def test_an_empty_list_is_still_none(self):
+        d = self.evaluate(("/etc/containers/registries.conf", "unqualified-search-registries = []\n"))
+        self.assertEqual(d.status, engine.APPLIES)
+
+    def test_a_per_user_config_counts(self):
+        d = self.evaluate((".config/containers/registries.conf", "unqualified-search-registries = ['quay.io']\n"))
+        self.assertEqual(d.status, engine.FIXED)

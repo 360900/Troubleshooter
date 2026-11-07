@@ -1,28 +1,38 @@
 id = "podman-no-search-registries"
-title = "Podman: short image names like \"archlinux\" don't resolve"
-summary = "Arch ships Podman without any default registry, so pulling an image by its short name fails. Adding Docker Hub as the search registry makes Podman behave like Docker."
+title = "Podman: short image names like \"nginx\" don't resolve"
+summary = "Arch ships Podman without a default search registry, so pulling an image by its short name fails unless it's one of the few built-in aliases (such as archlinux, alpine or ubuntu). Adding Docker Hub as the search registry makes Podman behave like Docker."
 categories = ["vms"]
 systems = ["arch-and-based"]
 keywords = ["podman", "registries.conf", "unqualified-search-registries", "short-name", "docker.io", "podman pull"]
-symptoms = ["short-name did not resolve to an alias and no unqualified-search registries are defined", "podman pull doesn't work", "podman search returns nothing", "podman can't find image", "podman run archlinux fails"]
+symptoms = ["short-name did not resolve to an alias and no unqualified-search registries are defined", "podman pull doesn't work", "podman search returns nothing", "podman can't find image", "podman run nginx fails"]
 source = "https://wiki.archlinux.org/title/Podman#Registries"
 
 [[when]]
 source = "package"
 names = ["podman"]
 
+# Podman reads registries.conf and its .d drop-ins from /usr/share/containers, /etc/containers
+# and ~/.config/containers (containers-registries.conf.d(5)). A non-empty list in any of them counts.
 [[fixed_when]]
 any_of = [
-  { source = "file", path = "/etc/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*"' },
-  { source = "file", path = "/etc/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*"' },
+  { source = "file", path = "/etc/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]' },
+  { source = "file", path = "/etc/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]' },
+  { source = "file", path = "/usr/share/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]' },
+  { source = "file", path = "/usr/share/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]' },
+  { source = "file", path = "~/.config/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]' },
+  { source = "file", path = "~/.config/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]' },
 ]
 
 [[signals]]
 says = "No unqualified search registry is configured"
 weight = 0.5
 all_of = [
-  { source = "file", path = "/etc/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*"', absent = true },
-  { source = "file", path = "/etc/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*"', absent = true },
+  { source = "file", path = "/etc/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]', absent = true },
+  { source = "file", path = "/etc/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]', absent = true },
+  { source = "file", path = "/usr/share/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]', absent = true },
+  { source = "file", path = "/usr/share/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]', absent = true },
+  { source = "file", path = "~/.config/containers/registries.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]', absent = true },
+  { source = "file", path = "~/.config/containers/registries.conf.d/*.conf", regex = '^\s*unqualified-search-registries\s*=\s*\[\s*[^\]\s]', absent = true },
 ]
 
 [[fix]]
