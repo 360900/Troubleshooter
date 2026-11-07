@@ -63,6 +63,7 @@ class System:
         self._cache: dict[tuple, Result] = {}
         self._os: dict[str, str] | None = None
         self._packages: set[str] | None = None
+        self._packages_known = False
         self._pci: list[PciDevice] | None = None
         self.cursor: str | None = None
         self.script_path = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -169,7 +170,14 @@ class System:
                 "fedora": lambda: self.run("rpm", "-qa", "--qf", "%{NAME}\n"),
             }.get(self.family, lambda: Result(127, ""))()
             self._packages = set(result.out.split()) if result.ok else set()
+            self._packages_known = result.ok
         return self._packages
+
+    @property
+    def packages_known(self) -> bool:
+        """False when the package list couldn't be read, so nothing is known to be missing."""
+        self.packages
+        return self._packages_known
 
     def installed(self, *patterns: str) -> list[str]:
         """Installed packages matching any name or fnmatch pattern."""

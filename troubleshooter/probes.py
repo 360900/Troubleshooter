@@ -136,7 +136,7 @@ SOURCES = {
     "kernel_param": _kernel_param,
     "kernel_headers": _kernel_headers,
     "kernel_modules": lambda system, spec: [f"{k} has no {spec['name']} module" for k in system.kernels_without(spec["name"])],
-    "package": lambda system, spec: system.installed(*spec["names"]),
+    "package": lambda system, spec: system.installed(*spec["names"]) if system.packages_known else None,
     "module": lambda system, spec: sorted(system.modules & set(spec["names"])),
     "cmdline": lambda system, spec: system.cmdline,
     "env": lambda system, spec: [f"{spec['name']}={system.env[spec['name']]}"] if spec["name"] in system.env else [],

@@ -46,5 +46,22 @@ class FailedJournalTests(unittest.TestCase):
         self.assertFalse(evidence.known)
 
 
+class PackageListTests(unittest.TestCase):
+    def test_unreadable_package_list_does_not_make_packages_missing(self):
+        m = FakeMachine()
+        self.addCleanup(m.close)
+        system = m.system()
+        system._commands = lambda argv: Result(1, "error: could not open database\n")
+        evidence = probe(system, {"source": "package", "names": ["amd-ucode"], "absent": True})
+        self.assertFalse(evidence.matched)
+        self.assertFalse(evidence.known)
+
+    def test_readable_package_list_still_reports_missing_packages(self):
+        m = FakeMachine()
+        self.addCleanup(m.close)
+        m.packages = {"linux"}
+        self.assertTrue(probe(m.system(), {"source": "package", "names": ["amd-ucode"], "absent": True}).matched)
+
+
 if __name__ == "__main__":
     unittest.main()
