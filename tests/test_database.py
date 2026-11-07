@@ -42,6 +42,7 @@ class DatabaseTests(unittest.TestCase):
             ["resolvectl", "mdns"],  # status only, no arguments that change anything
             ["pacman", "-Qq", "pulse-native-provider"],  # local database query only
             ["locale", "-a"],  # lists the generated locales, changes nothing
+            ["df", "--output=pcent", "/var/cache/pacman/pkg"],  # prints how full a disk is
         ]
 
         def commands(spec):

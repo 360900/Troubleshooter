@@ -8,16 +8,27 @@ symptoms = ["disk is full", "root partition full", "/var/cache/pacman/pkg is hug
 source = "https://wiki.archlinux.org/title/System_maintenance#Package_cache"
 
 [[fixed_when]]
-source = "service"
-name = "paccache.timer"
-state = "enabled"
+any_of = [
+  { source = "service", name = "paccache.timer", state = "enabled" },
+  { source = "file", path = "/etc/pacman.d/hooks/*.hook", contains = "paccache" },
+  { source = "file", path = "/usr/share/libalpm/hooks/*.hook", contains = "paccache" },
+]
 
+# A disabled timer is the default and harmless on a roomy disk, so on its own it stays below 50%.
 [[signals]]
 says = "paccache.timer is installed but disabled"
-weight = 0.3
+weight = 0.2
 source = "service"
 name = "paccache.timer"
 state = "disabled"
+
+[[signals]]
+says = "The disk holding the package cache is at least 90% full"
+weight = 0.45
+source = "command"
+argv = ["df", "--output=pcent", "/var/cache/pacman/pkg"]
+exit = 0
+regex = '^\s*(9\d|100)%$'
 
 [[fix]]
 systems = ["arch-and-based"]
