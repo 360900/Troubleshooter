@@ -1,0 +1,9 @@
+id = "locale-desktop-wrong-language"
+title = "Language: the desktop ignores the language I set"
+summary = "You changed the system language, but the desktop or some apps still show the old one. Desktop settings, display managers or other environment files can override /etc/locale.conf."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["locale.conf", "LANG", "LANGUAGE", "plasma-localerc", "accountsservice", ".dmrc", "localectl", "region settings"]
+symptoms = ["desktop still in the old language", "changed language but nothing happened", "plasma ignores locale.conf", "some apps in english others in my language", "login screen uses wrong language"]
+source = "https://wiki.archlinux.org/title/Locale#My_system_is_still_using_wrong_language"
+advice = "Set the language in your desktop's own settings too (GNOME Settings > System > Region & Language, or Plasma System Settings > Region & Language), since those win over /etc/locale.conf. On Plasma, if that doesn't help, delete ~/.config/plasma-localerc and log in again. Also check ~/.config/locale.conf, ~/.dmrc (LightDM) and shell startup files for an old LANG or LANGUAGE line."

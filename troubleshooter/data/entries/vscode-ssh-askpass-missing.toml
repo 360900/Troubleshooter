@@ -1,0 +1,20 @@
+id = "vscode-ssh-askpass-missing"
+title = "VS Code: Git fails with ssh-askpass not found"
+summary = "Git in VS Code needs a graphical program to ask for your SSH key passphrase, and none is installed, so pushes and pulls fail with an ssh_askpass error."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["vscode", "git", "ssh-askpass", "x11-ssh-askpass", "ksshaskpass", "SSH_ASKPASS", "GIT_ASKPASS", "git.useIntegratedAskPass"]
+symptoms = ["ssh_askpass exec /usr/lib/ssh/ssh-askpass no such file or directory", "vscode git push fails with ssh key", "vscode can't ask for ssh passphrase", "git pull fails in vs code but works in terminal"]
+source = "https://wiki.archlinux.org/title/Visual_Studio_Code#Git:_ssh_askpass:_exec(/usr/lib/ssh/ssh-askpass):_No_such_file_or_directory"
+advice = "Install an askpass program: x11-ssh-askpass provides /usr/lib/ssh/ssh-askpass directly. On KDE you can use ksshaskpass instead and set SSH_ASKPASS=ksshaskpass, GIT_ASKPASS=ksshaskpass and SSH_ASKPASS_REQUIRE=prefer in your environment. Loading the key into an SSH agent also avoids the prompt."
+
+[[when]]
+source = "package"
+names = ["code", "visual-studio-code-bin", "vscodium", "vscodium-bin"]
+
+[[signals]]
+says = "/usr/lib/ssh/ssh-askpass doesn't exist"
+weight = 0.3
+source = "file"
+path = "/usr/lib/ssh/ssh-askpass"
+absent = true

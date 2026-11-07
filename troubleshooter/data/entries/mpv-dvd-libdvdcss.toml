@@ -1,0 +1,26 @@
+id = "mpv-dvd-libdvdcss"
+title = "mpv: DVDs won't play"
+summary = "Most commercial DVDs are encrypted, and the library that reads them, libdvdcss, isn't installed, so mpv stops with an error reading from the DVD."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["mpv", "dvd", "libdvdcss", "dvdnav", "dvd://", "css encryption"]
+symptoms = ["error getting next block from dvd", "mpv won't play dvd", "error reading from dvd", "dvd doesn't play in linux", "dvdnav error"]
+source = "https://wiki.archlinux.org/title/Mpv#Play_a_DVD"
+
+[[when]]
+source = "package"
+names = ["mpv", "mpv-git", "mpv-full"]
+
+[[fixed_when]]
+source = "package"
+names = ["libdvdcss"]
+
+[[signals]]
+says = "libdvdcss is not installed"
+weight = 0.3
+source = "package"
+names = ["libdvdcss"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["libdvdcss"], says = "Install libdvdcss to read encrypted DVDs" }]

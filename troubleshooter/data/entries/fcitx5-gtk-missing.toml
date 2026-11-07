@@ -1,0 +1,26 @@
+id = "fcitx5-gtk-missing"
+title = "Fcitx5: candidate box misplaced in GTK apps like Firefox"
+summary = "Fcitx5 is installed without its GTK module, so in GTK apps such as Firefox the candidate popup appears away from the cursor and the single-line typing mode doesn't work. Installing the module is small and safe."
+categories = ["input", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["fcitx5", "fcitx5-gtk", "im module", "candidate window", "preedit", "single-line mode", "GTK_IM_MODULE"]
+symptoms = ["fcitx5 popup in the wrong place", "fcitx5 candidate window not at cursor", "chinese input box far from text in firefox", "fcitx5 single line mode not working", "input method popup at screen corner"]
+source = "https://wiki.archlinux.org/title/Fcitx5#Candidate_popup_misaligned_in_HiDPI_mode_of_GTK_environments"
+
+[[when]]
+source = "package"
+names = ["fcitx5"]
+
+[[fixed_when]]
+source = "package"
+names = ["fcitx5-gtk"]
+
+[[signals]]
+says = "Fcitx5 is installed without its GTK module"
+weight = 0.4
+source = "package"
+names = ["fcitx5-gtk"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["fcitx5-gtk"], says = "Install the Fcitx5 GTK module" }]

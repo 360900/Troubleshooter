@@ -1,0 +1,13 @@
+id = "vscode-oss-retry-as-sudo"
+title = "VS Code: Retry as Sudo doesn't save the file"
+summary = "The Arch code package uses the system Electron, which VS Code's Retry as Sudo feature doesn't support, so saving files owned by root fails there. Microsoft's own build doesn't have this problem."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["code", "code - oss", "retry as sudo", "visual-studio-code-bin", "sudoedit", "permission denied"]
+symptoms = ["vscode retry as sudo not working", "can't save root file in vs code", "vscode failed to save insufficient permissions", "retry as sudo does nothing"]
+source = "https://wiki.archlinux.org/title/Visual_Studio_Code#Saving_with_%22Retry_as_Sudo%22_does_not_work"
+advice = "Edit system files with sudoedit from a terminal instead (for example SUDO_EDITOR=\"code --wait\" sudoedit /etc/file), or switch to visual-studio-code-bin from the AUR, where Retry as Sudo works."
+
+[[when]]
+source = "package"
+names = ["code"]

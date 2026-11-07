@@ -1,0 +1,31 @@
+id = "vscode-plasma-global-menu"
+title = "VS Code: menu missing from the Plasma global menu"
+summary = "VS Code sends its menu to Plasma's global menu over D-Bus with a library that isn't installed, so the menu doesn't appear there. Installing it is small."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["vscode", "global menu", "libdbusmenu-glib", "dbusmenu", "plasma", "appmenu"]
+symptoms = ["vscode menu not in global menu", "global menu empty for vs code", "vscode menu bar missing on kde", "code menu doesn't show in plasma top bar"]
+source = "https://wiki.archlinux.org/title/Visual_Studio_Code#Global_menu_not_working_in_KDE/Plasma"
+
+[[when]]
+source = "package"
+names = ["code", "visual-studio-code-bin", "vscodium", "vscodium-bin"]
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[fixed_when]]
+source = "package"
+names = ["libdbusmenu-glib"]
+
+[[signals]]
+says = "libdbusmenu-glib is not installed"
+weight = 0.3
+source = "package"
+names = ["libdbusmenu-glib"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["libdbusmenu-glib"], says = "Install the D-Bus menu library" }]

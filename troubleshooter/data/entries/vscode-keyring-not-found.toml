@@ -1,0 +1,20 @@
+id = "vscode-keyring-not-found"
+title = "VS Code: an OS keyring couldn't be identified"
+summary = "VS Code stores sign-ins in the system keyring, but outside GNOME and KDE it often can't tell which one to use, so it warns and keeps asking you to sign in to GitHub or Settings Sync."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["vscode", "code", "vscodium", "password-store", "gnome-libsecret", "kwallet6", "argv.json", "org.freedesktop.Secret.Collection", "settings sync"]
+symptoms = ["an os keyring couldn't be identified", "vscode keeps asking to sign in to github", "settings sync loses login", "no such interface org.freedesktop.secret.collection", "vscode keyring error on i3"]
+source = "https://wiki.archlinux.org/title/Visual_Studio_Code#An_OS_keyring_couldn%27t_be_identified"
+advice = "Make sure a keyring is installed and running (gnome-keyring, or KDE Wallet on Plasma). Then add \"password-store\": \"gnome-libsecret\" (or \"kwallet6\" on Plasma) to argv.json in ~/.vscode-oss for Code - OSS and VSCodium, or ~/.vscode for Microsoft's build, and restart VS Code."
+
+[[when]]
+source = "package"
+names = ["code", "visual-studio-code-bin", "vscodium", "vscodium-bin"]
+
+[[signals]]
+says = "No Secret Service keyring is installed"
+weight = 0.4
+source = "package"
+names = ["gnome-keyring", "kwallet", "kwallet5", "keepassxc", "oo7-daemon"]
+absent = true

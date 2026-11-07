@@ -1,0 +1,26 @@
+id = "java-links-gvfs"
+title = "Java: apps can't open links in the browser"
+summary = "Java's way of opening a link in the browser relies on gvfs, which isn't installed, so clicking links in Java apps does nothing or reports that BROWSE isn't supported."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["java", "gvfs", "Desktop.Action.BROWSE", "UnsupportedOperationException", "BROWSE action is not supported"]
+symptoms = ["the browse action is not supported on the current platform", "java app links don't open", "clicking a link in a java program does nothing", "minecraft launcher can't open browser"]
+source = "https://wiki.archlinux.org/title/Java#Java_applications_cannot_open_external_links"
+
+[[when]]
+source = "package"
+names = ["jre*-openjdk", "jdk*-openjdk", "jre", "jdk", "jre-lts", "jdk-lts"]
+
+[[fixed_when]]
+source = "package"
+names = ["gvfs"]
+
+[[signals]]
+says = "gvfs is not installed"
+weight = 0.4
+source = "package"
+names = ["gvfs"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["gvfs"], says = "Install gvfs" }]

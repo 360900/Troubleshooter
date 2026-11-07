@@ -1,0 +1,13 @@
+id = "keyboard-layout-reset-by-im"
+title = "Keyboard: layout keeps switching back"
+summary = "IBus and Fcitx manage keyboard layouts themselves, so they can quietly replace the layout set in your desktop settings, setxkbmap or xorg.conf, often after a while or after login."
+categories = ["input"]
+systems = ["arch-and-based"]
+keywords = ["ibus", "fcitx", "fcitx5", "xkb", "setxkbmap", "keyboard layout", "Use system keyboard layout", "Allow Overriding System XKB Settings"]
+symptoms = ["keyboard layout keeps changing back to us", "layout resets after a few minutes", "setxkbmap stops working", "wrong keyboard layout after login", "keyboard layout switches by itself"]
+source = "https://wiki.archlinux.org/title/Xorg/Keyboard_configuration#Setting_keyboard_layout"
+advice = "For Fcitx5, make the first input method Keyboard - your layout, or uncheck Addons > XCB > Allow Overriding System XKB Settings in fcitx5-configtool. For IBus, enable Use system keyboard layout under Preferences > Advanced, or add your layout in IBus's own Input Method tab."
+
+[[when]]
+source = "package"
+names = ["ibus", "fcitx5", "fcitx"]

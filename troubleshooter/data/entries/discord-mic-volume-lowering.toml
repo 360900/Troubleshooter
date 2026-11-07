@@ -1,0 +1,17 @@
+id = "discord-mic-volume-lowering"
+title = "Discord: microphone volume keeps going down"
+summary = "Discord's automatic gain control keeps lowering your microphone and speaker volume through PipeWire's PulseAudio layer. A PipeWire rule can block Discord from changing them."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["discord", "pipewire-pulse", "wireplumber", "block-source-volume", "block-sink-volume", "pulse.rules", "automatic gain control", "agc"]
+symptoms = ["discord lowers my mic volume", "microphone volume drops when discord is open", "mic gain keeps changing in discord", "discord changes system volume"]
+source = "https://wiki.archlinux.org/title/Discord#Microphone_volume_keeps_lowering_when_Discord_is_active_using_Wireplumber"
+advice = "Create ~/.config/pipewire/pipewire-pulse.conf.d/99-stop-microphone-auto-adjust.conf with a pulse.rules entry that matches application.process.binary = \"Discord\" and adds the quirks block-source-volume and block-sink-volume, then restart pipewire, pipewire-pulse and wireplumber with systemctl --user restart. Turning off automatic gain control in Discord's Voice & Video settings also helps."
+
+[[when]]
+source = "package"
+names = ["discord", "discord-ptb", "discord-canary", "discord_arch_electron"]
+
+[[when]]
+source = "package"
+names = ["pipewire-pulse"]

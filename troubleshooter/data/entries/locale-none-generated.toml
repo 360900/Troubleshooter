@@ -1,0 +1,46 @@
+id = "locale-none-generated"
+title = "Language: no locales are generated"
+summary = "Your session asks for a language, but no locales have been generated from /etc/locale.gen, so apps fall back to plain C. That breaks accented and non-Latin text, and some apps refuse to start. Generating your locale takes a few seconds and a few megabytes."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["locale", "locale-gen", "locale.gen", "locale-archive", "LANG", "setlocale", "cannot change locale", "C locale", "localectl"]
+symptoms = ["setlocale cannot change locale", "accented letters show as question marks", "terminal won't open after install", "apps show in english instead of my language", "warning failed to set locale"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Locale#Generating_locales"
+advice = "Open /etc/locale.gen as root, remove the # in front of your language (for example de_DE.UTF-8 UTF-8) and in front of en_US.UTF-8 UTF-8, then run sudo locale-gen and log out and back in. Make sure LANG in /etc/locale.conf names one of the locales you enabled."
+
+[[when]]
+source = "env"
+name = "LANG"
+regex = '^LANG=(?!(C|POSIX|C\.UTF-8|C\.utf8)$).+'
+
+[[when]]
+source = "file"
+path = "/etc/locale.gen"
+
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/locale/locale-archive"
+
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/locale/*_*"
+
+[[fixed_when]]
+source = "package"
+names = ["glibc-locales"]
+
+[[signals]]
+says = "No generated locales exist in /usr/lib/locale"
+weight = 0.8
+source = "file"
+path = "/usr/lib/locale/locale-archive"
+absent = true
+
+[[signals]]
+says = "Every line in /etc/locale.gen is commented out"
+weight = 0.3
+source = "file"
+path = "/etc/locale.gen"
+regex = '^\s*[a-z]{2,3}(_[A-Z]{2})?[.@ ]'
+absent = true

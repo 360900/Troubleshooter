@@ -1,0 +1,17 @@
+id = "mpv-screenshare-audio"
+title = "mpv: screen sharing doesn't capture its sound"
+summary = "With PipeWire, mpv's default PipeWire audio output can be missed when you share its window with audio, for example in Discord. Switching mpv to its PulseAudio output fixes that and still runs on PipeWire."
+categories = ["sound", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["mpv", "ao=pulse", "pipewire", "screen share audio", "discord share window", "audio output driver"]
+symptoms = ["discord screen share no sound from mpv", "mpv audio not captured when streaming", "sharing mpv window has no audio", "obs doesn't capture mpv audio"]
+source = "https://wiki.archlinux.org/title/Mpv#Screen_sharing_cannot_capture_audio_from_mpv"
+advice = "Add the line ao=pulse to ~/.config/mpv/mpv.conf (or run mpv --ao=pulse) and start mpv again."
+
+[[when]]
+source = "package"
+names = ["mpv", "mpv-git", "mpv-full"]
+
+[[when]]
+source = "package"
+names = ["pipewire-pulse"]

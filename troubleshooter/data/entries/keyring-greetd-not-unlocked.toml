@@ -1,0 +1,34 @@
+id = "keyring-greetd-not-unlocked"
+title = "Keyring: not unlocked when logging in with greetd"
+summary = "greetd's login setup doesn't include the GNOME Keyring module, so the login keyring stays locked and apps ask for its password after every login."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["gnome-keyring", "greetd", "tuigreet", "pam_gnome_keyring.so", "/etc/pam.d/greetd", "PAM", "auto_start"]
+symptoms = ["keyring locked after login with greetd", "asked to unlock keyring every time", "tuigreet keyring not unlocked", "secrets not available after login", "keyring password prompt on sway"]
+source = "https://wiki.archlinux.org/title/GNOME/Keyring#PAM_step"
+advice = "As root, add auth optional pam_gnome_keyring.so at the end of the auth lines and session optional pam_gnome_keyring.so auto_start at the end of the session lines in /etc/pam.d/greetd, then log in again. Your login keyring password must be the same as your account password."
+
+[[when]]
+source = "package"
+names = ["gnome-keyring"]
+
+[[when]]
+source = "package"
+names = ["greetd"]
+
+[[when]]
+source = "file"
+path = "/etc/pam.d/greetd"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/pam.d/greetd"
+regex = '^\s*-?auth\s.*pam_gnome_keyring\.so'
+
+[[signals]]
+says = "/etc/pam.d/greetd doesn't load the GNOME Keyring module"
+weight = 0.5
+source = "file"
+path = "/etc/pam.d/greetd"
+regex = 'pam_gnome_keyring\.so'
+absent = true

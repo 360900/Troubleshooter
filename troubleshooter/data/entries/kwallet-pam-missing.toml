@@ -1,0 +1,30 @@
+id = "kwallet-pam-missing"
+title = "KDE Wallet: asks for its password after every login"
+summary = "The PAM module that opens KDE Wallet at login isn't installed, so the wallet stays locked and Wi-Fi, browsers and other apps ask for its password each session. It only unlocks the default wallet named kdewallet, and only when its password matches your login password."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["kwallet", "kwallet-pam", "pam_kwallet5.so", "kwalletd", "ksecretd", "kdewallet", "plasma"]
+symptoms = ["kde wallet asks for password every login", "kwallet password prompt at startup", "wifi asks for kwallet password", "wallet not unlocked automatically", "kwallet keeps asking for password"]
+source = "https://wiki.archlinux.org/title/KDE_Wallet#Unlock_KDE_Wallet_automatically_on_login"
+
+[[when]]
+source = "package"
+names = ["plasma-workspace"]
+
+[[when]]
+source = "package"
+names = ["kwallet", "kwallet5"]
+
+[[fixed_when]]
+source = "package"
+names = ["kwallet-pam"]
+
+[[signals]]
+says = "Plasma is installed without the KDE Wallet PAM module"
+weight = 0.5
+source = "package"
+names = ["kwallet-pam"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["kwallet-pam"], says = "Install the KDE Wallet login module" }]

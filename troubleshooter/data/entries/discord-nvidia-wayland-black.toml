@@ -1,0 +1,35 @@
+id = "discord-nvidia-wayland-black"
+title = "Discord: black window on Wayland with NVIDIA"
+summary = "When Discord runs natively on Wayland it needs VA-API, which the NVIDIA driver lacks, so the window stays black. A translation driver adds VA-API support."
+categories = ["nvidia", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["discord", "nvidia", "wayland", "libva-nvidia-driver", "va-api", "ozone-platform", "black screen"]
+symptoms = ["discord black screen on wayland", "discord window is black nvidia", "discord shows nothing on wayland", "discord blank window"]
+source = "https://wiki.archlinux.org/title/Discord#Black_screen_on_Wayland_on_NVIDIA_proprietary_driver"
+
+[[when]]
+source = "package"
+names = ["discord", "discord-ptb", "discord-canary", "discord_arch_electron"]
+
+[[when]]
+source = "module"
+names = ["nvidia"]
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'
+
+[[fixed_when]]
+source = "package"
+names = ["libva-nvidia-driver"]
+
+[[signals]]
+says = "No VA-API driver for NVIDIA is installed"
+weight = 0.3
+source = "package"
+names = ["libva-nvidia-driver"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["libva-nvidia-driver"], says = "Install the NVIDIA VA-API translation driver" }]

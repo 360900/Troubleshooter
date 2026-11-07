@@ -1,0 +1,31 @@
+id = "java-default-broken"
+title = "Java: the default Java environment is broken"
+summary = "Java is installed, but the default link that the java command goes through points nowhere, so Java programs fail with command not found or no such file. archlinux-java can repair the link."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["java", "openjdk", "archlinux-java", "/usr/lib/jvm/default", "jre", "jdk", "java-runtime-common", "JAVA_HOME"]
+symptoms = ["java command not found", "bash java no such file or directory", "minecraft won't start java missing", "java stopped working after update", "jar files won't open"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Java#Fixing_the_default_Java_environment"
+
+[[when]]
+source = "package"
+names = ["java-runtime-common"]
+
+[[when]]
+source = "package"
+names = ["jre*-openjdk*", "jdk*-openjdk"]
+
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/jvm/default/bin/java"
+
+[[signals]]
+says = "/usr/lib/jvm/default/bin/java doesn't exist"
+weight = 0.8
+source = "file"
+path = "/usr/lib/jvm/default/bin/java"
+absent = true
+
+[[fix]]
+steps = [{ op = "command", says = "Point the default Java link at an installed Java", run = "archlinux-java fix" }]

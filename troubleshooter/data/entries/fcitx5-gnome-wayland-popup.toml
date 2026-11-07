@@ -1,0 +1,23 @@
+id = "fcitx5-gnome-wayland-popup"
+title = "Fcitx5: no candidate popup on GNOME Wayland"
+summary = "GNOME on Wayland doesn't support the protocol Fcitx5 uses to draw its candidate window, so you type blind or see no popup at all. A GNOME Shell extension shows the candidates instead."
+categories = ["input", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["fcitx5", "gnome", "wayland", "kimpanel", "input-method protocol", "candidate window", "gnome-shell-extension-kimpanel"]
+symptoms = ["fcitx5 popup not showing on gnome", "no candidate window gnome wayland", "can't see chinese candidates on gnome", "fcitx5 gnome wayland not working", "input method box missing on gnome"]
+source = "https://wiki.archlinux.org/title/Fcitx5#GNOME"
+advice = "Install the Kimpanel GNOME Shell extension (gnome-shell-extension-kimpanel-git in the AUR, or from extensions.gnome.org) and enable it, then restart Fcitx5. Fcitx5 themes don't apply with Kimpanel. Alternatively use IBus, which GNOME supports natively."
+
+[[when]]
+source = "package"
+names = ["fcitx5"]
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?GNOME(:|$)'
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'

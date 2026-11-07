@@ -1,0 +1,17 @@
+id = "keyring-ssh-agent-missing"
+title = "Keyring: SSH agent stopped working"
+summary = "GNOME Keyring no longer provides the SSH agent itself. It moved to gcr-ssh-agent, whose socket has to be enabled for your user, so ssh-add can't reach any agent."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["gcr-ssh-agent", "gcr-ssh-agent.socket", "gnome-keyring", "ssh-agent", "SSH_AUTH_SOCK", "ssh-add", "gcr-4"]
+symptoms = ["error connecting to agent connection refused", "ssh-add could not open a connection to your authentication agent", "ssh key passphrase asked every time", "gnome keyring ssh not working", "ssh agent not running"]
+source = "https://wiki.archlinux.org/title/GNOME/Keyring#SSH_agent_is_not_available"
+advice = "Run systemctl --user enable --now gcr-ssh-agent.socket, make sure the gnome-keyring-daemon socket and service user units are enabled too, then log out and back in so SSH_AUTH_SOCK points to $XDG_RUNTIME_DIR/gcr/ssh."
+
+[[when]]
+source = "package"
+names = ["gnome-keyring"]
+
+[[when]]
+source = "package"
+names = ["gcr-4"]

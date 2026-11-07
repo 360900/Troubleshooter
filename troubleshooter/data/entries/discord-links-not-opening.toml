@@ -1,0 +1,27 @@
+id = "discord-links-not-opening"
+title = "Discord: clicking links does nothing"
+summary = "Discord opens links through xdg-open, which comes from xdg-utils. That package is only an optional dependency and isn't installed, so links never reach your browser."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["discord", "xdg-utils", "xdg-open", "default browser", "links"]
+symptoms = ["discord links don't open", "clicking a link in discord does nothing", "discord won't open browser", "can't open urls from discord"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Discord#Clicking_a_link_does_not_open_the_web_browser"
+
+[[when]]
+source = "package"
+names = ["discord", "discord-ptb", "discord-canary", "discord_arch_electron"]
+
+[[fixed_when]]
+source = "package"
+names = ["xdg-utils"]
+
+[[signals]]
+says = "Discord is installed but xdg-utils is not"
+weight = 0.7
+source = "package"
+names = ["xdg-utils"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["xdg-utils"], says = "Install xdg-utils so apps can open links" }]

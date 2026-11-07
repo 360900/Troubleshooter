@@ -1,0 +1,17 @@
+id = "fonts-ms-missing"
+title = "Fonts: Windows fonts like Calibri or Arial are missing"
+summary = "Documents and some apps made on Windows use Microsoft fonts that Linux doesn't ship, so text shows in another font and layouts shift. You can install metric-compatible free fonts or the real Microsoft ones from the AUR."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["microsoft fonts", "calibri", "cambria", "arial", "times new roman", "segoe ui", "ttf-ms-win11-auto", "ttf-ms-fonts", "ttf-carlito", "ttf-liberation", "fc-cache"]
+symptoms = ["word document looks wrong in libreoffice", "calibri font missing", "times new roman not installed", "fonts look different than on windows", "document layout broken because of fonts"]
+source = "https://wiki.archlinux.org/title/Microsoft_fonts#Automatic_installation"
+advice = "For free look-alikes with the same spacing, install ttf-liberation (Arial, Times New Roman, Courier New), ttf-carlito (Calibri) and ttf-caladea (Cambria). For the real fonts, win11fonts-auto or win10fonts-auto from the AUR extracts them from Microsoft's evaluation ISO, or copy them from a Windows partition into /usr/local/share/fonts and run fc-cache --force."
+
+[[when]]
+source = "package"
+names = ["fontconfig"]
+
+[[fixed_when]]
+source = "package"
+names = ["ttf-ms-win11*", "ttf-ms-win10*", "win11fonts-auto", "win10fonts-auto", "ttf-ms-fonts", "ttf-vista-fonts"]

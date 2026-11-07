@@ -1,0 +1,26 @@
+id = "mpv-youtube-yt-dlp"
+title = "mpv: can't play YouTube or Twitch links"
+summary = "mpv hands web video links to yt-dlp, which isn't installed, so opening a YouTube or Twitch URL fails. Installing yt-dlp makes those links play."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["mpv", "yt-dlp", "youtube-dl", "ytdl", "ytdl-format", "youtube", "twitch", "stream"]
+symptoms = ["mpv can't play youtube link", "mpv failed to recognize file format url", "mpv twitch stream not working", "mpv youtube-dl failed", "play youtube video in mpv"]
+source = "https://wiki.archlinux.org/title/Mpv#Twitch.tv_streaming_over_mpv"
+
+[[when]]
+source = "package"
+names = ["mpv", "mpv-git", "mpv-full"]
+
+[[fixed_when]]
+source = "package"
+names = ["yt-dlp", "yt-dlp-git", "youtube-dl"]
+
+[[signals]]
+says = "yt-dlp is not installed"
+weight = 0.3
+source = "package"
+names = ["yt-dlp", "yt-dlp-git", "youtube-dl"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["yt-dlp"], says = "Install yt-dlp" }]

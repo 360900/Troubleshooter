@@ -1,0 +1,27 @@
+id = "discord-freeze-notification"
+title = "Discord: freezes when a message or ping arrives"
+summary = "Discord hangs when it tries to show a desktop notification and no notification server is running, which is common with bare window managers."
+categories = ["desktop", "crashes"]
+systems = ["arch-and-based"]
+keywords = ["discord", "notification daemon", "libnotify", "dunst", "mako", "swaync", "org.freedesktop.Notifications"]
+symptoms = ["discord freezes when i get a message", "discord hangs on ping", "discord stops responding on notification", "discord freezes on dm"]
+source = "https://wiki.archlinux.org/title/Discord#Discord_freezes_after_getting_pinged_or_messaged"
+advice = "Install and start a notification daemon such as dunst, mako or swaync from your window manager's startup. Or turn off Enable Desktop Notifications in Discord's Notifications settings."
+
+[[when]]
+source = "package"
+names = ["discord", "discord-ptb", "discord-canary", "discord_arch_electron"]
+
+[[signals]]
+says = "You're using a window manager that doesn't come with a notification server"
+weight = 0.3
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(sway|i3|niri|river|bspwm|dwm|qtile|awesome|openbox|labwc|wayfire|herbstluftwm|Hyprland)$'
+
+[[signals]]
+says = "A notification daemon is installed"
+weight = 0.5
+counter = true
+source = "package"
+names = ["dunst", "mako", "swaync", "fnott", "xfce4-notifyd", "notification-daemon", "mate-notification-daemon", "lxqt-notificationd", "deadd-notification-center", "plasma-workspace", "gnome-shell"]

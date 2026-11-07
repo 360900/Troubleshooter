@@ -1,0 +1,13 @@
+id = "discord-update-loop"
+title = "Discord: won't start until an update is installed"
+summary = "Discord checks for a newer version at launch and refuses to open when the packaged version is behind, showing \"Must be your lucky day, there's a new update!\". You can tell it to skip that check."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["discord", "SKIP_HOST_UPDATE", "settings.json", "update loop", "must be your lucky day"]
+symptoms = ["must be your lucky day there's a new update", "discord stuck on update", "discord won't open asks to update", "discord update not in repos", "discord downloads update then closes"]
+source = "https://wiki.archlinux.org/title/Discord#Discord_asks_for_an_update_not_yet_available_in_the_repository"
+advice = "Close Discord and add \"SKIP_HOST_UPDATE\": true to ~/.config/discord/settings.json (create the file with { \"SKIP_HOST_UPDATE\": true } if it doesn't exist; mind the commas between entries). The updated package usually reaches the repositories within a day or two."
+
+[[when]]
+source = "package"
+names = ["discord", "discord-ptb", "discord-canary"]

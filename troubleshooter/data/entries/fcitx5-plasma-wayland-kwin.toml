@@ -1,0 +1,23 @@
+id = "fcitx5-plasma-wayland-kwin"
+title = "Fcitx5: doesn't work on Plasma Wayland"
+summary = "On Plasma with Wayland, KWin has to start Fcitx5 itself. If Fcitx5 is started some other way, typing in many apps ignores it and you may see a warning that it should be launched by KWin."
+categories = ["input", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["fcitx5", "kwin", "virtual keyboard", "plasma wayland", "text-input", "org.fcitx.Fcitx5.desktop", "Fcitx should be launched by KWin"]
+symptoms = ["fcitx5 not working on kde wayland", "fcitx should be launched by kwin", "can't type chinese on plasma wayland", "input method doesn't show in plasma", "fcitx5 ime disappears on kde"]
+source = "https://wiki.archlinux.org/title/Fcitx5#KDE_Plasma"
+advice = "Quit Fcitx5, then open System Settings > Input & Output > Keyboard > Virtual Keyboard and pick Fcitx 5. Remove any other autostart for it (for example disable /etc/xdg/autostart/org.fcitx.Fcitx5.desktop with an override in ~/.config/autostart) and log in again. If the input method later vanishes, check that the on-screen keyboard is still enabled there."
+
+[[when]]
+source = "package"
+names = ["fcitx5"]
+
+[[when]]
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(.*:)?KDE(:|$)'
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'

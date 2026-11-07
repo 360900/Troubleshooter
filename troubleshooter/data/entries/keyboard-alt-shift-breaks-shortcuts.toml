@@ -1,0 +1,23 @@
+id = "keyboard-alt-shift-breaks-shortcuts"
+title = "Keyboard: Alt+Shift layout switching breaks other shortcuts"
+summary = "Using Alt+Shift to switch layouts (grp:alt_shift_toggle) has a known XKB bug that stops other Alt+Shift+key shortcuts from working, and right Alt with right Shift may not switch at all."
+categories = ["input"]
+systems = ["arch-and-based"]
+keywords = ["grp:alt_shift_toggle", "xkb", "XkbOptions", "layout switch", "alt shift", "altgr", "00-keyboard.conf"]
+symptoms = ["alt shift shortcuts don't work", "alt shift tab not working", "right alt shift doesn't switch layout", "shortcuts broken after adding second layout", "can't use alt shift in apps"]
+source = "https://wiki.archlinux.org/title/Xorg/Keyboard_configuration#Switch_languages_using_Alt_Shift"
+advice = "Pick a different switch combination such as Super+Space (grp:win_space_toggle) or Caps Lock (grp:caps_toggle) in your desktop's keyboard settings or in XkbOptions. If you must keep Alt+Shift, bind it in a hotkey tool like sxhkd that calls setxkbmap instead of using the XKB option."
+
+[[signals]]
+says = "The system keyboard config uses grp:alt_shift_toggle"
+weight = 0.4
+source = "file"
+path = "/etc/X11/xorg.conf.d/*.conf"
+regex = 'grp:alt_shift_toggle'
+
+[[signals]]
+says = "The console keymap config uses grp:alt_shift_toggle"
+weight = 0.3
+source = "file"
+path = "/etc/vconsole.conf"
+regex = 'XKBOPTIONS=.*grp:alt_shift_toggle'

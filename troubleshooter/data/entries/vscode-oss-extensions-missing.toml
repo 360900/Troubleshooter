@@ -1,0 +1,20 @@
+id = "vscode-oss-extensions-missing"
+title = "VS Code: extensions missing or not working in Code - OSS"
+summary = "The open-source builds (code and VSCodium) use the Open VSX registry instead of Microsoft's marketplace, so some extensions can't be found, and Microsoft extensions such as C/C++, C# Dev Kit and Remote - SSH refuse to work."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["code", "vscodium", "open vsx", "marketplace", "product.json", "code-marketplace", "code-features", "remote-ssh", "cpptools", "extensionAllowedProposedApi"]
+symptoms = ["vscode extension not found in marketplace", "remote ssh not working in code oss", "c/c++ extension doesn't work in vscodium", "command not found when running extension", "can't install microsoft extensions"]
+source = "https://wiki.archlinux.org/title/Visual_Studio_Code#Extensions_support"
+advice = "Install visual-studio-code-bin from the AUR if you need Microsoft's extensions. To keep the open-source build, code-marketplace (or vscodium-marketplace) adds Microsoft's marketplace and code-features (or vscodium-features) restores the API permissions some extensions need; for remote work, the Open Remote - SSH extension replaces Microsoft's."
+
+[[when]]
+source = "package"
+names = ["code", "vscodium", "vscodium-bin"]
+
+[[signals]]
+says = "Microsoft's marketplace isn't patched in"
+weight = 0.2
+source = "package"
+names = ["code-marketplace", "vscodium-marketplace", "vscodium-bin-marketplace"]
+absent = true

@@ -1,0 +1,18 @@
+id = "input-method-chromium-wayland"
+title = "Input method: can't type in Chromium or Electron apps on Wayland"
+summary = "Native Wayland Chromium and Electron apps use an older version of the Wayland text input protocol than GNOME and Sway support, so Fcitx5 or IBus does nothing in them."
+categories = ["input", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["fcitx5", "ibus", "chromium", "electron", "text-input-v3", "--wayland-text-input-version=3", "--enable-wayland-ime", "chromium-flags.conf"]
+symptoms = ["fcitx5 not working in chrome", "can't type japanese in chromium wayland", "ibus not working in vs code", "input method not working in electron apps", "fcitx5 doesn't work in discord"]
+source = "https://wiki.archlinux.org/title/Fcitx5#Wayland"
+advice = "Start the app with --enable-wayland-ime --wayland-text-input-version=3, for example by adding both lines to ~/.config/chromium-flags.conf or ~/.config/electron-flags.conf. If an app still ignores the input method, run it under Xwayland instead and set GTK_IM_MODULE=fcitx (or ibus) for it."
+
+[[when]]
+source = "package"
+names = ["fcitx5", "ibus"]
+
+[[when]]
+source = "env"
+name = "XDG_SESSION_TYPE"
+regex = '=wayland$'

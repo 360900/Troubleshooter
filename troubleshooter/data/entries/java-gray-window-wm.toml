@@ -1,0 +1,20 @@
+id = "java-gray-window-wm"
+title = "Java: apps show a gray window in tiling window managers"
+summary = "Java's GUI toolkit only knows a fixed list of window managers. In others, Java apps can draw as a plain gray box, fail to resize or close menus right away."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["java", "_JAVA_AWT_WM_NONREPARENTING", "wmname", "LG3D", "awt", "swing", "non-reparenting", "tiling window manager"]
+symptoms = ["java app shows gray window", "intellij blank gray screen on i3", "java menus close immediately", "java window doesn't resize in sway", "gray box instead of java app"]
+source = "https://wiki.archlinux.org/title/Java#Gray_window,_applications_not_resizing_with_WM,_menus_immediately_closing"
+advice = "Set the environment variable _JAVA_AWT_WM_NONREPARENTING=1 for your session (for example in ~/.config/environment.d/java.conf) and log in again. If that isn't enough, run wmname LG3D (from the wmname package) at startup so Java thinks it's running under a known window manager."
+
+[[when]]
+source = "package"
+names = ["jre*-openjdk*", "jdk*-openjdk", "jre", "jdk", "jre-lts", "jdk-lts", "jdk*-temurin", "zulu-*"]
+
+[[signals]]
+says = "You're using a window manager Java may not recognize"
+weight = 0.4
+source = "env"
+name = "XDG_CURRENT_DESKTOP"
+regex = '=(sway|i3|niri|river|bspwm|dwm|qtile|awesome|xmonad|herbstluftwm|Hyprland|ratpoison|wayfire|labwc)$'

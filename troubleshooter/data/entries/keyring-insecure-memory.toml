@@ -1,0 +1,22 @@
+id = "keyring-insecure-memory"
+title = "Keyring: secrets may be written to swap"
+summary = "gnome-keyring-daemon lacks the permission to lock its memory, so passwords it holds could end up in swap. Granting the capability fixes it, but a gnome-keyring update removes it again."
+categories = ["desktop"]
+systems = ["arch-and-based"]
+keywords = ["gnome-keyring-daemon", "cap_ipc_lock", "setcap", "insecure memory", "no process capabilities", "swap"]
+symptoms = ["no process capabilities insecure memory might get used", "gnome-keyring insecure memory warning", "keyring warning in journal", "gnome keyring capabilities error"]
+source = "https://wiki.archlinux.org/title/GNOME/Keyring#No_Process_Capabilities,_Insecure_Memory_Might_Get_Used"
+reproduce = "Log out and back in so gnome-keyring-daemon starts again."
+
+[[when]]
+source = "package"
+names = ["gnome-keyring"]
+
+[[signals]]
+says = "gnome-keyring-daemon warned that it can't lock its memory"
+weight = 0.7
+source = "journal"
+regex = 'no process capabilities, insecure memory might get used'
+
+[[fix]]
+steps = [{ op = "command", says = "Let gnome-keyring-daemon lock its memory", run = "setcap cap_ipc_lock=+ep /usr/bin/gnome-keyring-daemon", undo = "setcap -r /usr/bin/gnome-keyring-daemon" }]
