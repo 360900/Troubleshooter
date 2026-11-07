@@ -20,21 +20,24 @@ names = ["virt-manager"]
 source = "package"
 names = ["dnsmasq"]
 
+# Not having dnsmasq is fine with bridged networking or user sessions only, so that alone
+# isn't recommended on launch. libvirt's network driver looks for dnsmasq whenever it starts.
 [[signals]]
 says = "dnsmasq isn't installed"
-weight = 0.6
+weight = 0.3
 source = "package"
 names = ["dnsmasq"]
 absent = true
 
+# libvirt 8.1 and newer say "Unable to find", older ones "Cannot check dnsmasq binary".
 [[signals]]
 says = "libvirt looked for dnsmasq and couldn't find it"
 weight = 0.85
 source = "journal"
-regex = 'Cannot check dnsmasq binary'
+regex = "Cannot check dnsmasq binary|Unable to find 'dnsmasq' binary in \\$PATH"
 
 [[fix]]
 steps = [
   { op = "install", packages = ["dnsmasq"], says = "Install dnsmasq for libvirt's default network" },
-  { op = "command", says = "Restart libvirt so it picks up dnsmasq", run = "systemctl try-restart libvirtd.service" },
+  { op = "command", says = "Restart libvirt so it picks up dnsmasq", run = "systemctl try-restart libvirtd.service virtnetworkd.service" },
 ]

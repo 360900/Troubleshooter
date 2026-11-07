@@ -131,5 +131,40 @@ class OpenVpnNetworkdTests(NetworkCase):
         self.assertEqual(self.evaluate("vpn-openvpn-networkd-tun-routes", m).status, engine.FIXED)
 
 
+class LibvirtTests(NetworkCase):
+    def host(self, journal="", **services):
+        m = self.machine()
+        m.packages = {"libvirt", "virt-manager"}
+        m.outputs["services"] = services
+        m.journal(journal)
+        return m
+
+    def test_disabled_daemon_is_recommended(self):
+        self.assertTrue(self.evaluate("libvirt-daemon-off", self.host()).recommended)
+
+    def test_modular_proxy_socket_is_fine(self):
+        d = self.evaluate("libvirt-daemon-off", self.host(**{"virtproxyd.socket": "enabled"}))
+        self.assertEqual(d.status, engine.FIXED)
+
+    def test_daemon_started_by_hand_is_fine(self):
+        d = self.evaluate("libvirt-daemon-off", self.host(**{"libvirtd.service": "active"}))
+        self.assertEqual(d.status, engine.FIXED)
+
+    def test_missing_dnsmasq_alone_is_not_recommended(self):
+        d = self.evaluate("libvirt-dnsmasq-missing", self.host())
+        self.assertEqual(len(d.found), 1)
+        self.assertFalse(d.recommended)
+
+    def test_current_dnsmasq_error_is_recommended(self):
+        m = self.host("virtnetworkd[903]: Unable to find 'dnsmasq' binary in $PATH: No such file or directory\n")
+        self.assertTrue(self.evaluate("libvirt-dnsmasq-missing", m).recommended)
+
+    def test_default_network_running_again_is_fixed(self):
+        m = self.host("virtqemud[1100]: Requested operation is not valid: network 'default' is not active\n")
+        self.assertTrue(self.evaluate("libvirt-default-network-inactive", m).recommended)
+        m.write("/sys/class/net/virbr0/operstate", "up\n")
+        self.assertEqual(self.evaluate("libvirt-default-network-inactive", m).status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
