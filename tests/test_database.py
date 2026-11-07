@@ -43,6 +43,7 @@ class DatabaseTests(unittest.TestCase):
             ["pacman", "-Qq", "pulse-native-provider"],  # local database query only
             ["locale", "-a"],  # lists the generated locales, changes nothing
             ["df", "--output=pcent", "/var/cache/pacman/pkg"],  # prints how full a disk is
+            ["modinfo", "-F", "name", "loop"],  # reads module metadata from disk, loads nothing
         ]
 
         def commands(spec):

@@ -13,8 +13,20 @@ source = "https://wiki.archlinux.org/title/General_troubleshooting#Cannot_use_so
 source = "package"
 names = ["kernel-modules-hook"]
 
+# modinfo looks in the running kernel's module folder, so it only fails for a module every
+# kernel has (built in or not) once that folder is gone.
 [[signals]]
-says = "A module couldn't be loaded because the running kernel's modules are gone"
-weight = 0.75
+says = "The running kernel's modules are no longer on disk, so a newer kernel is waiting for a restart"
+weight = 0.85
+source = "command"
+argv = ["modinfo", "-F", "name", "loop"]
+exit = 0
+regex = '^loop$'
+absent = true
+
+# modprobe says the same for a module that was never there, such as a DKMS build that failed.
+[[signals]]
+says = "modprobe couldn't find a module in the running kernel's folder"
+weight = 0.4
 source = "journal"
 regex = 'Module \S+ not found in directory /(usr/)?lib/modules/'
