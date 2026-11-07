@@ -68,5 +68,21 @@ class EarlyoomTests(AuditCase):
         self.assertTrue(self.evaluate("memory-freeze-earlyoom", m).found)
 
 
+class IntelPsrTests(AuditCase):
+    def test_psr_idle_timeout_is_seen(self):
+        m = self.machine()
+        m.modules("i915")
+        m.journal("kernel: i915 0000:00:02.0: [drm] *ERROR* Timed out waiting PSR idle state\n")
+        self.assertTrue(self.evaluate("intel-psr-flicker", m).found)
+
+    def test_psr_off_for_the_xe_driver_counts_on_xe(self):
+        m = self.machine()
+        m.modules("xe")
+        m.write("/proc/cmdline", "root=/dev/sda1 xe.enable_psr=0\n")
+        self.assertEqual(self.evaluate("intel-psr-flicker", m).status, engine.FIXED)
+        m.modules("i915")
+        self.assertEqual(self.evaluate("intel-psr-flicker", m).status, engine.APPLIES)
+
+
 if __name__ == "__main__":
     unittest.main()
