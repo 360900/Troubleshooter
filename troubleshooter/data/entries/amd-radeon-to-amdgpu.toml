@@ -15,14 +15,13 @@ class = "03"
 driver = "radeon"
 devices = ["6780-679f", "6800-6819", "6820-683f", "6600-663f", "6660-666f", "6640-665f", "67a0-67bf", "1304-131d", "9830-983f", "9850-985f"]
 
-# New kernels already prefer amdgpu here, so radeon means someone chose it on purpose.
+# Linux 6.19 and newer hand these cards to amdgpu by default, so radeon there means
+# someone chose it. Older kernels (6.18 LTS and before) default to radeon, and their
+# sysfs values (radeon 1, amdgpu 0) look the same as a deliberate choice, so only a
+# parameter that was actually set counts.
 [[fixed_when]]
-any_of = [
-  { source = "file", path = "/sys/module/radeon/parameters/si_support", regex = '^1$' },
-  { source = "file", path = "/sys/module/radeon/parameters/cik_support", regex = '^1$' },
-  { source = "file", path = "/sys/module/amdgpu/parameters/si_support", regex = '^0$' },
-  { source = "file", path = "/sys/module/amdgpu/parameters/cik_support", regex = '^0$' },
-]
+source = "kernel_param"
+params = ["radeon.si_support=1", "radeon.cik_support=1", "amdgpu.si_support=0", "amdgpu.cik_support=0"]
 
 [[signals]]
 says = "This card is supported by amdgpu but running on radeon"
