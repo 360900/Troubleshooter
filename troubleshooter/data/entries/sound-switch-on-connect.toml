@@ -12,8 +12,10 @@ source = "package"
 names = ["pipewire-pulse"]
 
 [[fixed_when]]
-source = "file"
-path = "/etc/pipewire/pipewire-pulse.conf.d/90-troubleshooter-switch-on-connect.conf"
+any_of = [
+  { source = "file", path = "/etc/pipewire/pipewire-pulse.conf.d/*.conf", regex = '^[^#]*module-switch-on-connect' },
+  { source = "file", path = "~/.config/pipewire/pipewire-pulse.conf.d/*.conf", regex = '^[^#]*module-switch-on-connect' },
+]
 
 [[fix]]
 reboot = true

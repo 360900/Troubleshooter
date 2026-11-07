@@ -1,6 +1,6 @@
 id = "sound-pipewire-underflow"
 title = "Sound: audio cuts out when several things play"
-summary = "PipeWire logged buffer underflows: the sound card ran out of audio to play. Giving it larger buffers usually stops the dropouts, at the cost of slightly more latency."
+summary = "The sound card runs out of audio to play (a buffer underflow), so sound drops out for a moment. Giving it larger buffers usually stops the dropouts, at the cost of slightly more latency."
 categories = ["sound"]
 systems = ["arch-and-based"]
 keywords = ["underflow", "underrun", "pipewire-pulse", "api.alsa.period-size", "api.alsa.headroom", "wireplumber", "crackling", "stutter"]
@@ -13,9 +13,13 @@ source = "package"
 names = ["wireplumber"]
 
 [[fixed_when]]
-source = "file"
-path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-buffers.conf"
+any_of = [
+  { source = "file", path = "/etc/wireplumber/wireplumber.conf.d/*.conf", regex = '^[^#]*api\.alsa\.headroom' },
+  { source = "file", path = "~/.config/wireplumber/wireplumber.conf.d/*.conf", regex = '^[^#]*api\.alsa\.headroom' },
+]
 
+# pipewire-pulse logs this at info level, which only reaches the journal when the log level
+# was raised (PIPEWIRE_DEBUG=3), so it's usually missing even when dropouts happen.
 [[signals]]
 says = "pipewire-pulse logged buffer underflows"
 weight = 0.6
