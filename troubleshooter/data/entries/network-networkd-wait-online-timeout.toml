@@ -22,7 +22,9 @@ regex = '^\s*ExecStart\s*=\s*\S*systemd-networkd-wait-online\s.*(--any|-i\s|--in
 says = "Waiting for the network timed out during this startup"
 weight = 0.8
 source = "journal"
-regex = 'Timeout occurred while waiting for network connectivity|Failed to start .*Wait for Network to be Configured'
+# systemd releases before late 2025 describe the unit as "Wait for Network to be Configured",
+# newer ones as "Wait for Network to be Online".
+regex = 'Timeout occurred while waiting for network connectivity|Failed to start .*Wait for Network to be (Configured|Online)'
 
 [[fix]]
 steps = [
