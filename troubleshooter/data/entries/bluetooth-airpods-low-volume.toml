@@ -6,7 +6,7 @@ systems = ["any"]
 keywords = ["airpods", "avrcp", "--noplugin=avrcp", "bluetoothd", "low volume", "bluetooth.service"]
 symptoms = ["airpods are too quiet", "bluetooth headphones low volume", "airpods max volume is low", "headphone buttons don't control volume"]
 source = "https://wiki.archlinux.org/title/Bluetooth_headset#Apple_AirPods_have_low_volume"
-advice = "Run `sudo systemctl edit bluetooth.service` and add a [Service] section with an empty `ExecStart=` line followed by `ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp`. Then run `sudo systemctl restart bluetooth` and reconnect the headphones."
+advice = "Run `sudo systemctl edit bluetooth.service` and add a [Service] section with an empty `ExecStart=` line followed by `ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp` (outside Arch, use the bluetoothd path from the ExecStart line that `systemctl cat bluetooth.service` shows). Then run `sudo systemctl restart bluetooth` and reconnect the headphones."
 
 [[when]]
 source = "package"

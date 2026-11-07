@@ -1,6 +1,6 @@
 id = "bluetooth-dualboot-pairing"
 title = "Bluetooth: device connects, then drops right away"
-summary = "The device accepts the connection and then refuses it. This usually happens when it was also paired with another system on the same computer (dual boot), so the pairing keys no longer match."
+summary = "The device accepts the connection and then refuses it. Often it was also paired with another system on the same computer (dual boot), so the pairing keys no longer match. A bug in BlueZ 5.83 and later causes the same drops with some multipoint headsets."
 categories = ["bluetooth"]
 systems = ["any"]
 keywords = ["dual boot", "pairing keys", "link key", "connection refused", "getpeername", "bt-dualboot", "/var/lib/bluetooth", "multipoint"]
