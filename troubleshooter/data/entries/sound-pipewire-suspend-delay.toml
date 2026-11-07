@@ -15,6 +15,13 @@ names = ["wireplumber"]
 source = "file"
 path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-no-suspend.conf"
 
+# The same setting made by hand, system-wide or per user as the wiki suggests.
+[[fixed_when]]
+any_of = [
+  { source = "file", path = "/etc/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*session\.suspend-timeout-seconds\s*=\s*0\s*(#|$)' },
+  { source = "file", path = "~/.config/wireplumber/wireplumber.conf.d/*.conf", regex = '^\s*session\.suspend-timeout-seconds\s*=\s*0\s*(#|$)' },
+]
+
 [[fix]]
 reboot = true
 steps = [{ op = "write_file", path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-no-suspend.conf", says = "Keep sound devices awake when they go quiet", content = '''
