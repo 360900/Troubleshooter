@@ -16,6 +16,20 @@ names = ["cfg80211"]
 source = "package"
 names = ["wireless-regdb"]
 
+# The database put there some other way.
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/firmware/regulatory.db"
+
+# The kernel loads /usr/lib/firmware/regulatory.db when cfg80211 starts. Checked directly,
+# because the boot log line below is logged once and rotates away.
+[[signals]]
+says = "regulatory.db isn't installed, so the kernel can't load it"
+weight = 0.85
+source = "file"
+path = "/usr/lib/firmware/regulatory.db"
+absent = true
+
 [[signals]]
 says = "The kernel couldn't load regulatory.db at boot"
 weight = 0.85
