@@ -20,7 +20,7 @@ names = ["gnome-control-center"]
 all_of = [
   { source = "package", names = ["cups"] },
   { source = "package", names = ["system-config-printer"] },
-  { source = "service", name = "cups.service", state = "enabled" },
+  { any_of = [{ source = "service", name = "cups.service", state = "enabled" }, { source = "service", name = "cups.socket", state = "enabled" }] },
 ]
 
 [[signals]]

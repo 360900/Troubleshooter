@@ -122,5 +122,21 @@ class GrubWindowsTests(AuditCase):
         self.assertEqual(self.grub(cfg).status, engine.FIXED)
 
 
+class PrinterTests(AuditCase):
+    def test_socket_activated_cups_is_fixed(self):
+        m = self.machine()
+        m.packages = {"gnome-control-center", "cups", "system-config-printer"}
+        m.outputs["services"] = {"cups.socket": "enabled"}
+        d = self.evaluate("gnome-printers-panel", m, {"XDG_CURRENT_DESKTOP": "GNOME"})
+        self.assertEqual(d.status, engine.FIXED)
+
+
+class ShaderCacheTests(AuditCase):
+    def test_limit_set_in_the_session_environment_is_fixed(self):
+        m = self.machine()
+        d = self.evaluate("games-shader-cache-small", m, {"MESA_SHADER_CACHE_MAX_SIZE": "10G"})
+        self.assertEqual(d.status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()

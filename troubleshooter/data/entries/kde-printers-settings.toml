@@ -20,7 +20,7 @@ names = ["plasma-workspace"]
 all_of = [
   { source = "package", names = ["print-manager"] },
   { source = "package", names = ["cups"] },
-  { source = "service", name = "cups.service", state = "enabled" },
+  { any_of = [{ source = "service", name = "cups.service", state = "enabled" }, { source = "service", name = "cups.socket", state = "enabled" }] },
 ]
 
 [[signals]]
