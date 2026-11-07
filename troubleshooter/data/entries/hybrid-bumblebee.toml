@@ -30,4 +30,4 @@ absent = true
 
 [[fix]]
 reboot = true
-steps = [{ op = "remove", packages = ["bumblebee"], says = "Remove Bumblebee (use prime-run instead of optirun)" }]
+steps = [{ op = "remove", packages = ["bumblebee", "primus", "lib32-primus"], says = "Remove Bumblebee and primus (use prime-run instead of optirun and primusrun)" }]
