@@ -17,4 +17,4 @@ says = "The kernel warned about the deprecated v1 space cache"
 weight = 0.9
 source = "journal"
 kernel = true
-regex = 'BTRFS warning.*space cache v1 is being deprecated'
+regex = 'BTRFS warning.*(space cache v1 is being deprecated|v1 space cache is deprecated)'

@@ -18,7 +18,7 @@ says = "The kernel couldn't fit the hibernation image into swap"
 weight = 0.85
 source = "journal"
 kernel = true
-regex = 'PM: hibernation: (Not enough free memory|Error -12 creating image)'
+regex = 'PM: (Not enough free swap|hibernation: (Not enough free memory|Image allocation is \d+ pages short|Error -12 creating image))'
 
 [[signals]]
 says = "systemd reported that hibernation was aborted"

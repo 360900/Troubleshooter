@@ -18,4 +18,4 @@ says = "The PS/2 touchpad driver lost sync with the touchpad"
 weight = 0.75
 source = "journal"
 kernel = true
-regex = 'psmouse .*(lost sync at byte|resync failed|issuing reconnect request)'
+regex = 'psmouse .*(lost sync at byte|lost synchronization, throwing|issuing reconnect request)'

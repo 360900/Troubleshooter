@@ -13,7 +13,7 @@ says = "The kernel couldn't read the Intel Bluetooth chip's version"
 weight = 0.85
 source = "journal"
 kernel = true
-regex = 'Bluetooth: hci[0-9]+: Reading Intel version command failed'
+regex = 'Bluetooth: hci[0-9]+: Reading Intel version (command|information) failed'
 
 [[signals]]
 says = "The Bluetooth chip stopped answering commands"

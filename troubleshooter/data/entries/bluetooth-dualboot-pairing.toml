@@ -13,4 +13,4 @@ advice = "Remove the device in your Bluetooth settings (or `bluetoothctl remove 
 says = "bluetoothd saw a headset connection get refused or torn down"
 weight = 0.6
 source = "journal"
-regex = 'bluetoothd.*(Unable to get connect data for Headset Voice gateway|connect error: Connection refused \(111\))'
+regex = 'bluetoothd.*(Unable to get connect data for Headset Voice gateway|connect to \S+: Connection refused \(111\))'

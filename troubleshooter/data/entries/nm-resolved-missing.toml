@@ -25,7 +25,7 @@ regex = '^\s*systemd-resolved\s*=\s*false'
 says = "D-Bus failed to start systemd-resolved for NetworkManager"
 weight = 0.85
 source = "journal"
-regex = "(Activation via systemd failed for unit|could not be found).*'dbus-org\\.freedesktop\\.resolve1\\.service'|Activation request for 'org\\.freedesktop\\.resolve1' failed"
+regex = "Activation via systemd failed for unit 'dbus-org\\.freedesktop\\.resolve1\\.service'|Activation request for 'org\\.freedesktop\\.resolve1' failed"
 
 [[fix]]
 reboot = true

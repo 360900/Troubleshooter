@@ -29,7 +29,7 @@ says = "The kernel log shows brcmfmac errors"
 weight = 0.5
 source = "journal"
 kernel = true
-regex = 'brcmfmac.*(firmware has halted|bus is down|timed out|failed with error)'
+regex = 'brcmf.*(firmware has halted|bus is down|timed out)'
 
 [[fix]]
 reboot = true

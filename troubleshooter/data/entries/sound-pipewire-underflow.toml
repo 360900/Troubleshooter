@@ -20,7 +20,7 @@ path = "/etc/wireplumber/wireplumber.conf.d/90-troubleshooter-buffers.conf"
 says = "pipewire-pulse logged buffer underflows"
 weight = 0.6
 source = "journal"
-regex = 'pulse-server .*UNDERFLOW channel'
+regex = 'UNDERFLOW channel:\d+'
 
 [[fix]]
 reboot = true

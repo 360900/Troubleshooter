@@ -17,4 +17,4 @@ names = ["pipewire-audio"]
 says = "PipeWire reported a Bluetooth stream that couldn't keep up"
 weight = 0.6
 source = "journal"
-regex = 'bluez_(input|output).*client too slow'
+regex = 'bluez_(input|output)\S* (client too slow|XRun)!'

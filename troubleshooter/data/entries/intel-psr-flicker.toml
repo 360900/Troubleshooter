@@ -28,7 +28,7 @@ says = "The kernel log shows display errors from the Intel driver"
 weight = 0.6
 source = "journal"
 kernel = true
-regex = '(i915|xe).*(flip_done timed out|PSR.*(error|timeout)|pipe .* underrun)'
+regex = '\b(i915|xe)\b.*(flip_done timed out|PSR.*(error|timeout)|pipe .* underrun)'
 
 [[fix]]
 reboot = true

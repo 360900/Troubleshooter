@@ -12,11 +12,5 @@ source = "https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernat
 source = "file"
 path = "/sys/power/resume"
 
-[[signals]]
-says = "systemd says the resume device isn't an active swap space"
-weight = 0.8
-source = "journal"
-regex = 'Specified resume device is missing or is not an active swap device'
-
 [[fix]]
 steps = [{ op = "command", says = "Clear the saved hibernation target until the next restart (check resume= in your kernel parameters if it comes back)", run = "echo 0:0 > /sys/power/resume && echo 0 > /sys/power/resume_offset" }]

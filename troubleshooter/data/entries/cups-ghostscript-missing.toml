@@ -27,7 +27,7 @@ says = "The CUPS log shows the Ghostscript filter failing"
 weight = 0.7
 source = "file"
 path = "/var/log/cups/error_log"
-regex = 'gstoraster.*(not available|No such file|failed)'
+regex = 'gstoraster.*(not available|No such file|failed)|Unable to launch Ghostscript'
 
 [[fix]]
 steps = [{ op = "install", packages = ["ghostscript"] }]
