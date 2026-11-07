@@ -43,6 +43,8 @@ class HomePage(Page):
     pick_entry = Signal(object)
     pick_category = Signal(object)
     pick_diagnosis = Signal(object)
+    dismiss = Signal(object)  # a Diagnosis
+    restore = Signal(object)
 
     def __init__(self, index, os_name: str):
         super().__init__()
@@ -50,6 +52,7 @@ class HomePage(Page):
         self.os_name = os_name
         self.scan_results: list[engine.Diagnosis] | None = None
         self.pending: list[history.Record] = []
+        self.dismissed: list[engine.Diagnosis] = []  # found, but the user hid them
         self.body.addSpacing(16)
         self.body.addWidget(label("What's going wrong?", "title1"))
         self.body.addWidget(label("Describe it in your own words, or pick a category on the left.", "body2"))
@@ -80,9 +83,11 @@ class HomePage(Page):
         self.scan_results = None
         self._refresh()
 
-    def set_scan_results(self, results: list[engine.Diagnosis], pending: list[history.Record] = ()) -> None:
+    def set_scan_results(self, results: list[engine.Diagnosis], pending: list[history.Record] = (),
+                         dismissed: list[engine.Diagnosis] = ()) -> None:
         self.scan_results = results
         self.pending = list(pending)
+        self.dismissed = list(dismissed)
         self._refresh()
 
     def _submit(self) -> None:
@@ -160,8 +165,23 @@ class HomePage(Page):
             box = BoxedList()
             for d in self.scan_results:
                 why = d.found[0].signal.says if d.found else d.entry.summary
-                box.add(Row(d.entry.title, why, "dialog-warning", "warning", trailing=confidence_pill(d), chevron=True,
+                hide = button("", "round", "window-close", 12)
+                hide.setToolTip("Don't recommend this again")
+                hide.setAccessibleName(f"Dismiss: {d.entry.title}")
+                hide.clicked.connect(lambda _=False, x=d: self.dismiss.emit(x))
+                trailing = QWidget()
+                trailing.setObjectName("transparent")
+                trailing.setLayout(hbox(confidence_pill(d), hide))
+                box.add(Row(d.entry.title, why, "dialog-warning", "warning", trailing=trailing, chevron=True,
                             on_click=lambda x=d: self.pick_diagnosis.emit(x)))
+            self.results_layout.addWidget(box)
+        if self.scan_results is not None and self.dismissed:
+            self._section("Dismissed", "Still found on this PC, but not recommended. Nothing was changed.")
+            box = BoxedList()
+            for d in self.dismissed:
+                again = button("Show again")
+                again.clicked.connect(lambda _=False, x=d: self.restore.emit(x))
+                box.add(Row(d.entry.title, d.entry.summary, trailing=again))
             self.results_layout.addWidget(box)
 
 
@@ -300,14 +320,26 @@ class FixPage(Page):
     apply = Signal(object, str, bool)  # plan, script, edited
     reproduce = Signal(object)
     open_url = Signal(str)
+    dismiss = Signal(object)  # a Diagnosis
+    restore = Signal(object)
 
     def show_waiting(self) -> None:
         waiting(self, "Reading your logs and hardware…")
 
-    def show_diagnosis(self, d: engine.Diagnosis, plan, plan_error: str | None, os_name: str) -> None:
+    def show_diagnosis(self, d: engine.Diagnosis, plan, plan_error: str | None, os_name: str,
+                       dismissed: bool = False) -> None:
         self.reset()
         self.diagnosis, self.plan = d, plan
+        # Only what the launch check would bring up can be dismissed from it.
+        self.dismiss_button = None
+        if dismissed or (d.entry.auto_detect and d.recommended):
+            self.dismiss_button = button("")
+            self.dismiss_button.clicked.connect(self._toggle_dismissed)
+            self.set_dismissed(dismissed)
         self._show_diagnosis(d, plan, plan_error, os_name)
+        # Beside Apply when there is one (see _show_plan), else on its own row.
+        if self.dismiss_button and not self.dismiss_button.parent():
+            self.body.addLayout(hbox(self.dismiss_button, None))
         if d.entry.source:
             self.section("Learn more")
             box = BoxedList()
@@ -357,6 +389,14 @@ class FixPage(Page):
                                             f"Fixes exist for {scopes}. You're on {os_name}."))
             return
         self._show_plan(d, plan, os_name)
+
+    def set_dismissed(self, dismissed: bool) -> None:
+        self.dismissed = dismissed
+        if self.dismiss_button:
+            self.dismiss_button.setText("Recommend this again" if dismissed else "Don't recommend this again")
+
+    def _toggle_dismissed(self) -> None:
+        (self.restore if self.dismissed else self.dismiss).emit(self.diagnosis)
 
     def _confidence_box(self, d: engine.Diagnosis) -> BoxedList:
         box = BoxedList()
@@ -440,7 +480,8 @@ class FixPage(Page):
         self.apply_button = button("Apply fix", "suggested" if d.recommended else None)
         self.apply_button.clicked.connect(self._apply)
         self.body.addSpacing(4)
-        self.body.addLayout(hbox(None, self.apply_button))
+        self.body.addLayout(hbox(self.dismiss_button, None, self.apply_button) if self.dismiss_button
+                            else hbox(None, self.apply_button))
 
     def _toggle_advanced(self, on: bool) -> None:
         self.editor.setVisible(on)

@@ -133,11 +133,14 @@ class Header(QWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self, db: Database, make_system=System, hist: history.History | None = None,
-                 elevate: list[str] | None = None):
+                 elevate: list[str] | None = None, dismissed: history.Dismissed | None = None):
         super().__init__()
         self.db = db
         self.make_system = make_system
         self.history = hist or history.History()
+        self.dismissed = dismissed or history.Dismissed()
+        self.found: list[engine.Diagnosis] = []  # the launch check's findings, dismissed ones included
+        self.pending: list[history.Record] = []
         self.elevate = elevate if elevate is not None else ([] if os.geteuid() == 0 else ["pkexec"])
         self.index = SearchIndex(db)
         self.system = make_system()
@@ -181,6 +184,8 @@ class MainWindow(QMainWindow):
         self.home.pick_entry.connect(self.check_entry)
         self.home.pick_category.connect(self.open_category)
         self.home.pick_diagnosis.connect(self.open_diagnosis)
+        self.home.dismiss.connect(self.dismiss_recommendation)
+        self.home.restore.connect(self.restore_recommendation)
         self.results = ResultsPage()
         self.results.pick.connect(self.open_diagnosis)
         self.results.reproduce.connect(self.start_reproduce)
@@ -191,6 +196,8 @@ class MainWindow(QMainWindow):
         self.fix.apply.connect(self.apply_plan)
         self.fix.reproduce.connect(lambda d: self.start_reproduce())
         self.fix.open_url.connect(lambda url: QDesktopServices.openUrl(QUrl(url)))
+        self.fix.dismiss.connect(self.dismiss_recommendation)
+        self.fix.restore.connect(self.restore_recommendation)
         self.apply = ApplyPage()
         self.apply.done.connect(self.go_home)
         self.apply.undo.connect(self.undo_record)
@@ -369,7 +376,31 @@ class MainWindow(QMainWindow):
             pending = self.history.pending_restart(system.boot_time)
             waiting = {r.entry_id for r in pending}
             return [d for d in engine.scan(self.db, system) if d.entry.id not in waiting], pending
-        self._run(work, lambda result: self.home.set_scan_results(*result))
+
+        def done(result):
+            self.found, self.pending = result
+            self._publish_scan()
+        self._run(work, done)
+
+    def _publish_scan(self) -> None:
+        hidden = self.dismissed.ids()
+        self.home.set_scan_results([d for d in self.found if d.entry.id not in hidden], self.pending,
+                                   [d for d in self.found if d.entry.id in hidden])
+
+    def dismiss_recommendation(self, diagnosis: engine.Diagnosis) -> None:
+        """Stop recommending this on launch. Nothing on the system changes."""
+        self.dismissed.add(diagnosis.entry.id)
+        self._dismissal_changed(diagnosis, True)
+
+    def restore_recommendation(self, diagnosis: engine.Diagnosis) -> None:
+        self.dismissed.remove(diagnosis.entry.id)
+        self._dismissal_changed(diagnosis, False)
+
+    def _dismissal_changed(self, diagnosis: engine.Diagnosis, dismissed: bool) -> None:
+        if self.home.scan_results is not None:
+            self._publish_scan()
+        if getattr(self.fix, "diagnosis", None) is not None and self.fix.diagnosis.entry.id == diagnosis.entry.id:
+            self.fix.set_dismissed(dismissed)
 
     # Flow
 
@@ -439,7 +470,8 @@ class MainWindow(QMainWindow):
 
     def _show_fix(self, result) -> None:
         diagnosis, plan, error = result
-        self.fix.show_diagnosis(diagnosis, plan, error, self.system.os_name)
+        self.fix.show_diagnosis(diagnosis, plan, error, self.system.os_name,
+                                diagnosis.entry.id in self.dismissed.ids())
         self.cursor = None
         self.stack.currentWidget().verticalScrollBar().setValue(0)
 

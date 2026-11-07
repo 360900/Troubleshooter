@@ -4,18 +4,18 @@ from __future__ import annotations
 import argparse
 import sys
 
-from . import engine
+from . import engine, history
 from .database import load_database
 from .patches import PlanError
 from .search import SearchIndex
 from .system import System
 
 
-def _print_diagnosis(d: engine.Diagnosis) -> None:
+def _print_diagnosis(d: engine.Diagnosis, note: str = "") -> None:
     labels = {engine.FIXED: "already fine", engine.NOT_APPLICABLE: "doesn't apply here",
               engine.WRONG_SYSTEM: "not for this system"}
     state = labels.get(d.status, f"{d.confidence}% ({d.level.lower()})")
-    print(f"{d.entry.id}: {state}")
+    print(f"{d.entry.id}: {state}{note}")
     for finding in d.found:
         print(f"  - {finding.signal.says}")
         for line in finding.evidence.lines:
@@ -38,9 +38,10 @@ def main(argv: list[str]) -> int:
     system = System()
     if args.command == "scan":
         results = engine.scan(db, system)
+        dismissed = history.Dismissed().ids()
         print(f"{system.os_name}: {len(results)} problem(s) found")
         for d in results:
-            _print_diagnosis(d)
+            _print_diagnosis(d, ", dismissed in the app" if d.entry.id in dismissed else "")
         return 0
     if args.command == "search":
         for hit in SearchIndex(db).search(" ".join(args.query)):

@@ -10,6 +10,7 @@ from pathlib import Path
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QEventLoop, QTimer
+from PySide6.QtWidgets import QPushButton
 
 from tests.fakes import CACHY, FakeMachine
 from troubleshooter import history
@@ -46,11 +47,13 @@ class UiTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.hist = history.History(Path(self.tmp.name) / "h.json")
+        self.dismissed = history.Dismissed(Path(self.tmp.name) / "dismissed.json")
         self.window = self.make_window([])
         self.settle()
 
     def make_window(self, elevate):
-        window = MainWindow(self.db, make_system=self.m.system, hist=self.hist, elevate=elevate)
+        window = MainWindow(self.db, make_system=self.m.system, hist=self.hist, elevate=elevate,
+                            dismissed=self.dismissed)
         self.addCleanup(window.deleteLater)
         window.show()
         return window
@@ -123,6 +126,45 @@ class UiTest(unittest.TestCase):
         self.assertTrue(rows[0].subtitle.text().startswith("ArchWiki: NVIDIA"))
         rows[0].clicked.emit()
         self.assertEqual(opened, [self.db.entries["nvidia-sleep"].source])
+
+    def home_ids(self, window=None):
+        home = (window or self.window).home
+        return [d.entry.id for d in home.scan_results], [d.entry.id for d in home.dismissed]
+
+    def test_dismissed_recommendation_stays_hidden_until_shown_again(self):
+        title = self.db.entries["nvidia-sleep"].title
+        hide = next(b for b in self.window.home.findChildren(QPushButton)
+                    if b.accessibleName() == f"Dismiss: {title}")
+        hide.click()
+        self.assertEqual(self.home_ids(), (["nvidia-open-on-legacy"], ["nvidia-sleep"]))
+        self.assertIn("Dismissed", self.texts(self.window.home))
+        self.assertEqual(self.dismissed.ids(), {"nvidia-sleep"})
+
+        # Still dismissed after starting again.
+        relaunched = self.make_window([])
+        self.wait_until(lambda: relaunched.home.scan_results is not None and not relaunched.tasks)
+        self.assertEqual(self.home_ids(relaunched), (["nvidia-open-on-legacy"], ["nvidia-sleep"]))
+
+        again = next(b for b in relaunched.home.findChildren(QPushButton) if b.text() == "Show again")
+        again.click()
+        self.assertEqual(self.home_ids(relaunched)[1], [])
+        self.assertIn("nvidia-sleep", self.home_ids(relaunched)[0])
+        self.assertEqual(self.dismissed.ids(), set())
+
+    def test_fix_page_can_dismiss_and_bring_back(self):
+        self.open_fix("nvidia-sleep")
+        fix = self.window.fix
+        self.assertEqual(fix.dismiss_button.text(), "Don't recommend this again")
+        fix.dismiss_button.click()
+        self.assertEqual(fix.dismiss_button.text(), "Recommend this again")
+        self.assertEqual(self.home_ids()[1], ["nvidia-sleep"])
+        fix.dismiss_button.click()
+        self.assertEqual(fix.dismiss_button.text(), "Don't recommend this again")
+        self.assertEqual(self.home_ids()[1], [])
+
+    def test_only_launch_recommendations_can_be_dismissed(self):
+        self.open_fix("multilib-disabled")
+        self.assertIsNone(self.window.fix.dismiss_button)
 
     def test_source_names(self):
         self.assertEqual(pages.source_name("https://wiki.archlinux.org/title/Intel_graphics#Screen_flickering"),
