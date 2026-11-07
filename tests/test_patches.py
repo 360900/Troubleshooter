@@ -284,6 +284,15 @@ class DriverSwapTests(PatchCase):
         self.assertTrue(run[0].startswith("pacman -Rdd") and "nvidia-580xx-dkms" in run[0], run)
         self.assertTrue(run[1].startswith("pacman -S") and "nvidia-open-dkms" in run[1], run)
 
+    def test_undo_keeps_packages_that_were_there_before(self):
+        m = self.legacy_machine(["nvidia-580xx-dkms", "nvidia-580xx-utils", "lib32-nvidia-580xx-utils"])
+        m.packages |= {"linux-cachyos-headers", "nvidia-580xx-utils"}
+        plan = self.plan(m, "nvidia-open-on-legacy")
+        removed = next(line for line in plan.undo_script.splitlines() if line.startswith("pacman -Rdd")).split()
+        self.assertIn("nvidia-580xx-dkms", removed)
+        self.assertNotIn("linux-cachyos-headers", removed)
+        self.assertNotIn("nvidia-580xx-utils", removed)
+
 
 class InitramfsTests(PatchCase):
     """Arch-based systems build boot images with mkinitcpio or dracut, sometimes through a wrapper."""

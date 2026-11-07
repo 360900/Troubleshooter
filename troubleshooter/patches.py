@@ -249,7 +249,9 @@ def _op_install_aur(step: dict, system: System, entry_id: str) -> Step | None:
     if from_aur:
         lines.append('xargs -r pacman -U --noconfirm < "$TS_BUILD/built"')
 
-    undo = [_pm_remove(system, packages, force=True)]
+    # Only what this step added: kernel headers or a driver that were already there stay.
+    added = [p for p in packages if p not in system.packages]
+    undo = [_pm_remove(system, added, force=True)] if added else []
     if old:
         undo.append(_pm_install(system, old))
     return Step(step.get("says") or ". ".join(says), lines, undo)
