@@ -21,4 +21,5 @@ says = "The kernel rejected a module because it isn't signed with a trusted key"
 weight = 0.85
 source = "journal"
 kernel = true
-regex = 'Loading of (unsigned module|module with unavailable key) is rejected|Lockdown: \S+: unsigned module loading is restricted'
+# The three reasons kernel/module/signing.c rejects a module when signatures are enforced.
+regex = 'Loading of (unsigned module|module with unavailable key|module with unsupported crypto) is rejected|Lockdown: \S+: unsigned module loading is restricted'

@@ -160,5 +160,34 @@ class OomTests(EngineCase):
         self.assertIn("systemctl stop systemd-zram-setup@zram0.service", plan.undo_script)
 
 
+class SecureBootTests(EngineCase):
+    EFIVARS = "/sys/firmware/efi/efivars/"
+
+    def sdboot(self, secure_boot):
+        m = self.machine()
+        m.packages = {"sbctl"}
+        m.outputs["services"] = {"systemd-boot-update.service": "enabled"}
+        m.write("/usr/lib/systemd/boot/efi/systemd-bootx64.efi", "MZ")
+        m.write(self.EFIVARS + "LoaderInfo-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f",
+                "\x06\x00\x00\x00" + "systemd-boot 258".encode("utf-16-le").decode("latin-1"))
+        m.write(self.EFIVARS + "SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c", f"\x06\x00\x00\x00{secure_boot}")
+        return engine.evaluate(DB.entries["secureboot-systemd-boot-unsigned-update"], m.system())
+
+    def test_secure_boot_on_is_read_from_the_firmware(self):
+        d = self.sdboot("\x01")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertTrue(d.recommended)
+
+    def test_secure_boot_off_is_not_recommended(self):
+        self.assertFalse(self.sdboot("\x00").recommended)
+
+    def test_every_rejected_module_reason_is_caught(self):
+        for reason in ("unsigned module", "module with unavailable key", "module with unsupported crypto"):
+            m = self.machine()
+            m.packages = {"dkms"}
+            m.journal(f"kernel: Loading of {reason} is rejected\n")
+            self.assertIn("secureboot-unsigned-module-rejected", self.scan_ids(m), reason)
+
+
 if __name__ == "__main__":
     unittest.main()
