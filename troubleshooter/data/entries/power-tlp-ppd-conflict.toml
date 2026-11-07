@@ -1,6 +1,6 @@
 id = "power-tlp-ppd-conflict"
 title = "Power: TLP and power-profiles-daemon fight each other"
-summary = "TLP and power-profiles-daemon both manage power settings and can't run together. Your desktop can start power-profiles-daemon at any time and quietly stop TLP. Masking power-profiles-daemon keeps TLP in charge, but the desktop's power mode switch stops working."
+summary = "TLP and power-profiles-daemon both manage power settings and can't run together. Your desktop starts power-profiles-daemon whenever its power applet asks, and while it runs it takes the CPU energy policy, turbo boost and platform profile over from TLP. Masking power-profiles-daemon keeps TLP in charge, but the desktop's power mode switch stops working."
 categories = ["sleep"]
 systems = ["arch-and-based"]
 keywords = ["tlp", "power-profiles-daemon", "ppd", "powerprofilesctl", "mask", "conflict", "battery life"]
@@ -21,9 +21,20 @@ source = "service"
 name = "power-profiles-daemon.service"
 state = "masked"
 
+# TLP only leaves the CPU energy policy, turbo boost and platform profile alone while
+# power-profiles-daemon runs (tlp func.d/10-tlp-func-cpu). Unmasked, D-Bus starts it as soon
+# as a desktop's power applet asks, so running is what makes it a real conflict.
 [[signals]]
-says = "TLP is enabled, but power-profiles-daemon can still start"
+says = "TLP is enabled and power-profiles-daemon is running, so it overrides some TLP settings"
 weight = 0.8
+all_of = [
+  { source = "service", name = "tlp.service", state = "enabled" },
+  { source = "service", name = "power-profiles-daemon.service", state = "active" },
+]
+
+[[signals]]
+says = "TLP is enabled, but power-profiles-daemon isn't masked, so the desktop can start it at any time"
+weight = 0.4
 all_of = [
   { source = "service", name = "tlp.service", state = "enabled" },
   { source = "service", name = "power-profiles-daemon.service", state = "masked", absent = true },

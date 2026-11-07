@@ -98,5 +98,24 @@ class SteamLocaleTests(DesktopCase):
         self.assertEqual(self.steam("C\nen_US.UTF-8\nPOSIX\n").status, engine.FIXED)  # glibc-locales
 
 
+class TlpTests(DesktopCase):
+    def tlp(self, ppd):
+        m = self.machine()
+        m.packages = {"tlp", "power-profiles-daemon"}
+        m.outputs["services"] = {"tlp.service": "enabled", "power-profiles-daemon.service": ppd}
+        return self.evaluate("power-tlp-ppd-conflict", m)
+
+    def test_running_ppd_is_recommended(self):
+        self.assertTrue(self.tlp("active").recommended)
+
+    def test_ppd_that_isnt_running_is_not_recommended(self):
+        d = self.tlp("disabled")
+        self.assertEqual(d.status, engine.APPLIES)
+        self.assertFalse(d.recommended)
+
+    def test_masked_ppd_is_fixed(self):
+        self.assertEqual(self.tlp("masked").status, engine.FIXED)
+
+
 if __name__ == "__main__":
     unittest.main()
