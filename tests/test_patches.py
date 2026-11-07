@@ -311,10 +311,15 @@ class OtherFixTests(PatchCase):
     def test_every_fix_compiles_and_parses_on_every_family(self):
         for release in (ARCH, CACHY, DEBIAN, FEDORA):
             m = self.machine(release)
-            m.packages = {"grub"}
-            system = m.system()
             for entry in DB.entries.values():
                 for fix in entry.fixes:
+                    # Whatever the fix removes or disables is present, so those steps have something to do.
+                    m.packages = {"grub"} | {name for step in fix.steps if step["op"] == "remove"
+                                             for name in step["packages"] if "*" not in name}
+                    m.outputs["services"] = {name: "enabled" for step in fix.steps
+                                             if step["op"] == "service" and step.get("action") == "disable"
+                                             for name in step["names"]}
+                    system = m.system()
                     if not system.in_scopes(fix.systems):
                         continue
                     plan = patches.build_plan(entry.id, entry.title, fix.steps, fix.reboot, system)
