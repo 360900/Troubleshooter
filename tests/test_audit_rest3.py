@@ -180,3 +180,52 @@ class SambaUsershareTests(EngineCase):
     def test_a_share_limit_turns_them_on(self):
         self.assertEqual(self.evaluate("[global]\n  usershare max shares = 100\n").status, engine.FIXED)
         self.assertEqual(self.evaluate("[global]\n  usershare max shares = 0\n").status, engine.APPLIES)
+
+
+class SensorChipTests(EngineCase):
+    def board(self, name, hwmon=(), modules=()):
+        m = self.machine()
+        m.write("/sys/class/dmi/id/board_name", name + "\n")
+        m.write("/proc/cpuinfo", "vendor_id\t: AuthenticAMD\n")
+        for i, chip in enumerate(["nvme", "k10temp", *hwmon]):
+            m.write(f"/sys/class/hwmon/hwmon{i}/name", chip + "\n")
+        m.modules(*modules)
+        return m
+
+    def test_asrock_nct6686d_reads_as_nct6686(self):
+        # nct6683 names the hwmon device after the chip it found.
+        m = self.board("X870 Steel Legend WiFi", ["nct6686"], ["nct6683"])
+        self.assertEqual(engine.evaluate(DB.entries["sensors-asrock-nct6686d"], m.system()).status, engine.FIXED)
+        m = self.board("X870 Steel Legend WiFi")
+        self.assertEqual(len(engine.evaluate(DB.entries["sensors-asrock-nct6686d"], m.system()).found), 1)
+
+    def test_asrock_nct6796d_s_fix_also_loads_the_driver(self):
+        m = self.board("B650M Pro RS WiFi")
+        d = engine.evaluate(DB.entries["sensors-asrock-nct6796d-s"], m.system())
+        self.assertEqual(len(d.found), 1)
+        script = engine.build_plan(d, m.system()).script
+        self.assertIn("options nct6775 force_id=0xd801", script)
+        self.assertIn("/etc/modules-load.d/troubleshooter-nct6775.conf", script)
+
+    def test_asrock_nct6796d_s_option_alone_does_not_load_it(self):
+        m = self.board("B650M PG Lightning")
+        m.write("/etc/modprobe.d/nct6775.conf", "options nct6775 force_id=0xd802\n")
+        self.assertEqual(engine.evaluate(DB.entries["sensors-asrock-pg-lightning"], m.system()).status, engine.APPLIES)
+        m.write("/etc/modules-load.d/sensors.conf", "nct6775\n")
+        self.assertEqual(engine.evaluate(DB.entries["sensors-asrock-pg-lightning"], m.system()).status, engine.FIXED)
+
+    def test_asrock_chip_read_any_way_is_fixed(self):
+        m = self.board("B850M Pro RS", ["nct6799"], ["nct6775"])
+        self.assertEqual(engine.evaluate(DB.entries["sensors-asrock-nct6796d-s"], m.system()).status, engine.FIXED)
+
+    def test_msi_kernel_driver_is_not_the_community_one(self):
+        # Both name their hwmon device nct6687.
+        entry = DB.entries["sensors-msi-nct6687"]
+        m = self.board("MAG B650 TOMAHAWK WIFI (MS-7D75)", ["nct6687"], ["nct6683"])
+        d = engine.evaluate(entry, m.system())
+        self.assertEqual([f.signal.says for f in d.found], ["Only the kernel's nct6683 driver reads the chip"])
+        m = self.board("MAG B650 TOMAHAWK WIFI (MS-7D75)", ["nct6687"], ["nct6687"])
+        self.assertEqual(engine.evaluate(entry, m.system()).status, engine.FIXED)
+        m = self.board("MAG B650 TOMAHAWK WIFI (MS-7D75)")
+        self.assertEqual([f.signal.says for f in engine.evaluate(entry, m.system()).found],
+                         ["The sensor chip isn't being read at all"])

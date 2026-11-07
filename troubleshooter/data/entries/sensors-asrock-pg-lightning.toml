@@ -1,6 +1,6 @@
 id = "sensors-asrock-pg-lightning"
 title = "ASRock B650M PG Lightning: no fan or voltage readings"
-summary = "This board uses a variant of the Nuvoton NCT6796D sensor chip with an ID the driver doesn't recognize, so fans, voltages and board temperatures are missing. A driver option fixes it."
+summary = "This board uses a variant of the Nuvoton NCT6796D sensor chip with an ID the driver doesn't recognize, so fans, voltages and board temperatures are missing. Loading the driver at boot with an option that names the chip fixes it."
 categories = ["devices"]
 systems = ["any"]
 keywords = ["nct6775", "nct6796d", "force_id", "0xd802", "asrock", "pg lightning", "lm_sensors", "fan speed"]
@@ -12,19 +12,38 @@ source = "file"
 path = "/sys/class/dmi/id/board_name"
 regex = 'B650M PG Lightning'
 
+# Set up but not running yet (until the next boot): the option, and something that loads the driver.
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*options\s+nct6775\s+.*force_id=0xd802' },
+  { source = "file", path = "/etc/modules-load.d/*.conf", regex = '^\s*nct6775\s*$' },
+]
+
+[[fixed_when]]
+all_of = [
+  { source = "file", path = "/etc/modprobe.d/*.conf", regex = '^\s*options\s+nct6775\s+.*force_id=0xd802' },
+  { source = "file", path = "/etc/conf.d/lm_sensors", regex = '^\s*HWMON_MODULES=.*\bnct6775\b' },
+]
+
+# The driver names its hwmon device after the chip (nct6799 with this ID), so any nct67 one
+# means the chip is read, whether by this option or a kernel that knows the board.
 [[fixed_when]]
 source = "file"
-path = "/etc/modprobe.d/*.conf"
-regex = '^\s*options\s+nct6775\s+.*force_id=0xd802'
+path = "/sys/class/hwmon/hwmon*/name"
+regex = '^nct67'
 
 [[signals]]
 says = "No Nuvoton sensor chip is being read"
 weight = 0.7
 source = "file"
 path = "/sys/class/hwmon/hwmon*/name"
-regex = '^nct6'
+regex = '^nct67'
 absent = true
 
 [[fix]]
 reboot = true
-steps = [{ op = "module_options", module = "nct6775", options = ["force_id=0xd802"], says = "Tell the sensor driver which chip this board has" }]
+# nct6775 has no hardware IDs to be loaded by, so nothing loads it unless lm_sensors was set up for it.
+steps = [
+  { op = "module_options", module = "nct6775", options = ["force_id=0xd802"], says = "Tell the sensor driver which chip this board has" },
+  { op = "write_file", path = "/etc/modules-load.d/troubleshooter-nct6775.conf", content = "nct6775\n", says = "Load the sensor driver at boot" },
+]

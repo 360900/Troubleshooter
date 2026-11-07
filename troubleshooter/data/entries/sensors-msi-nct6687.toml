@@ -1,6 +1,6 @@
 id = "sensors-msi-nct6687"
-title = "MSI board: no fan or voltage readings"
-summary = "These MSI boards use a Nuvoton NCT6687 sensor chip that the kernel doesn't support yet. A community driver from the AUR adds fans, voltages and temperatures."
+title = "MSI board: fan and voltage readings missing or wrong"
+summary = "These MSI boards use a Nuvoton NCT6687 sensor chip. The kernel's own driver for it, nct6683, isn't loaded automatically, and the wiki recommends a community driver from the AUR that reads its fans, voltages and temperatures."
 categories = ["devices"]
 systems = ["arch-and-based"]
 keywords = ["nct6687", "nct6687d-dkms-git", "nct6683", "msi", "tomahawk", "mortar", "lm_sensors", "fan speed"]
@@ -13,15 +13,22 @@ source = "file"
 path = "/sys/class/dmi/id/board_name"
 regex = '(MS-7D75|MS-7E32|MS-7C94)'
 
+# The kernel's nct6683 driver also names its hwmon device nct6687 for this chip, so only the
+# community module itself shows that driver is in use.
 [[fixed_when]]
-source = "file"
-path = "/sys/class/hwmon/hwmon*/name"
-regex = '^nct6687'
+source = "module"
+names = ["nct6687"]
 
 [[signals]]
-says = "The NCT6687 sensor chip isn't being read"
+says = "The sensor chip isn't being read at all"
 weight = 0.6
 source = "file"
 path = "/sys/class/hwmon/hwmon*/name"
-regex = '^nct6687'
+regex = '^nct668[37]$'
 absent = true
+
+[[signals]]
+says = "Only the kernel's nct6683 driver reads the chip"
+weight = 0.3
+source = "module"
+names = ["nct6683"]

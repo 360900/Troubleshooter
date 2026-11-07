@@ -1,6 +1,6 @@
 id = "sensors-asrock-nct6686d"
 title = "ASRock AM5 board: no fan or voltage readings"
-summary = "These ASRock boards use a Nuvoton NCT6686D sensor chip, and its driver only starts on its own with Intel CPUs. With an AMD CPU it has to be forced on and loaded at boot."
+summary = "These ASRock boards use a Nuvoton NCT6686D sensor chip. Its driver, nct6683, isn't loaded automatically and only starts by itself on boards whose firmware it recognizes, so it has to be loaded at boot and forced on."
 categories = ["devices", "amd"]
 systems = ["any"]
 keywords = ["nct6683", "nct6686d", "force=1", "asrock", "x870 steel legend", "b650i lightning", "lm_sensors", "fan speed"]
@@ -17,17 +17,19 @@ source = "file"
 path = "/proc/cpuinfo"
 regex = 'AuthenticAMD'
 
+# The nct6683 driver names its hwmon device after the chip it found, so an NCT6686D shows
+# up as nct6686, not nct6683.
 [[fixed_when]]
 source = "file"
 path = "/sys/class/hwmon/hwmon*/name"
-regex = '^nct6683'
+regex = '^nct668[367]$'
 
 [[signals]]
 says = "The NCT6686D sensor chip isn't being read"
 weight = 0.7
 source = "file"
 path = "/sys/class/hwmon/hwmon*/name"
-regex = '^nct6683'
+regex = '^nct668[367]$'
 absent = true
 
 [[fix]]
