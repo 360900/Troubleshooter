@@ -57,5 +57,16 @@ class HibernateTests(AuditCase):
         self.assertEqual(self.evaluate("hibernate-no-poweroff", m).status, engine.FIXED)
 
 
+class EarlyoomTests(AuditCase):
+    def test_a_cgroup_hitting_its_own_limit_is_not_memory_running_out(self):
+        m = self.machine()
+        m.journal("kernel: oom-kill:constraint=CONSTRAINT_MEMCG,nodemask=(null),cpuset=/,mems_allowed=0\n"
+                  "kernel: Memory cgroup out of memory: Killed process 4242 (node) total-vm:1kB\n")
+        self.assertFalse(self.evaluate("memory-freeze-earlyoom", m).found)
+        m.journal("kernel: oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0\n"
+                  "kernel: Out of memory: Killed process 4242 (firefox) total-vm:1kB\n")
+        self.assertTrue(self.evaluate("memory-freeze-earlyoom", m).found)
+
+
 if __name__ == "__main__":
     unittest.main()

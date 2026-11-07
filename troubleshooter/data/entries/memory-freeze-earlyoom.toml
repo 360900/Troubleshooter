@@ -16,12 +16,14 @@ any_of = [
   { source = "service", name = "systemd-oomd.service", state = "enabled" },
 ]
 
+# Not "Memory cgroup out of memory" or CONSTRAINT_MEMCG: that's one service or container
+# hitting its own limit, which doesn't freeze the desktop.
 [[signals]]
 says = "The kernel had to kill processes because memory ran out"
 weight = 0.5
 source = "journal"
 kernel = true
-regex = 'Out of memory: Killed process|oom-kill:'
+regex = '(?<!cgroup )Out of memory( \(oom_kill_allocating_task\))?: Killed process|oom-kill:constraint=CONSTRAINT_NONE'
 
 [[fix]]
 steps = [
