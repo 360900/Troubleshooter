@@ -130,5 +130,35 @@ class NtfsTests(EngineCase):
             self.assertIn("ntfs-windows-fast-startup", self.scan_ids(m), line)
 
 
+class OomTests(EngineCase):
+    KILL = ("kernel: Out of memory: Killed process 4242 (firefox) total-vm:9000000kB, anon-rss:7000000kB, "
+            "file-rss:0kB, shmem-rss:0kB, UID:1000 pgtables:20000kB oom_score_adj:100\n")
+
+    def oom(self, journal, swaps=""):
+        m = self.machine()
+        m.write("/proc/swaps", "Filename\tType\tSize\tUsed\tPriority\n" + swaps)
+        m.journal(journal)
+        return m
+
+    def test_no_swap_alone_is_not_a_problem(self):
+        self.assertNotIn("oom-no-swap", self.scan_ids(self.oom("")))
+
+    def test_killed_apps_without_swap_are_recommended(self):
+        self.assertIn("oom-no-swap", self.scan_ids(self.oom(self.KILL)))
+
+    def test_a_service_hitting_its_own_limit_is_not_blamed_on_swap(self):
+        self.assertNotIn("oom-no-swap", self.scan_ids(self.oom(self.KILL.replace("Out of", "Memory cgroup out of"))))
+
+    def test_zram_counts_as_swap(self):
+        m = self.oom(self.KILL, "/dev/zram0\tpartition\t32496636\t0\t100\n")
+        self.assertNotIn("oom-no-swap", self.scan_ids(m))
+
+    def test_undo_turns_compressed_swap_off_again(self):
+        m = self.oom(self.KILL)
+        system = m.system()
+        plan = engine.build_plan(engine.evaluate(DB.entries["oom-no-swap"], system), system)
+        self.assertIn("systemctl stop systemd-zram-setup@zram0.service", plan.undo_script)
+
+
 if __name__ == "__main__":
     unittest.main()

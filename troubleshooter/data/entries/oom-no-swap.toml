@@ -23,6 +23,15 @@ kernel = true
 # CONSTRAINT_MEMCG mean a service hit its own memory limit, which swap doesn't fix.
 regex = '(?<!cgroup )out of memory: Killed process|oom-kill:constraint=CONSTRAINT_NONE'
 
+# Running out of memory without swap often freezes the machine until a forced restart.
+[[signals]]
+says = "The kernel killed processes for lack of memory during the previous boot"
+weight = 0.7
+source = "journal"
+kernel = true
+boot = -1
+regex = '(?<!cgroup )out of memory: Killed process|oom-kill:constraint=CONSTRAINT_NONE'
+
 [[signals]]
 says = "This system has no swap"
 weight = 0.2
@@ -35,5 +44,5 @@ absent = true
 steps = [
   { op = "install", packages = ["zram-generator"] },
   { op = "write_file", path = "/etc/systemd/zram-generator.conf", content = "[zram0]\nzram-size = ram / 2\ncompression-algorithm = zstd\n", says = "Configure compressed swap using up to half your RAM" },
-  { op = "command", says = "Turn on compressed swap", run = "systemctl daemon-reload && systemctl start systemd-zram-setup@zram0.service" },
+  { op = "command", says = "Turn on compressed swap", run = "systemctl daemon-reload && systemctl start systemd-zram-setup@zram0.service", undo = "systemctl stop systemd-zram-setup@zram0.service; systemctl daemon-reload" },
 ]
