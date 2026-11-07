@@ -65,5 +65,21 @@ class DhcpcdTests(NetworkCase):
         self.assertIn('xargs -r systemctl enable < "$TS_BACKUP/dhcpcd-units"', plan.undo_script)
 
 
+class IwdTests(NetworkCase):
+    def nm(self):
+        m = self.machine()
+        m.packages = {"networkmanager", "iwd", "wpa_supplicant"}
+        m.outputs["services"] = {"NetworkManager.service": "enabled", "iwd.service": "enabled"}
+        return m
+
+    def test_iwd_next_to_wpa_supplicant_backend_is_found(self):
+        self.assertTrue(self.evaluate("network-nm-iwd-conflict", self.nm()).recommended)
+
+    def test_iwd_as_networkmanagers_backend_is_not_a_conflict(self):
+        m = self.nm()
+        m.write("/etc/NetworkManager/conf.d/wifi_backend.conf", "[device]\nwifi.backend=iwd\n")
+        self.assertEqual(self.evaluate("network-nm-iwd-conflict", m).status, engine.NOT_APPLICABLE)
+
+
 if __name__ == "__main__":
     unittest.main()

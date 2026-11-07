@@ -1,6 +1,6 @@
 id = "network-nm-iwd-conflict"
 title = "Network: iwd and NetworkManager both start on their own"
-summary = "iwd.service is enabled next to NetworkManager. Two programs fighting over the Wi-Fi card cause disconnects and failed connections. NetworkManager starts iwd itself when it needs it."
+summary = "iwd.service is enabled next to NetworkManager, which uses wpa_supplicant for Wi-Fi here. Two programs fighting over the Wi-Fi card cause disconnects and failed connections. Disabling iwd.service leaves Wi-Fi to NetworkManager."
 categories = ["network"]
 systems = ["arch-and-based"]
 keywords = ["iwd", "iwd.service", "networkmanager", "wifi.backend", "wpa_supplicant", "conflict"]
@@ -21,6 +21,26 @@ source = "service"
 name = "NetworkManager.service"
 state = "enabled"
 
+# With wifi.backend=iwd, NetworkManager drives iwd itself, so iwd running on its own isn't
+# a second program fighting over the card.
+[[when]]
+source = "file"
+path = "/etc/NetworkManager/NetworkManager.conf"
+regex = '^\s*wifi\.backend\s*=\s*iwd\s*$'
+absent = true
+
+[[when]]
+source = "file"
+path = "/etc/NetworkManager/conf.d/*.conf"
+regex = '^\s*wifi\.backend\s*=\s*iwd\s*$'
+absent = true
+
+[[when]]
+source = "file"
+path = "/usr/lib/NetworkManager/conf.d/*.conf"
+regex = '^\s*wifi\.backend\s*=\s*iwd\s*$'
+absent = true
+
 [[fixed_when]]
 source = "service"
 name = "iwd.service"
@@ -35,4 +55,4 @@ state = "enabled"
 
 [[fix]]
 reboot = true
-steps = [{ op = "service", action = "disable", names = ["iwd.service"], says = "Stop iwd from starting on its own (NetworkManager still starts it when needed)" }]
+steps = [{ op = "service", action = "disable", names = ["iwd.service"], says = "Stop iwd from starting on its own" }]
