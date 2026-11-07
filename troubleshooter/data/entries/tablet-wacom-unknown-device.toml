@@ -5,7 +5,7 @@ categories = ["input", "drivers"]
 systems = ["arch-and-based"]
 keywords = ["wacom", "Unknown device_type", "input-wacom-dkms", "graphics tablet", "drawing tablet", "pen tablet"]
 symptoms = ["wacom tablet not detected", "drawing tablet doesn't work", "pen does nothing", "tablet shows up in lsusb but doesn't work", "new wacom tablet not working on linux"]
-advice = "Update the system so you have the newest kernel. If the tablet still isn't recognized, install input-wacom-dkms-git from the AUR together with the headers for your kernel, then reboot."
+advice = "Update the system so you have the newest kernel. If the tablet still isn't recognized, install input-wacom-dkms from the AUR together with the headers for your kernel, then reboot."
 source = "https://wiki.archlinux.org/title/Graphics_tablet#Device_not_recognized_by_the_kernel"
 
 [[when]]
