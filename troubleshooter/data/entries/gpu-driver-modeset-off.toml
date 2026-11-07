@@ -13,11 +13,13 @@ source = "https://wiki.archlinux.org/title/Kernel_mode_setting#Disabling_modeset
 source = "pci"
 class = "03"
 
+# The card being left without a driver shows the parameter is in effect. radeon.modeset=0
+# is also an old way to hand an SI or CIK card to amdgpu, which is harmless.
 [[signals]]
 says = "The Intel graphics driver is turned off with modeset=0"
 weight = 0.8
 all_of = [
-  { source = "pci", vendor = "8086", class = "03" },
+  { source = "pci", vendor = "8086", class = "03", driver = "none" },
   { source = "cmdline", regex = '^(i915|xe)\.modeset=0$' },
 ]
 
@@ -25,7 +27,7 @@ all_of = [
 says = "The AMD graphics driver is turned off with modeset=0"
 weight = 0.8
 all_of = [
-  { source = "pci", vendor = "1002", class = "03" },
+  { source = "pci", vendor = "1002", class = "03", driver = "none" },
   { source = "cmdline", regex = '^(amdgpu|radeon)\.modeset=0$' },
 ]
 

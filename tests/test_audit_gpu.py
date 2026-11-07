@@ -98,3 +98,30 @@ class NvidiaPackageNameTests(EngineCase):
                 m.pci("0000:05:00.0", "1002", "73bf", "030000", "amdgpu")
                 m.packages = {"steam", "lib32-nvidia-utils", "nvidia-utils", driver}
                 self.assertNotIn("steam-nvidia-vulkan-on-amd", self.scan_ids(m))
+
+
+class ModesetOffTests(EngineCase):
+    def test_parameter_that_left_the_card_without_a_driver_is_recommended(self):
+        m = self.machine()
+        m.pci("0000:00:02.0", "8086", "a7a0", "030000")
+        m.write("/proc/cmdline", "root=x i915.modeset=0\n")
+        self.assertIn("gpu-driver-modeset-off", self.scan_ids(m))
+
+    def test_radeon_off_while_amdgpu_drives_the_card_is_harmless(self):
+        # An old way to move SI and CIK cards to amdgpu.
+        m = self.machine()
+        m.pci("0000:01:00.0", "1002", "6798", "030000", "amdgpu")  # HD 7970
+        m.write("/proc/cmdline", "root=x radeon.modeset=0\n")
+        self.assertNotIn("gpu-driver-modeset-off", self.scan_ids(m))
+
+
+class GdmNoGpuTests(EngineCase):
+    def test_current_gnome_shell_wording_is_caught(self):
+        for line in ("gnome-shell[1203]: Failed to setup: No GPUs found",
+                     "org.gnome.Shell.desktop[1927]: Failed to setup: No GPUs found",
+                     "gnome-shell[569]: Failed to create backend: No GPUs found"):
+            with self.subTest(line=line):
+                m = self.machine()
+                m.packages = {"gdm"}
+                m.journal(f"Nov 07 10:00:00 host {line}\n")
+                self.assertIn("gdm-wayland-no-gpu", self.scan_ids(m))

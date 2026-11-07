@@ -14,14 +14,16 @@ auto_detect = true
 source = "package"
 names = ["gdm"]
 
+# GNOME 41 and newer print "Failed to setup", older ones "Failed to create backend", and
+# the journal may tag it gnome-shell or org.gnome.Shell.desktop.
 [[signals]]
 says = "GNOME Shell found no GPU when it started"
 weight = 0.7
 source = "journal"
-regex = 'gnome-shell\[\d+\]: Failed to create backend: No GPUs found'
+regex = 'Failed to (setup|create backend): No GPUs found'
 
 [[signals]]
 says = "GNOME Shell wasn't allowed to open the graphics device"
 weight = 0.3
 source = "journal"
-regex = 'gnome-shell\[\d+\]: Failed to open gpu .?/dev/dri/card\d+'
+regex = 'Failed to open gpu .?/dev/dri/card\d+'
