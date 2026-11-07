@@ -20,6 +20,7 @@ K1, B = 1.4, 0.6
 CONCEPT_WEIGHT = 0.8
 FUZZY_WEIGHT = 0.6
 MIN_SCORE = 0.12
+STRONG_MATCH = 0.45  # what to show: hits far weaker than the best one are noise
 FIELD_WEIGHTS = {"title": 3, "keywords": 3, "symptoms": 2, "summary": 1, "categories": 2}
 STOPWORDS = set("""
 a about after again all also am an and any are as at be because been before being but by can could did do does
@@ -153,8 +154,8 @@ class SearchIndex:
                 if tf:
                     norm = K1 * (1 - B + B * doc.length / self.avg_length)
                     score += self._idf(term) * weight * tf * (K1 + 1) / (tf + norm)
-            score = min(score / ideal, 1.0)
-            if score >= MIN_SCORE:
-                hits.append(Hit(doc.target, score))
-        hits.sort(key=lambda h: -h.score)
-        return hits[:limit]
+            if score / ideal >= MIN_SCORE:
+                hits.append((score, Hit(doc.target, min(score / ideal, 1.0))))
+        # Rank on the raw score: many strong matches reach the 1.0 cap, and they still differ.
+        hits.sort(key=lambda pair: -pair[0])
+        return [hit for _, hit in hits[:limit]]

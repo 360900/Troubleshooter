@@ -9,12 +9,12 @@ from PySide6.QtWidgets import QFrame, QHBoxLayout, QLineEdit, QPlainTextEdit, QV
 
 from .. import engine, history
 from ..database import Category, Entry
+from ..search import STRONG_MATCH
 from ..system import SCOPES
 from .widgets import (BoxedList, CheckBox, Meter, Page, Row, Spinner, button, clear_layout, hbox, label, number_tile, pill,
                       repolish)
 
 ADVANCED_WARNING = "ADVANCED! Check this box ONLY if you know exactly what you are doing!"
-STRONG_MATCH = 0.45  # hide search hits far weaker than the best one
 LEVEL_ROLE = {"High": "success", "Medium": "warning", "Low": "text3"}
 
 

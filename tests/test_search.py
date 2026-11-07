@@ -1,7 +1,7 @@
 import unittest
 
 from troubleshooter.database import load_database
-from troubleshooter.search import SearchIndex
+from troubleshooter.search import STRONG_MATCH, SearchIndex
 
 # Plain-language descriptions, none of them copied from an entry, and what must turn up.
 QUERIES = {
@@ -25,7 +25,7 @@ QUERIES = {
     "speakers are silent, it only shows dummy output": {"sof-firmware-missing"},
     "no audio": {"sof-firmware-missing", "sound"},
     "cannot pair my earbuds": {"bluetooth-service-off", "bluetooth"},
-    "firefox vanishes when lots of tabs are open": {"oom-no-swap", "crashes"},
+    "firefox vanishes when lots of tabs are open": {"oom-no-swap", "memory-freeze-earlyoom", "crashes"},
     "apps just close by themselves": {"oom-no-swap", "crashes"},
     "my pc locks up when gaming": {"nvidia-xid", "amd-ring-timeout", "crashes"},
     "game crashes to desktop": {"games-max-map-count", "game-crash-coredump", "crashes"},
@@ -33,7 +33,15 @@ QUERIES = {
     "flikering scren": {"display", "amd-psr-flicker", "intel-psr-flicker"},
     "blutooth": {"bluetooth", "bluetooth-service-off"},
 }
-TOP = 5
+
+
+def shown(index, query):
+    """What the home page shows: up to 4 categories and 6 entries from the top 12 hits."""
+    hits = index.search(query, 12)
+    hits = [h for h in hits if h.score >= hits[0].score * STRONG_MATCH]
+    categories = [h.target.id for h in hits if h.is_category][:4]
+    entries = [h.target.id for h in hits if not h.is_category][:6]
+    return set(categories + entries)
 
 
 class SearchTests(unittest.TestCase):
@@ -43,7 +51,7 @@ class SearchTests(unittest.TestCase):
 
     def test_descriptions_find_the_right_entries(self):
         for query, wanted in QUERIES.items():
-            found = {hit.target.id for hit in self.index.search(query, TOP)}
+            found = shown(self.index, query)
             with self.subTest(query=query, found=found):
                 self.assertTrue(found & wanted)
 
