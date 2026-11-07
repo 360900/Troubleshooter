@@ -19,10 +19,20 @@ class EngineCase(unittest.TestCase):
 
 
 class AutoDetectTests(EngineCase):
-    def test_nouveau_on_modern_card_recommends_nvidia_open(self):
+    def test_nouveau_on_modern_card_recommends_nvidia_open_for_games(self):
         m = self.machine()
         m.pci("0000:01:00.0", "10de", "2484", "030000", "nouveau")  # RTX 3070
         m.modules("nouveau")
+        m.packages = {"steam"}
+        self.assertEqual(self.scan_ids(m), {"nvidia-nouveau-to-open"})
+
+    def test_nouveau_alone_is_a_fine_choice_on_modern_cards(self):
+        # It reclocks through GSP and has Vulkan since 6.18, so the choice may be deliberate.
+        m = self.machine()
+        m.pci("0000:01:00.0", "10de", "2484", "030000", "nouveau")
+        m.modules("nouveau")
+        self.assertEqual(self.scan_ids(m), set())
+        m.journal("kernel: nouveau 0000:01:00.0: fifo: fault 01 [WRITE] at 0000000000a1b000 engine 40 [gr]\n")
         self.assertEqual(self.scan_ids(m), {"nvidia-nouveau-to-open"})
 
     def test_nvidia_open_on_pascal_recommends_580xx(self):

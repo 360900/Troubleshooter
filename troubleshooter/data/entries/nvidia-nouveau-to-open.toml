@@ -1,6 +1,6 @@
 id = "nvidia-nouveau-to-open"
 title = "NVIDIA card is using nouveau instead of the NVIDIA driver"
-summary = "Your card is new enough for NVIDIA's open kernel driver. It's running on nouveau, which is slower in games and has no CUDA, NVENC or DLSS."
+summary = "Your card is new enough for NVIDIA's open kernel driver. It's running on nouveau, which works well for the desktop but is slower in many games and has no CUDA, NVENC or DLSS. If you chose nouveau on purpose, keep it."
 categories = ["nvidia", "drivers", "display", "games"]
 systems = ["arch-and-based"]
 keywords = ["nouveau", "nvidia-open", "proprietary driver", "install nvidia driver", "turing", "ampere"]
@@ -23,25 +23,37 @@ class = "03"
 devices = ["0000-1dff"]
 absent = true
 
-[[fixed_when]]
-source = "module"
-names = ["nvidia"]
-
-[[signals]]
-says = "Your NVIDIA card is being driven by nouveau"
-weight = 0.95
+[[when]]
 source = "pci"
 vendor = "10de"
 class = "03"
 devices = ["1e00-ffff"]
 driver = "nouveau"
 
+[[fixed_when]]
+source = "module"
+names = ["nvidia"]
+
+# Since Linux 6.18, nouveau reclocks Turing and newer through GSP and has Vulkan (NVK), so
+# it's a reasonable choice for a desktop. Recommend switching only for what it lacks.
 [[signals]]
-says = "The NVIDIA kernel driver isn't installed"
-weight = 0.5
+says = "Games or Wine are installed, and they run better on NVIDIA's driver"
+weight = 0.6
 source = "package"
-names = ["nvidia-open", "nvidia-open-dkms", "nvidia-open-lts", "linux-*-nvidia-open"]
-absent = true
+names = ["steam", "lutris", "heroic-games-launcher*", "bottles", "wine", "wine-*", "proton*", "umu-launcher"]
+
+[[signals]]
+says = "Software that needs CUDA is installed, which nouveau can't run"
+weight = 0.7
+source = "package"
+names = ["cuda", "cuda-tools", "ollama-cuda", "python-pytorch-cuda", "python-pytorch-opt-cuda", "blender-cuda*"]
+
+[[signals]]
+says = "The kernel log shows nouveau errors"
+weight = 0.6
+source = "journal"
+kernel = true
+regex = 'nouveau [0-9a-f:.]+: (fifo|gr|mmu|gsp|disp|fb|bus)\b.*(fault|TRAP|error|timeout|timed out)|nouveau [0-9a-f:.]+: .*(failed to idle channel|channel .* killed|lockup)'
 
 [[fix]]
 reboot = true
