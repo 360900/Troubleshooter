@@ -1,0 +1,22 @@
+id = "wireguard-nm-routes-reset"
+title = "WireGuard: NetworkManager keeps resetting the tunnel's routes"
+summary = "When a WireGuard tunnel is started with wg-quick, NetworkManager may also take over the interface and reset its routes from time to time, so traffic stops going through the tunnel."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["wireguard", "wg-quick", "networkmanager", "unmanaged-devices", "type:wireguard", "routes", "wg0"]
+symptoms = ["wireguard stops working after a while", "wireguard routes disappear", "vpn traffic stops going through wireguard", "wg0 loses its routes"]
+advice = "If you start tunnels with wg-quick, create /etc/NetworkManager/conf.d/unmanaged.conf containing [keyfile] and unmanaged-devices=type:wireguard, then restart NetworkManager. Don't do this if you set up WireGuard in NetworkManager itself, because it would stop those connections from working."
+source = "https://wiki.archlinux.org/title/WireGuard#Routes_are_periodically_reset"
+
+[[when]]
+source = "package"
+names = ["networkmanager"]
+
+[[when]]
+source = "package"
+names = ["wireguard-tools"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/NetworkManager/conf.d/*.conf"
+regex = '^\s*unmanaged-devices\s*=.*type:wireguard'

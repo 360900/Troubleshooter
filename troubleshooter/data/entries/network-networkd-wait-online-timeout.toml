@@ -1,0 +1,31 @@
+id = "network-networkd-wait-online-timeout"
+title = "Startup: waits two minutes for the network"
+summary = "systemd-networkd-wait-online waits for every network interface to come up, including ones with no cable, and gives up only after two minutes. Telling it to wait for any one interface ends the delay."
+categories = ["network", "boot"]
+systems = ["arch-and-based"]
+keywords = ["systemd-networkd-wait-online", "network-online.target", "systemd-networkd", "--any", "RequiredForOnline", "boot delay", "timeout"]
+symptoms = ["boot takes 2 minutes", "startup hangs waiting for network", "a start job is running for wait for network to be configured", "slow boot with systemd-networkd", "boot waits for ethernet"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Systemd-networkd#Multiple_interfaces_that_are_not_connected_all_the_time"
+
+[[when]]
+source = "service"
+name = "systemd-networkd.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/system/systemd-networkd-wait-online.service.d/*.conf"
+regex = '^\s*ExecStart\s*=\s*\S*systemd-networkd-wait-online\s.*(--any|-i\s|--interface)'
+
+[[signals]]
+says = "Waiting for the network timed out during this startup"
+weight = 0.8
+source = "journal"
+regex = 'Timeout occurred while waiting for network connectivity|Failed to start .*Wait for Network to be Configured'
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/systemd/system/systemd-networkd-wait-online.service.d/troubleshooter-any.conf", content = "[Service]\nExecStart=\nExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any\n", says = "Wait until any one network interface is online instead of all of them" },
+  { op = "command", run = "systemctl daemon-reload", undo = "systemctl daemon-reload", says = "Reload systemd" },
+]

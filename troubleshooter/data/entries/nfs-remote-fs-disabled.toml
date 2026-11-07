@@ -1,0 +1,29 @@
+id = "nfs-remote-fs-disabled"
+title = "Network shares in fstab aren't mounted at startup"
+summary = "NFS and SMB shares listed in /etc/fstab are mounted by remote-fs.target, which is turned off here. The shares only mount when you mount them by hand. Enabling the target fixes it."
+categories = ["network", "boot"]
+systems = ["arch-and-based"]
+keywords = ["remote-fs.target", "fstab", "nfs", "nfs4", "cifs", "smb3", "network share", "mount at boot"]
+symptoms = ["nfs share not mounted at boot", "network drive doesn't mount on startup", "fstab nfs entry not mounted", "samba share in fstab not mounted after reboot", "have to run mount -a after boot"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/NFS/Troubleshooting#fstab_entry_not_mounted_on_boot"
+
+[[when]]
+source = "file"
+path = "/etc/fstab"
+regex = '^\s*[^#\s]+\s+\S+\s+(nfs4?|cifs|smb3)\s+((?!(\S*,)?noauto(,|\s))|\S*x-systemd\.automount)'
+
+[[fixed_when]]
+source = "service"
+name = "remote-fs.target"
+state = "enabled"
+
+[[signals]]
+says = "remote-fs.target is disabled, so network mounts from fstab aren't started"
+weight = 0.8
+source = "service"
+name = "remote-fs.target"
+state = "disabled"
+
+[[fix]]
+steps = [{ op = "service", names = ["remote-fs.target"], says = "Enable remote-fs.target so network shares in fstab mount at startup" }]

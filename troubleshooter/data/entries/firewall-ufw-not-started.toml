@@ -1,0 +1,33 @@
+id = "firewall-ufw-not-started"
+title = "Firewall: UFW is switched on but doesn't start at boot"
+summary = "UFW was turned on with ufw enable, but its systemd service isn't enabled, so the firewall is off after every restart. Enabling ufw.service starts it at boot."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["ufw", "ufw.service", "ufw enable", "ufw.conf", "firewall", "ENABLED=yes"]
+symptoms = ["ufw inactive after reboot", "firewall off after restart", "ufw status inactive", "have to run ufw enable after every boot"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Uncomplicated_Firewall#Basic_configuration"
+
+[[when]]
+source = "package"
+names = ["ufw"]
+
+[[when]]
+source = "file"
+path = "/etc/ufw/ufw.conf"
+regex = '^\s*ENABLED\s*=\s*yes'
+
+[[fixed_when]]
+source = "service"
+name = "ufw.service"
+state = "enabled"
+
+[[signals]]
+says = "UFW is set to enabled, but ufw.service doesn't start at boot"
+weight = 0.8
+source = "service"
+name = "ufw.service"
+state = "disabled"
+
+[[fix]]
+steps = [{ op = "service", names = ["ufw.service"], now = true, says = "Enable and start ufw.service" }]

@@ -1,0 +1,32 @@
+id = "wireguard-resolvconf-missing"
+title = "WireGuard: wg-quick fails because resolvconf is missing"
+summary = "The tunnel's configuration sets a DNS server, and wg-quick needs the resolvconf command to apply it. It isn't installed, so the tunnel fails to start or comes up without working DNS. systemd-resolvconf provides it for systemd-resolved."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["wireguard", "wg-quick", "resolvconf", "systemd-resolvconf", "openresolv", "dns", "wg-quick@"]
+symptoms = ["wireguard won't start", "wg-quick resolvconf command not found", "wireguard no dns", "wireguard connected but websites don't load", "wg-quick up fails"]
+auto_detect = true
+reproduce = "Start the tunnel again with wg-quick up NAME or systemctl start wg-quick@NAME."
+source = "https://wiki.archlinux.org/title/WireGuard#Broken_DNS_resolution"
+
+[[when]]
+source = "package"
+names = ["wireguard-tools"]
+
+[[when]]
+source = "service"
+name = "systemd-resolved.service"
+state = "active"
+
+[[fixed_when]]
+source = "file"
+path = "/usr/bin/resolvconf"
+
+[[signals]]
+says = "wg-quick tried to run resolvconf, which isn't installed"
+weight = 0.85
+source = "journal"
+regex = 'resolvconf: command not found'
+
+[[fix]]
+steps = [{ op = "install", packages = ["systemd-resolvconf"], says = "Install systemd-resolvconf so wg-quick can set the tunnel's DNS (start the tunnel again afterwards)" }]

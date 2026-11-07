@@ -1,0 +1,25 @@
+id = "samba-smb1-share"
+title = "File sharing: old NAS or router share won't open"
+summary = "Some NAS boxes and routers with USB drive sharing only speak SMB1, which current Samba and the kernel no longer use by default. Mounting fails with Host is down, or the file manager shows Software caused connection abort."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["smb1", "cifs", "vers=1.0", "client min protocol", "host is down", "software caused connection abort", "gvfs-smb", "nas", "synology"]
+symptoms = ["can't open nas share", "mount error host is down", "software caused connection abort", "router usb share not working", "smb share won't connect", "can't write to network drive"]
+advice = "Best is to turn on SMB2 or newer on the NAS or router. If it can't, add vers=1.0 to the cifs mount options, or for file managers add client min protocol = CORE to the [global] section of /etc/samba/smb.conf. SMB1 is insecure, so only use it on a network you trust."
+source = "https://wiki.archlinux.org/title/Samba#Software_caused_connection_abort"
+
+[[when]]
+source = "package"
+names = ["cifs-utils", "gvfs-smb", "smbclient"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/samba/smb.conf"
+regex = '^\s*client min protocol\s*=\s*(CORE|COREPLUS|LANMAN1|LANMAN2|NT1)\b'
+
+[[signals]]
+says = "A cifs mount failed because the server looked down (EHOSTDOWN)"
+weight = 0.5
+source = "journal"
+kernel = true
+regex = 'cifs_mount failed w/return code = -112'

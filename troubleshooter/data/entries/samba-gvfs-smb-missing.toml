@@ -1,0 +1,30 @@
+id = "samba-gvfs-smb-missing"
+title = "File manager: can't open smb:// network shares"
+summary = "GNOME Files, Nemo, Caja, Thunar and PCManFM need the gvfs-smb package to browse and open Windows and Samba shares. It isn't installed, so smb:// addresses don't work."
+categories = ["network", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["gvfs-smb", "gvfs", "smb://", "nautilus", "thunar", "nemo", "caja", "pcmanfm", "samba", "windows share"]
+symptoms = ["can't open smb share in file manager", "smb:// not supported", "file manager doesn't show windows shares", "nautilus can't connect to samba", "thunar network shares missing"]
+source = "https://wiki.archlinux.org/title/Samba#GNOME_Files,_Nemo,_Caja,_Thunar_and_PCManFM"
+
+[[when]]
+source = "package"
+names = ["nautilus", "nemo", "caja", "thunar", "pcmanfm", "pcmanfm-gtk3"]
+
+[[when]]
+source = "package"
+names = ["gvfs"]
+
+[[fixed_when]]
+source = "package"
+names = ["gvfs-smb"]
+
+[[signals]]
+says = "gvfs-smb isn't installed"
+weight = 0.3
+source = "package"
+names = ["gvfs-smb"]
+absent = true
+
+[[fix]]
+steps = [{ op = "install", packages = ["gvfs-smb"], says = "Install gvfs-smb (close and reopen the file manager afterwards)" }]

@@ -1,0 +1,40 @@
+id = "network-networkd-no-resolved"
+title = "Network: connected but no DNS with systemd-networkd"
+summary = "systemd-networkd hands the DNS servers it gets from the router to systemd-resolved, but that service is off and /etc/resolv.conf lists no servers. Websites can't be found by name. Turning on systemd-resolved fixes it."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["systemd-networkd", "systemd-resolved", "resolv.conf", "dns", "nameserver", "nss-resolve", "temporary failure in name resolution"]
+symptoms = ["connected but no internet", "websites don't load but ping to ip works", "temporary failure in name resolution", "could not resolve host", "dns not working"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Systemd-networkd#Required_services_and_setup"
+
+[[when]]
+source = "service"
+name = "systemd-networkd.service"
+state = "enabled"
+
+[[when]]
+source = "service"
+name = "systemd-resolved.service"
+state = "disabled"
+
+[[when]]
+source = "file"
+path = "/etc/nsswitch.conf"
+regex = '^hosts:.*\sresolve(\s|$)'
+
+[[fixed_when]]
+source = "service"
+name = "systemd-resolved.service"
+state = "active"
+
+[[signals]]
+says = "/etc/resolv.conf lists no DNS server"
+weight = 0.7
+source = "file"
+path = "/etc/resolv.conf"
+regex = '^\s*nameserver\s'
+absent = true
+
+[[fix]]
+steps = [{ op = "service", names = ["systemd-resolved.service"], now = true, says = "Turn on systemd-resolved so the DNS servers from systemd-networkd are used" }]

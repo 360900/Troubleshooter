@@ -1,0 +1,14 @@
+id = "network-realtek-no-link-dual-boot"
+title = "Ethernet: Realtek card has no link after using Windows"
+summary = "Some Realtek Windows drivers switch the network card off when Windows shuts down, so Linux sees no cable until Windows boots again. A setting in the Windows driver or the BIOS keeps it on."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["realtek", "r8169", "rtl8111", "rtl8168", "no carrier", "link light", "wake-on-lan after shutdown", "dual boot", "lan boot rom"]
+symptoms = ["ethernet doesn't work after booting windows", "no link light on network port", "cable unplugged but it is plugged in", "wired network only works after windows", "ethernet dead in linux dual boot"]
+advice = "In Windows, open Device Manager, open the Realtek adapter's Advanced tab and set Wake-on-LAN after shutdown (or Shutdown Wake-On-LAN) to Enabled. Enabling the onboard LAN boot ROM in the BIOS also wakes the card at startup. Until then, bringing the interface up in Linux may bring the link back."
+source = "https://wiki.archlinux.org/title/Network_configuration/Ethernet#Realtek_no_link_/_WOL_problem"
+
+[[when]]
+source = "pci"
+vendor = "10ec"
+class = "0200"

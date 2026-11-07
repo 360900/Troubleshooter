@@ -1,0 +1,24 @@
+id = "vpn-openvpn-kde-import"
+title = "VPN: OpenVPN profile imported in KDE settings doesn't connect"
+summary = "When an .ovpn file is imported through the KDE network settings, some options such as tls-crypt are silently dropped, so the connection never completes the TLS handshake. Importing the same file with nmcli keeps them."
+categories = ["network", "desktop"]
+systems = ["any"]
+keywords = ["plasma-nm", "networkmanager-openvpn", "ovpn", "tls-crypt", "nmcli connection import", "tls handshake failed", "tls key negotiation failed"]
+symptoms = ["imported vpn doesn't connect", "ovpn file works elsewhere but not in kde", "vpn tls handshake failed", "openvpn tls key negotiation failed", "kde vpn import not working"]
+advice = "Delete the imported VPN connection, then import the file in a terminal with nmcli connection import type openvpn file NAME.ovpn and connect to it as usual."
+reproduce = "Try to start the VPN connection again."
+source = "https://wiki.archlinux.org/title/OpenVPN#NetworkManager_fails_to_connect_using_imported_configuration"
+
+[[when]]
+source = "package"
+names = ["plasma-nm"]
+
+[[when]]
+source = "package"
+names = ["networkmanager-openvpn"]
+
+[[signals]]
+says = "The OpenVPN connection timed out during the TLS handshake"
+weight = 0.35
+source = "journal"
+regex = 'nm-openvpn.*TLS (key negotiation failed to occur within|handshake failed)'

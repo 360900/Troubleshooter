@@ -1,0 +1,22 @@
+id = "network-ethernet-downshift"
+title = "Ethernet: gigabit link fell back to 100 Mbit/s"
+summary = "The network card could not run the cable at the speed it negotiated and dropped to a slower one, usually 100 Mbit/s. This is almost always the cable, a plug or the port on the other end."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["downshift", "downshifted", "100Mbps", "1Gbps", "r8169", "phy", "ethtool", "link speed", "cabling"]
+symptoms = ["ethernet only 100 mbit", "wired internet is slow", "gigabit ethernet is slow", "ethernet stuck at 100mbps", "lan speed dropped after replugging cable"]
+auto_detect = true
+advice = "Try another cable (gigabit needs all eight wires) and another port on the router or switch. After replugging, restart the link with ip link set dev INTERFACE down and then up, or reconnect in your network settings, so it negotiates the speed again."
+reproduce = "Unplug the network cable and plug it back in."
+source = "https://wiki.archlinux.org/title/Network_configuration/Ethernet#MicroStar_Motherboard_with_Realtek_8111/8168/8411"
+
+[[when]]
+source = "pci"
+class = "0200"
+
+[[signals]]
+says = "The kernel reports the Ethernet link was downshifted to a lower speed"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'Downshift occurred from negotiated speed|Link is Up - .*\(downshifted\)'

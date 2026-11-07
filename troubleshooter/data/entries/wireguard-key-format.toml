@@ -1,0 +1,21 @@
+id = "wireguard-key-format"
+title = "WireGuard: a key in the tunnel config can't be read"
+summary = "A key in the tunnel's configuration file isn't a valid WireGuard key, so the tunnel refuses to start. Most often the file holds a path to a key file where wg-quick expects the key text itself."
+categories = ["network"]
+systems = ["any"]
+keywords = ["wireguard", "wg-quick", "PrivateKey", "PublicKey", "PresharedKey", "key is not the correct length or format", "configuration parsing error"]
+symptoms = ["wireguard won't start", "key is not the correct length or format", "wg-quick configuration parsing error", "wireguard private key error"]
+auto_detect = true
+advice = "Open the tunnel file in /etc/wireguard/ and replace each path after PrivateKey, PublicKey or PresharedKey with the key itself, the 44-character text inside that key file. Then start the tunnel again."
+reproduce = "Start the tunnel again with wg-quick up NAME or systemctl start wg-quick@NAME."
+source = "https://wiki.archlinux.org/title/WireGuard#Key_is_not_the_correct_length_or_format"
+
+[[when]]
+source = "package"
+names = ["wireguard-tools"]
+
+[[signals]]
+says = "wg rejected a key in the tunnel configuration"
+weight = 0.85
+source = "journal"
+regex = 'Key is not the correct length or format'

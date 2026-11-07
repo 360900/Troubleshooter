@@ -1,0 +1,37 @@
+id = "samba-smb-conf-missing"
+title = "Samba: /etc/samba/smb.conf is missing"
+summary = "The Samba package doesn't ship a configuration file, and without /etc/samba/smb.conf the Samba server won't start and smbclient complains. Creating a minimal one fixes that; it shares nothing until you add shares."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["samba", "smb.conf", "smbd", "smb.service", "smbclient", "testparm", "can't load smb.conf"]
+symptoms = ["samba won't start", "smb.service failed", "can't load /etc/samba/smb.conf", "smbclient doesn't work", "samba server not starting"]
+auto_detect = true
+reproduce = "Start smb.service again or run smbclient."
+source = "https://wiki.archlinux.org/title/Samba#Installation"
+
+[[when]]
+source = "package"
+names = ["samba", "smbclient"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/samba/smb.conf"
+
+[[signals]]
+says = "Samba couldn't load /etc/samba/smb.conf"
+weight = 0.85
+source = "journal"
+regex = "Can't load /etc/samba/smb\\.conf"
+
+[[signals]]
+says = "smb.service is enabled but has no configuration file to start with"
+weight = 0.7
+source = "service"
+name = "smb.service"
+state = "enabled"
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/samba/smb.conf", content = "# Created by Troubleshooter. See smb.conf(5) and https://wiki.archlinux.org/title/Samba\n[global]\n   workgroup = WORKGROUP\n   logging = systemd\n", says = "Create a minimal /etc/samba/smb.conf (no shares yet)" },
+  { op = "command", says = "Start Samba again if it is enabled", run = "if systemctl -q is-enabled smb.service; then systemctl restart smb.service; fi" },
+]

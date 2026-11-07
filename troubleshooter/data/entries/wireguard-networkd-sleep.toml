@@ -1,0 +1,33 @@
+id = "wireguard-networkd-sleep"
+title = "WireGuard: tunnel stops working after sleep with systemd-networkd"
+summary = "After waking from sleep, systemd-networkd removes the routing rules that wg-quick set up, so traffic leaves outside the tunnel and can expose your real IP address. Telling systemd-networkd to keep rules it didn't create fixes it."
+categories = ["network", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["wireguard", "wg-quick", "systemd-networkd", "ManageForeignRoutingPolicyRules", "ManageForeignRoutes", "networkd.conf", "ip rule", "suspend", "vpn leak"]
+symptoms = ["wireguard broken after suspend", "vpn stops working after sleep", "real ip shown after resume", "wireguard no connection after waking up"]
+source = "https://wiki.archlinux.org/title/WireGuard#Connection_lost_after_sleep_using_systemd-networkd"
+
+[[when]]
+source = "package"
+names = ["wireguard-tools"]
+
+[[when]]
+source = "service"
+name = "systemd-networkd.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/networkd.conf.d/*.conf"
+regex = '^\s*ManageForeignRoutingPolicyRules\s*=\s*(no|false|0)\s*$'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/networkd.conf"
+regex = '^\s*ManageForeignRoutingPolicyRules\s*=\s*(no|false|0)\s*$'
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/systemd/networkd.conf.d/troubleshooter-wireguard.conf", content = "[Network]\nManageForeignRoutingPolicyRules=no\n", says = "Stop systemd-networkd from removing routing rules made by wg-quick (if the tunnel uses fwmark, ManageForeignRoutes=no may also be needed)" },
+  { op = "command", says = "Restart systemd-networkd (the network blinks briefly)", run = "systemctl try-restart systemd-networkd.service", undo = "systemctl try-restart systemd-networkd.service" },
+]

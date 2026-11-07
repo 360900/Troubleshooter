@@ -1,0 +1,21 @@
+id = "ipv6-prefer-ipv4"
+title = "Network: downloads are slow because IPv6 is slow on this connection"
+summary = "On some internet connections IPv6 traffic is much slower than IPv4, which makes package downloads and websites crawl. Telling the system to prefer IPv4 when both are available keeps IPv6 working for everything that needs it."
+categories = ["network", "updates"]
+systems = ["arch-and-based"]
+keywords = ["ipv6", "ipv4", "gai.conf", "precedence", "getaddrinfo", "prefer ipv4", "slow mirror", "disable ipv6"]
+symptoms = ["pacman downloads are very slow", "ipv6 is slow", "downloads slow but speed test is fine", "websites load slowly over ipv6", "prefer ipv4 over ipv6"]
+source = "https://wiki.archlinux.org/title/IPv6#Prefer_IPv4_over_IPv6"
+
+[[when]]
+source = "file"
+path = "/etc/gai.conf"
+regex = '^#\s*precedence\s+::ffff:0:0/96\s+100'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/gai.conf"
+regex = '^\s*precedence\s+::ffff:0:0/96\s+100'
+
+[[fix]]
+steps = [{ op = "replace", path = "/etc/gai.conf", pattern = '^#[[:space:]]*(precedence[[:space:]]+::ffff:0:0/96[[:space:]]+100)', replacement = '\1', says = "Prefer IPv4 addresses over IPv6 in /etc/gai.conf (applies to newly started programs)" }]

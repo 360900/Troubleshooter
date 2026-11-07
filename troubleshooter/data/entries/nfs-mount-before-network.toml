@@ -1,0 +1,33 @@
+id = "nfs-mount-before-network"
+title = "NFS: shares fail to mount at startup because the network isn't up yet"
+summary = "The NFS shares in /etc/fstab are mounted before NetworkManager has finished connecting, so the mount fails with Network is unreachable. Enabling NetworkManager-wait-online makes startup wait for the connection, which can make it a little slower."
+categories = ["network", "boot"]
+systems = ["arch-and-based"]
+keywords = ["nfs", "mount.nfs", "mount.nfs4", "network is unreachable", "NetworkManager-wait-online", "network-online.target", "fstab", "_netdev"]
+symptoms = ["nfs share not mounted at boot", "mount.nfs4 network is unreachable", "nfs mount fails at startup but works later", "network share missing after reboot"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/NFS/Troubleshooting#mount.nfs4:_Network_is_unreachable"
+
+[[when]]
+source = "file"
+path = "/etc/fstab"
+regex = '^\s*[^#\s]+\s+\S+\s+nfs4?\s'
+
+[[when]]
+source = "service"
+name = "NetworkManager.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "service"
+name = "NetworkManager-wait-online.service"
+state = "enabled"
+
+[[signals]]
+says = "An NFS mount failed this startup because the network was unreachable"
+weight = 0.8
+source = "journal"
+regex = 'mount\.nfs4?: Network is unreachable'
+
+[[fix]]
+steps = [{ op = "service", names = ["NetworkManager-wait-online.service"], says = "Make startup wait until NetworkManager is connected before mounting network shares" }]

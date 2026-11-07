@@ -1,0 +1,13 @@
+id = "wol-battery-drain-off"
+title = "Laptop: battery drains while it's shut down"
+summary = "With Wake-on-LAN on, the network card stays powered after shutdown to listen for wake-up packets, which slowly empties some laptops' batteries. Turning WoL off stops it."
+categories = ["sleep", "network"]
+systems = ["arch-and-based"]
+keywords = ["wake-on-lan", "wol", "ethtool", "battery drain", "shutdown", "wol d", "802-3-ethernet.wake-on-lan"]
+symptoms = ["battery drains when laptop is off", "laptop battery empty after shutdown", "battery loses charge while powered off", "network light stays on after shutdown"]
+advice = "Run ethtool INTERFACE as root to check: Wake-on showing anything other than d means it's on. ethtool -s INTERFACE wol d turns it off until the next boot; to keep it off, turn WoL off in the BIOS or in the wired connection's settings in your network manager."
+source = "https://wiki.archlinux.org/title/Wake-on-LAN#Battery_draining_problem"
+
+[[when]]
+source = "pci"
+class = "0200"

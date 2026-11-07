@@ -1,0 +1,28 @@
+id = "firewall-firewalld-ipv6-rpfilter"
+title = "Firewall: firewalld drops IPv6 traffic with Wi-Fi and cable connected"
+summary = "firewalld's strict IPv6 reverse path filter accepts IPv6 replies on only one interface when two are on the same network, such as Wi-Fi and Ethernet at once. Connections hang now and then. The loose setting, which matches how IPv4 is filtered, fixes it."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["firewalld", "IPv6_rpfilter", "rpfilter", "reverse path filter", "firewalld.conf", "ipv6", "loose"]
+symptoms = ["connections hang with wifi and ethernet both connected", "ipv6 works on only one interface", "intermittent connection problems with firewalld", "websites sometimes don't load with firewalld"]
+source = "https://wiki.archlinux.org/title/Firewalld#IPv6_reverse_packet_filter_dropping_legitimate_packages"
+
+[[when]]
+source = "package"
+names = ["firewalld"]
+
+[[when]]
+source = "file"
+path = "/etc/firewalld/firewalld.conf"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/firewalld/firewalld.conf"
+regex = '^\s*IPv6_rpfilter\s*=\s*loose'
+
+[[fix]]
+steps = [
+  { op = "replace", path = "/etc/firewalld/firewalld.conf", pattern = '^IPv6_rpfilter=.*', replacement = 'IPv6_rpfilter=loose', says = "Set firewalld's IPv6 reverse path filter to loose" },
+  { op = "command", says = "Add the setting if the file doesn't have it yet", run = "grep -q '^IPv6_rpfilter=' /etc/firewalld/firewalld.conf || echo 'IPv6_rpfilter=loose' >> /etc/firewalld/firewalld.conf" },
+  { op = "command", says = "Restart firewalld", run = "systemctl try-restart firewalld.service", undo = "systemctl try-restart firewalld.service" },
+]

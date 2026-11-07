@@ -1,0 +1,27 @@
+id = "firewall-ufw-docker"
+title = "Firewall: Docker containers bypass UFW"
+summary = "Docker writes its own iptables rules for published container ports, and those rules take effect before UFW's. Ports you think UFW blocks can be open to the network."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["ufw", "docker", "iptables", "ufw-docker", "published ports", "container", "firewall bypass"]
+symptoms = ["ufw doesn't block docker ports", "docker container reachable despite firewall", "ufw deny not working for docker", "docker ignores ufw rules"]
+advice = "Use ufw-docker (from the AUR), which fixes Docker's iptables rules with ufw-docker install and lets you manage container ports through UFW. Check which ports your containers publish with docker ps."
+source = "https://wiki.archlinux.org/title/Uncomplicated_Firewall#UFW_and_Docker"
+
+[[when]]
+source = "package"
+names = ["ufw"]
+
+[[when]]
+source = "package"
+names = ["docker"]
+
+[[when]]
+source = "service"
+name = "ufw.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/ufw/after.rules"
+regex = 'BEGIN UFW AND DOCKER'

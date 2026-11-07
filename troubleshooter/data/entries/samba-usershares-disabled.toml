@@ -1,0 +1,29 @@
+id = "samba-usershares-disabled"
+title = "Samba: sharing a folder from the file manager doesn't stick"
+summary = "Sharing a folder from Dolphin or GNOME Files uses Samba usershares, which are off until a shared directory, a group and a few smb.conf settings are set up. Until then the share disappears again and net usershare reports that usershares are disabled."
+categories = ["network", "desktop"]
+systems = ["arch-and-based"]
+keywords = ["samba", "usershare", "net usershare", "sambashare", "kdenetwork-filesharing", "nautilus-share", "dolphin", "usershares are currently disabled"]
+symptoms = ["can't share folder in dolphin", "shared folder icon disappears", "usershares are currently disabled", "share folder on network not working", "net usershare returned error 255"]
+advice = "As root, create /var/lib/samba/usershares, make a sambashare group, give the directory to root:sambashare with mode 1770, add usershare path = /var/lib/samba/usershares and usershare max shares = 100 to the [global] section of /etc/samba/smb.conf, add your user to sambashare with gpasswd, restart smb.service and log out and back in."
+source = "https://wiki.archlinux.org/title/Samba#Enable_Usershares"
+
+[[when]]
+source = "package"
+names = ["samba"]
+
+[[when]]
+source = "package"
+names = ["kdenetwork-filesharing", "nautilus-share", "nemo-share", "thunar-shares-plugin"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/samba/smb.conf"
+regex = '^\s*usershare path\s*='
+
+[[signals]]
+says = "The usershares directory doesn't exist"
+weight = 0.4
+source = "file"
+path = "/var/lib/samba/usershares"
+absent = true

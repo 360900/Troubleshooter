@@ -1,0 +1,52 @@
+id = "avahi-resolved-mdns-conflict"
+title = "Avahi: systemd-resolved runs a second mDNS responder"
+summary = "Avahi and systemd-resolved both answer .local (mDNS) queries on this machine. They fight over the host name, so it keeps changing to name-2, name-3 and so on, and printers or shares can be found unreliably. Limiting systemd-resolved to lookups only leaves mDNS to Avahi."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["avahi", "avahi-daemon", "systemd-resolved", "MulticastDNS", "resolved.conf", "mdns", "zeroconf", "host name conflict"]
+symptoms = ["hostname keeps changing on the network", "hostname gets a number added", "my computer shows up as hostname-2", ".local names stopped working", "network printer found only sometimes"]
+auto_detect = true
+reproduce = "Restart avahi-daemon.service, or disconnect and reconnect the network."
+source = "https://wiki.archlinux.org/title/Avahi#Hostname_changes_with_appending_incrementing_numbers"
+
+[[when]]
+source = "package"
+names = ["avahi"]
+
+[[when]]
+source = "service"
+name = "avahi-daemon.service"
+state = "active"
+
+[[when]]
+source = "service"
+name = "systemd-resolved.service"
+state = "active"
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/resolved.conf.d/*.conf"
+regex = '^\s*MulticastDNS\s*=\s*(no|false|0|resolve)\s*$'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/resolved.conf"
+regex = '^\s*MulticastDNS\s*=\s*(no|false|0|resolve)\s*$'
+
+[[signals]]
+says = "Avahi noticed another mDNS stack running on this machine"
+weight = 0.8
+source = "journal"
+regex = 'Detected another IPv[46] mDNS stack running on this host'
+
+[[signals]]
+says = "Avahi had to rename the host because of a name conflict"
+weight = 0.4
+source = "journal"
+regex = 'Host name conflict, retrying with'
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/systemd/resolved.conf.d/troubleshooter-avahi.conf", content = "[Resolve]\nMulticastDNS=resolve\n", says = "Let systemd-resolved look up .local names but stop it from answering them" },
+  { op = "command", says = "Restart systemd-resolved, then Avahi", run = "systemctl try-restart systemd-resolved.service && systemctl try-restart avahi-daemon.service", undo = "systemctl try-restart systemd-resolved.service && systemctl try-restart avahi-daemon.service" },
+]

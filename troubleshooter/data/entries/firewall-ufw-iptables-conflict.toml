@@ -1,0 +1,30 @@
+id = "firewall-ufw-iptables-conflict"
+title = "Firewall: iptables.service is enabled next to UFW"
+summary = "UFW and iptables.service both load firewall rules at startup, and with both enabled UFW doesn't start properly, so the rules you set in UFW may not be in effect. Disabling iptables.service leaves the firewall to UFW."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["ufw", "ufw.service", "iptables.service", "ip6tables.service", "iptables", "firewall", "conflict"]
+symptoms = ["ufw not working after reboot", "ufw rules not applied", "ufw status inactive after boot", "firewall rules missing at startup", "ufw fails to start"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Uncomplicated_Firewall#Installation"
+
+[[when]]
+source = "package"
+names = ["ufw"]
+
+[[when]]
+source = "service"
+name = "ufw.service"
+state = "enabled"
+
+[[signals]]
+says = "iptables.service or ip6tables.service is enabled although UFW manages the firewall"
+weight = 0.85
+any_of = [
+  { source = "service", name = "iptables.service", state = "enabled" },
+  { source = "service", name = "ip6tables.service", state = "enabled" },
+]
+
+[[fix]]
+reboot = true
+steps = [{ op = "service", action = "disable", names = ["iptables.service", "ip6tables.service"], says = "Stop iptables.service and ip6tables.service from starting next to UFW" }]

@@ -1,0 +1,27 @@
+id = "network-usb-ethernet-tx-timeout"
+title = "USB Ethernet: Realtek adapter stops sending until it is replugged"
+summary = "USB network adapters with a Realtek RTL8153 chip can hang and stop sending data until the link is reset. Turning off USB link power management for the adapter with a kernel quirk fixes it."
+categories = ["network", "drivers"]
+systems = ["arch-and-based"]
+keywords = ["r8152", "rtl8153", "tx status -71", "tx status -2", "usbcore.quirks", "USB_QUIRK_NO_LPM", "usb lpm", "usb ethernet adapter"]
+symptoms = ["usb ethernet adapter stops working", "usb lan adapter freezes", "wired connection on dock drops", "usb c ethernet hangs until replugged", "dock network stops after a while"]
+auto_detect = true
+advice = "Find the adapter's ID with lsusb (for example 2357:0601) and add the kernel parameter usbcore.quirks=VENDOR:PRODUCT:k with that ID, then restart. To test without restarting, write the same VENDOR:PRODUCT:k value to /sys/module/usbcore/parameters/quirks as root and replug the adapter."
+reproduce = "Use the wired connection until it stops working."
+source = "https://wiki.archlinux.org/title/Network_configuration/Ethernet#Realtek_RTL8153_Tx_timeout"
+
+[[when]]
+source = "module"
+names = ["r8152"]
+
+[[fixed_when]]
+source = "file"
+path = "/sys/module/usbcore/parameters/quirks"
+regex = ':k'
+
+[[signals]]
+says = "The r8152 driver reports failed transmits (Tx status -2 or -71)"
+weight = 0.8
+source = "journal"
+kernel = true
+regex = 'r8152.*Tx status -(2|71)\b'

@@ -1,0 +1,13 @@
+id = "wol-wakes-after-shutdown"
+title = "Computer turns itself back on after shutdown"
+summary = "On some motherboards, enabling Wake-on-LAN in the BIOS makes the computer start again right after shutdown or at random. BIOS settings or a USB controller quirk usually stop it."
+categories = ["sleep", "boot"]
+systems = ["arch-and-based"]
+keywords = ["wake-on-lan", "wol", "spurious wakeup", "xhci_hcd.quirks", "XHCI_SPURIOUS_WAKEUP", "XHCI_SPURIOUS_REBOOT", "EuP 2013", "erp", "bios"]
+symptoms = ["pc turns back on after shutdown", "computer restarts instead of shutting down", "pc powers on by itself", "computer wakes up randomly when off"]
+advice = "In the BIOS, try turning off EuP 2013 and the xHCI options in the USB settings, or turn off Wake-on-LAN if you don't use it. Otherwise add the kernel parameter xhci_hcd.quirks=270336, which enables the XHCI_SPURIOUS_REBOOT and XHCI_SPURIOUS_WAKEUP workarounds."
+source = "https://wiki.archlinux.org/title/Wake-on-LAN#Wake-up_after_shutdown"
+
+[[fixed_when]]
+source = "cmdline"
+regex = 'xhci_hcd\.quirks='

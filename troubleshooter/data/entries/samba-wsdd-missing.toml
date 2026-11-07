@@ -1,0 +1,40 @@
+id = "samba-wsdd-missing"
+title = "Samba: Windows doesn't list this computer under Network"
+summary = "Windows 10 and 11 find shared computers through WS-Discovery instead of the old NetBIOS browsing, which Samba doesn't do on its own. The shares still work by name or IP, and the wsdd service makes the computer show up in Explorer."
+categories = ["network"]
+systems = ["arch-and-based"]
+keywords = ["samba", "wsdd", "ws-discovery", "windows explorer", "network neighborhood", "smb1", "netbios", "wsdd2"]
+symptoms = ["windows can't see my linux computer", "samba server not shown in windows network", "linux shares don't appear in windows explorer", "windows 11 doesn't find samba share"]
+source = "https://wiki.archlinux.org/title/Samba#Windows_1709_or_up_does_not_discover_the_samba_server_in_Network_view"
+
+[[when]]
+source = "package"
+names = ["samba"]
+
+[[when]]
+source = "service"
+name = "smb.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "service"
+name = "wsdd.service"
+state = "enabled"
+
+[[fixed_when]]
+source = "service"
+name = "wsdd2.service"
+state = "enabled"
+
+[[signals]]
+says = "No WS-Discovery daemon is installed"
+weight = 0.3
+source = "package"
+names = ["wsdd", "wsdd2"]
+absent = true
+
+[[fix]]
+steps = [
+  { op = "install", packages = ["wsdd"] },
+  { op = "service", names = ["wsdd.service"], now = true, says = "Enable and start wsdd so Windows can discover this computer" },
+]

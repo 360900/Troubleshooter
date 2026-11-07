@@ -1,0 +1,28 @@
+id = "wol-tlp-disabled"
+title = "Wake-on-LAN: TLP turns it off"
+summary = "TLP disables Wake-on-LAN by default to save power, so the computer ignores magic packets even when WoL is set up in the BIOS and the network settings. Setting WOL_DISABLE=N keeps it on."
+categories = ["network", "sleep"]
+systems = ["arch-and-based"]
+keywords = ["wake-on-lan", "wol", "tlp", "WOL_DISABLE", "magic packet", "ethtool", "wake on lan"]
+symptoms = ["wake on lan doesn't work", "computer doesn't wake from magic packet", "wol stopped working after installing tlp", "can't wake pc over network"]
+source = "https://wiki.archlinux.org/title/Wake-on-LAN#Enable_WoL_in_TLP"
+
+[[when]]
+source = "package"
+names = ["tlp"]
+
+[[fixed_when]]
+source = "file"
+path = "/etc/tlp.d/*.conf"
+regex = '^\s*WOL_DISABLE\s*=\s*"?N'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/tlp.conf"
+regex = '^\s*WOL_DISABLE\s*=\s*"?N'
+
+[[fix]]
+steps = [
+  { op = "write_file", path = "/etc/tlp.d/90-troubleshooter-wol.conf", content = "WOL_DISABLE=N\n", says = "Stop TLP from turning off Wake-on-LAN" },
+  { op = "command", says = "Apply the TLP settings", run = "tlp start", undo = "tlp start" },
+]

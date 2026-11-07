@@ -1,0 +1,29 @@
+id = "vpn-openvpn-pkcs12-legacy"
+title = "VPN: OpenVPN can't read an old .p12 or .pfx key file"
+summary = "The certificate and key file of this OpenVPN connection is encrypted with an old algorithm that OpenSSL 3 no longer reads, so the connection fails as if the password were wrong. Re-encrypting the file once fixes it."
+categories = ["network"]
+systems = ["any"]
+keywords = ["openvpn", "networkmanager-openvpn", "pkcs12", "p12", "pfx", "mac verify failure", "0308010C", "digital envelope routines", "openssl 3", "legacy"]
+symptoms = ["vpn stopped working after update", "openvpn says wrong password", "decoding pkcs12 failed", "vpn private key password failure", "openvpn certificate file not accepted"]
+auto_detect = true
+advice = "Keep a backup of the .p12 or .pfx file, read it with openssl pkcs12 -legacy -in old.p12 -out tmp.pem, write a new one with openssl pkcs12 -export -in tmp.pem -out new.p12, then delete tmp.pem and point the VPN connection at the new file. Your VPN provider can also send a fresh file."
+reproduce = "Try to start the VPN connection again."
+source = "https://wiki.archlinux.org/title/OpenVPN#OpenVPN_connection_fails_after_update_to_OpenSSL3"
+
+[[when]]
+source = "package"
+names = ["openvpn"]
+
+[[signals]]
+says = "OpenVPN failed to decode the PKCS#12 file because OpenSSL rejected its old encryption"
+weight = 0.85
+all_of = [
+  { source = "journal", regex = 'Decoding PKCS12 failed' },
+  { source = "journal", regex = '0308010C:digital envelope routines::unsupported' },
+]
+
+[[signals]]
+says = "OpenVPN could not decode its PKCS#12 key file"
+weight = 0.3
+source = "journal"
+regex = 'Decoding PKCS12 failed'
