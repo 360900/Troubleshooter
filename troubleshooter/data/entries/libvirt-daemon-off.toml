@@ -22,6 +22,15 @@ any_of = [
   { source = "service", name = "libvirtd.socket", state = "enabled" },
   { source = "service", name = "virtqemud.service", state = "enabled" },
   { source = "service", name = "virtqemud.socket", state = "enabled" },
+  { source = "service", name = "virtproxyd.service", state = "enabled" },
+  { source = "service", name = "virtproxyd.socket", state = "enabled" },
+]
+
+# Started by hand: it works now, even if it won't after a restart.
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "libvirtd.service", state = "active" },
+  { source = "service", name = "virtqemud.service", state = "active" },
 ]
 
 [[signals]]
