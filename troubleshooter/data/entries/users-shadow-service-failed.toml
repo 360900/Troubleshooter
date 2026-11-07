@@ -1,0 +1,22 @@
+id = "users-shadow-service-failed"
+title = "Startup: shadow.service failed"
+summary = "A daily check of the user and group files found something odd, usually a leftover system account whose home folder no longer exists. It's rarely harmful, but it shows up as a failed service."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["shadow.service", "shadow.timer", "pwck", "grpck", "vipw", "vigr", "userdel", "/etc/passwd", "does not exist"]
+symptoms = ["shadow.service failed", "systemctl --failed shows shadow.service", "pwck directory does not exist", "failed to start verify integrity of password and group files"]
+advice = "Run sudo pwck -r and sudo grpck -r to see the problems without changing anything. Accounts left behind by packages you removed can be deleted with sudo userdel name; for a missing home folder of a service you still use, reinstalling that package usually recreates it. Edit the files only with sudo vipw or sudo vigr."
+source = "https://wiki.archlinux.org/title/Users_and_groups#Automatic_integrity_checks"
+
+[[signals]]
+says = "shadow.service failed during this boot"
+weight = 0.7
+source = "journal"
+regex = 'shadow\.service: Failed with result'
+
+[[signals]]
+says = "pwck reported an account whose home folder is missing"
+weight = 0.3
+source = "journal"
+unit = "shadow.service"
+regex = "user '\\S+': directory '\\S+' does not exist"

@@ -1,0 +1,16 @@
+id = "esp-out-of-space"
+title = "Boot partition: full during a kernel update"
+summary = "The kernel or its boot image couldn't be written because the boot or EFI partition is full. The computer may fail to start, or keep starting an old kernel, until there's room and the images are rebuilt."
+categories = ["boot", "updates"]
+systems = ["arch-and-based"]
+keywords = ["esp", "efi system partition", "/boot full", "/efi", "no space left on device", "mkinitcpio", "fallback initramfs", "uki", "image generation failed"]
+symptoms = ["no space left on device on /boot", "kernel update failed boot partition full", "efi partition is full", "image generation failed", "won't boot after kernel update"]
+advice = "Don't restart yet. Check usage with df -h /boot /efi, then make room: remove kernels you don't use, old UKIs or leftover initramfs files, or stop building fallback images in /etc/mkinitcpio.d. Then reinstall the kernel package (for example sudo pacman -S linux) so its files are written again. If the partition is simply too small, a larger one is the lasting fix."
+source = "https://wiki.archlinux.org/title/EFI_system_partition#Replace_the_partition_with_a_larger_one"
+
+[[signals]]
+says = "pacman's log shows a write to the boot partition failed for lack of space"
+weight = 0.6
+source = "file"
+path = "/var/log/pacman.log"
+regex = '(/boot|/efi)/\S*.*No space left on device'

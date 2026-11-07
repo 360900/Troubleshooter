@@ -1,0 +1,24 @@
+id = "secureboot-unsigned-module-rejected"
+title = "Secure Boot: kernel refuses an unsigned driver"
+summary = "The kernel only accepts signed modules right now, and a driver built outside the kernel (NVIDIA, a DKMS Wi-Fi or VirtualBox module) isn't signed with a key it trusts. That driver doesn't load at all."
+categories = ["drivers", "boot"]
+systems = ["arch-and-based"]
+keywords = ["secure boot", "lockdown", "kernel_lockdown", "module.sig_enforce", "unsigned module", "module signing", "dkms", "mok", "key was rejected by service", "required key not available"]
+symptoms = ["nvidia driver doesn't load with secure boot", "key was rejected by service", "modprobe required key not available", "wifi driver won't load after enabling secure boot", "virtualbox kernel module won't load", "dkms module not loading"]
+auto_detect = true
+advice = "Stock Arch kernels don't block unsigned modules just because Secure Boot is on, so look for lockdown= or module.sig_enforce=1 in /proc/cmdline, or a distro kernel that enforces signing. Remove that setting, turn off Secure Boot in the firmware, or have DKMS sign its modules (mok_signing_key and mok_certificate in /etc/dkms/framework.conf) with a key the kernel trusts."
+reproduce = "Load the driver, for example with sudo modprobe followed by its name."
+source = "https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Implementing_Secure_Boot"
+
+[[when]]
+any_of = [
+  { source = "package", names = ["dkms"] },
+  { source = "file", path = "/sys/firmware/efi/efivars/SecureBoot-*" },
+]
+
+[[signals]]
+says = "The kernel rejected a module because it isn't signed with a trusted key"
+weight = 0.85
+source = "journal"
+kernel = true
+regex = 'Loading of (unsigned module|module with unavailable key) is rejected|Lockdown: \S+: unsigned module loading is restricted'

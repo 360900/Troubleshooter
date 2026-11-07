@@ -1,0 +1,9 @@
+id = "ntfs-unknown-filesystem-type"
+title = "Windows drive: \"unknown filesystem type 'ntfs'\""
+summary = "On kernels older than 7.1 there is no driver named ntfs, so a mount asking for that type fails or comes up read-only. The working driver on those kernels is called ntfs3."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["ntfs", "ntfs3", "unknown filesystem type", "mount -t ntfs3", "fstab", "linux-lts", "read-only"]
+symptoms = ["unknown filesystem type 'ntfs'", "can't mount ntfs partition", "ntfs drive mounts read only", "windows drive in fstab fails to mount", "mount ntfs wrong fs type"]
+advice = "Mount the drive with the type ntfs3, for example sudo mount -t ntfs3 /dev/sdXY /mnt, and use ntfs3 instead of ntfs as the type in /etc/fstab. Kernels from 7.1 on also have a driver called ntfs."
+source = "https://wiki.archlinux.org/title/NTFS#Explicit_file_system_type_required_to_mount"

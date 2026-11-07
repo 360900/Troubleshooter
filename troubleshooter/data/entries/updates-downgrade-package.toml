@@ -1,0 +1,9 @@
+id = "updates-downgrade-package"
+title = "Updates: going back to an older version of a package"
+summary = "An update broke something and you want the previous version back. pacman keeps old packages in its cache, so you can usually reinstall the last working one."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["downgrade", "pacman -U", "/var/cache/pacman/pkg", "IgnorePkg", "arch linux archive", "linux-lts", "older version"]
+symptoms = ["update broke my system", "how do I downgrade a package", "go back to previous kernel", "install an older version of a program", "roll back an update"]
+advice = "Install the old file from the cache with sudo pacman -U /var/cache/pacman/pkg/name-version.pkg.tar.zst (the downgrade tool from the AUR helps pick it), along with any packages that must match, such as linux-headers for a kernel. Add the package to IgnorePkg in /etc/pacman.conf until a fixed version arrives. Check the Arch news and pacman's messages in /var/log/pacman.log first, since many breakages have a documented fix."
+source = "https://wiki.archlinux.org/title/Downgrading_packages#Using_the_pacman_cache"

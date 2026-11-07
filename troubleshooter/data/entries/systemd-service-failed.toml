@@ -1,0 +1,15 @@
+id = "systemd-service-failed"
+title = "Startup: a system service failed"
+summary = "One or more background services failed to start. Some failures are harmless, but others leave a feature such as networking, sound or mounting a drive broken."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["systemctl --failed", "failed units", "systemctl status", "journalctl -u", "reset-failed", "service failed", "degraded"]
+symptoms = ["a service failed to start", "failed to start on boot", "systemctl says degraded", "red failed messages during startup", "how do I see why a service failed"]
+advice = "Run systemctl --failed to list the failed services, then sudo journalctl -b -u followed by the service name to read why it failed. Fix the cause, or disable the service if you don't need it. sudo systemctl reset-failed clears the list once it's dealt with."
+source = "https://wiki.archlinux.org/title/Systemd#Investigating_failed_services"
+
+[[signals]]
+says = "systemd logged a service that failed to start"
+weight = 0.4
+source = "journal"
+regex = 'systemd\[1\]: Failed to start '

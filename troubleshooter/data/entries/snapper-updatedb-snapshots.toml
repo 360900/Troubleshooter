@@ -1,0 +1,32 @@
+id = "snapper-updatedb-snapshots"
+title = "Snapper: file indexing slows the system down"
+summary = "The locate database update also crawls every Snapper snapshot, so it can take a long time and use lots of memory and disk activity. Telling updatedb to skip .snapshots folders fixes that and costs nothing."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["updatedb", "plocate", "mlocate", "locate", ".snapshots", "PRUNENAMES", "updatedb.conf", "snapper"]
+symptoms = ["updatedb takes forever", "system slow with many snapshots", "high disk activity every day", "plocate-updatedb uses a lot of memory", "locate shows files from snapshots"]
+source = "https://wiki.archlinux.org/title/Snapper#updatedb"
+
+[[when]]
+source = "package"
+names = ["snapper"]
+
+[[when]]
+source = "file"
+path = "/etc/updatedb.conf"
+regex = '^\s*PRUNENAMES\s*=\s*"'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/updatedb.conf"
+regex = '^\s*PRUNENAMES\s*=.*\.snapshots'
+
+[[signals]]
+says = "updatedb is set to index .snapshots folders"
+weight = 0.4
+source = "file"
+path = "/etc/updatedb.conf"
+regex = '^\s*PRUNENAMES\s*=(?!.*\.snapshots)'
+
+[[fix]]
+steps = [{ op = "replace", path = "/etc/updatedb.conf", pattern = '^([[:space:]]*PRUNENAMES[[:space:]]*=[[:space:]]*")', replacement = '\1.snapshots ', says = "Make updatedb skip .snapshots folders" }]

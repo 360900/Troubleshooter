@@ -1,0 +1,13 @@
+id = "secureboot-security-violation"
+title = "Secure Boot: computer won't start after an update"
+summary = "With your own Secure Boot keys, every kernel and boot loader file has to be signed again after it changes. If one was missed, the firmware stops with a security violation instead of starting Linux."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["secure boot", "sbctl", "sbctl verify", "sbctl sign", "security violation", "selected boot image did not authenticate", "invalid signature", "uki"]
+symptoms = ["secure boot violation on startup", "selected boot image did not authenticate", "invalid signature detected check secure boot policy", "can't boot after kernel update with secure boot", "boot loader not signed"]
+advice = "Turn Secure Boot off in the firmware for one boot, start Linux, and run sudo sbctl verify to list unsigned files. Sign each one with sudo sbctl sign -s followed by its path (the -s makes sbctl re-sign it on future updates), then turn Secure Boot back on."
+source = "https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Signing"
+
+[[when]]
+source = "package"
+names = ["sbctl"]

@@ -1,0 +1,16 @@
+id = "coredump-app-crashed"
+title = "An app crashed"
+summary = "A program crashed and systemd saved a record of it (a core dump). The record shows which program it was and why, which helps when updating it or reporting the bug."
+categories = ["crashes"]
+systems = ["any"]
+keywords = ["coredump", "coredumpctl", "segfault", "dumped core", "sigsegv", "sigabrt", "backtrace", "gdb", "systemd-coredump"]
+symptoms = ["app closes by itself", "program crashes on start", "segmentation fault", "core dumped", "how do I see why an app crashed"]
+advice = "Run coredumpctl list to see recent crashes, then coredumpctl info followed by the program name for details such as the signal. Update the system first, since many crashes are fixed upstream; if it keeps crashing, attach that output to a bug report. Core dumps can contain private data, so share them only with people you trust."
+reproduce = "Start the program and do what makes it crash."
+source = "https://wiki.archlinux.org/title/Core_dump#Analyzing_a_core_dump"
+
+[[signals]]
+says = "A program crashed and dumped core during this boot"
+weight = 0.6
+source = "journal"
+regex = 'Process \d+ \(.+\) of user \d+ dumped core'

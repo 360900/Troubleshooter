@@ -1,0 +1,16 @@
+id = "systemd-shutdown-slow"
+title = "Shutdown: takes a minute or more"
+summary = "A program or service didn't stop when asked, so shutdown waits for it, often for 90 seconds, before killing it. A stuck suspend job can also block shutdown entirely."
+categories = ["boot"]
+systems = ["any"]
+keywords = ["a stop job is running", "shutdown slow", "DefaultTimeoutStopSec", "stop-sigterm", "systemctl list-jobs", "systemctl cancel", "already a shutdown or sleep operation in progress"]
+symptoms = ["a stop job is running", "shutdown takes 90 seconds", "computer takes forever to turn off", "reboot hangs", "there's already a shutdown or sleep operation in progress"]
+advice = "Look at the last shutdown with journalctl -b -1 -e to find which service or user session timed out, and fix or update that program. If shutdown says another shutdown or sleep operation is in progress, run sudo systemctl list-jobs, then sudo systemctl cancel and try again."
+source = "https://wiki.archlinux.org/title/Systemd#Shutdown/reboot_takes_terribly_long"
+
+[[signals]]
+says = "During the last shutdown, something had to be killed after timing out"
+weight = 0.6
+source = "journal"
+boot = -1
+regex = "State 'stop-sigterm' timed out\\. Killing|\\.scope: Stopping timed out\\. Killing"

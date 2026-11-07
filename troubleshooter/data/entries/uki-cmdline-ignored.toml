@@ -1,0 +1,9 @@
+id = "uki-cmdline-ignored"
+title = "UKI: kernel parameters from the boot menu are ignored"
+summary = "A unified kernel image carries its own kernel command line. With Secure Boot on, it ignores any parameters the boot loader or boot menu passes, so changes made there do nothing."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["uki", "unified kernel image", "kernel parameters", "/etc/kernel/cmdline", "/etc/cmdline.d", "mkinitcpio", "ukify", ".cmdline", "secure boot"]
+symptoms = ["kernel parameter has no effect", "boot options in boot loader ignored", "changed kernel parameters but nothing changed", "can't edit kernel command line at boot", "cmdline not applied with uki"]
+advice = "Put the parameters in /etc/kernel/cmdline or a .conf file in /etc/cmdline.d, then rebuild the images with sudo mkinitcpio -P. Check after a restart with cat /proc/cmdline."
+source = "https://wiki.archlinux.org/title/Unified_kernel_image#Booting"

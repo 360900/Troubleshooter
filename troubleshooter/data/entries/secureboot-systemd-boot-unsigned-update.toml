@@ -1,0 +1,39 @@
+id = "secureboot-systemd-boot-unsigned-update"
+title = "Secure Boot: the next systemd-boot update won't be signed"
+summary = "systemd-boot-update.service copies a new systemd-boot to the EFI partition at startup, after sbctl's update hook has already run. Without a pre-signed copy, the firmware will refuse to start the computer after a systemd update."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["secure boot", "sbctl", "systemd-boot", "systemd-boot-update.service", "bootctl update", "systemd-bootx64.efi.signed", "security violation", "sbctl sign"]
+symptoms = ["secure boot violation after systemd update", "computer won't boot after update with secure boot", "systemd-boot not signed", "sbctl verify shows systemd-bootx64.efi not signed", "invalid signature detected after update"]
+auto_detect = true
+advice = "Run sudo sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed /usr/lib/systemd/boot/efi/systemd-bootx64.efi once. bootctl then installs the signed copy, and sbctl re-signs it on every update. Check the result with sudo sbctl verify."
+source = "https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Automatic_signing_with_the_pacman_hook"
+
+[[when]]
+source = "package"
+names = ["sbctl"]
+
+[[when]]
+source = "service"
+name = "systemd-boot-update.service"
+state = "enabled"
+
+[[when]]
+source = "file"
+path = "/usr/lib/systemd/boot/efi/systemd-bootx64.efi"
+
+[[when]]
+source = "file"
+path = "/sys/firmware/efi/efivars/LoaderInfo-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f"
+regex = 's\x00y\x00s\x00t\x00e\x00m\x00d\x00-\x00b\x00o\x00o\x00t'
+
+[[fixed_when]]
+source = "file"
+path = "/usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed"
+
+[[signals]]
+says = "Secure Boot is on, and there's no signed systemd-boot for bootctl to install"
+weight = 0.7
+source = "journal"
+kernel = true
+regex = 'Secure boot enabled'

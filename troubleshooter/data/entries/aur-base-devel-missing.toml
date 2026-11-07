@@ -1,0 +1,28 @@
+id = "aur-base-devel-missing"
+title = "AUR: packages can't be built"
+summary = "An AUR helper is installed, but the base-devel tools that every AUR build needs (fakeroot, make, a compiler) aren't. Installing or updating AUR packages fails."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["aur", "base-devel", "makepkg", "fakeroot", "yay", "paru", "cannot find the fakeroot binary", "strip"]
+symptoms = ["yay fails to build package", "paru build failed", "cannot find the fakeroot binary", "makepkg missing tools", "aur install fails"]
+auto_detect = true
+source = "https://wiki.archlinux.org/title/Arch_User_Repository#Getting_started"
+
+[[when]]
+source = "package"
+names = ["yay", "yay-bin", "yay-git", "paru", "paru-bin", "paru-git", "pikaur", "trizen", "aurutils"]
+
+[[fixed_when]]
+source = "package"
+names = ["base-devel"]
+
+[[signals]]
+says = "base-devel isn't installed and fakeroot is missing"
+weight = 0.7
+all_of = [
+  { source = "package", names = ["base-devel"], absent = true },
+  { source = "file", path = "/usr/bin/fakeroot", absent = true },
+]
+
+[[fix]]
+steps = [{ op = "install", packages = ["base-devel"], says = "Install the AUR build tools (base-devel)" }]

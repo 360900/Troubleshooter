@@ -1,0 +1,9 @@
+id = "makepkg-running-as-root"
+title = "AUR: \"Running makepkg as root is not allowed\""
+summary = "makepkg refuses to build as root, because a PKGBUILD can run any command and could damage the system."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["makepkg", "root", "sudo makepkg", "running makepkg as root is not allowed", "yay as root", "aur"]
+symptoms = ["running makepkg as root is not allowed", "sudo yay doesn't work", "can't build aur package as root", "sudo makepkg error"]
+advice = "Run makepkg, yay or paru as your normal user without sudo; they ask for your password when they need to install. If you only have root, create a normal user, or build as nobody with runuser -u nobody makepkg."
+source = "https://wiki.archlinux.org/title/Makepkg#Usage"

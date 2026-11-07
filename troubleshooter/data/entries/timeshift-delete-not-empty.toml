@@ -1,0 +1,13 @@
+id = "timeshift-delete-not-empty"
+title = "Timeshift: can't delete a snapshot (\"Directory not empty\")"
+summary = "The snapshot contains nested Btrfs subvolumes, often /var/lib/machines or /var/lib/portables created by systemd. Timeshift can't remove those, so the delete button silently does nothing."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["timeshift", "directory not empty", "could not destroy subvolume", "nested subvolume", "/var/lib/machines", "/var/lib/portables", "btrfs subvolume delete"]
+symptoms = ["timeshift delete button does nothing", "could not destroy subvolume/snapshot: directory not empty", "can't delete timeshift snapshot", "timeshift snapshots won't go away"]
+advice = "Mount the top of the Btrfs volume (sudo mount -o subvolid=5 /dev/yourroot /mnt), list subvolumes with sudo btrfs subvolume list /mnt, and delete the ones nested inside the snapshot with sudo btrfs subvolume delete after checking you don't need their contents. Timeshift can then delete the snapshot."
+source = "https://wiki.archlinux.org/title/Timeshift#Delete_button_does_nothing/%22Directory_not_empty%22_error"
+
+[[when]]
+source = "package"
+names = ["timeshift"]

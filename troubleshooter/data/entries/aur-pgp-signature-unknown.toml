@@ -1,0 +1,9 @@
+id = "aur-pgp-signature-unknown"
+title = "AUR: \"One or more PGP signatures could not be verified\""
+summary = "The package's source files are signed, and your personal GnuPG keyring doesn't have the author's public key yet, so makepkg stops."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["aur", "makepkg", "pgp", "gpg", "unknown public key", "validpgpkeys", "gpg --recv-keys", "keys/pgp", "skippgpcheck"]
+symptoms = ["one or more pgp signatures could not be verified", "unknown public key", "aur package fails signature check", "yay pgp error", "makepkg gpg key error"]
+advice = "Look up the key ID in the error or in validpgpkeys in the PKGBUILD, check on the AUR page that it belongs to the upstream author, then import it as your normal user with gpg --recv-keys followed by the ID (or gpg --import keys/pgp/*.asc if the package ships it). Avoid --skippgpcheck, which skips the check entirely."
+source = "https://wiki.archlinux.org/title/Makepkg#Signature_checking"

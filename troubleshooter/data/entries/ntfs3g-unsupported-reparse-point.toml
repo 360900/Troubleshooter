@@ -1,0 +1,21 @@
+id = "ntfs3g-unsupported-reparse-point"
+title = "Windows drive: some files can't be opened"
+summary = "Windows stores some files in special formats (compressed system files, OneDrive placeholders) that NTFS-3G can't read without a plugin. Those files show up as broken links or give input/output errors."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["ntfs-3g", "reparse point", "unsupported reparse point", "compactos", "system compression", "wof", "onedrive", "ntfs-plugin", "input/output error"]
+symptoms = ["unsupported reparse point", "files on windows drive give input/output error", "can't open files from windows partition", "windows files show as broken links", "onedrive files not readable from linux"]
+auto_detect = true
+advice = "For files Windows compressed itself, run compact.exe /CompactOS:never as administrator in Windows, or install the ntfs-3g-system-compression-git plugin from the AUR for read-only access. For OneDrive files, mark them as always available on this device in Windows, or use the ntfs-3g-onedrive-bin plugin from the AUR."
+reproduce = "Open one of the files that fails on the Windows drive."
+source = "https://wiki.archlinux.org/title/NTFS-3G#Unsupported_reparse_point"
+
+[[when]]
+source = "package"
+names = ["ntfs-3g"]
+
+[[signals]]
+says = "NTFS-3G hit a Windows file format it has no plugin for"
+weight = 0.8
+source = "journal"
+regex = 'Could not load plugin \S*ntfs-plugin-[0-9a-f]+\.so'

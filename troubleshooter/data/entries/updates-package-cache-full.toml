@@ -1,0 +1,27 @@
+id = "updates-package-cache-full"
+title = "Disk: old packages are filling up the disk"
+summary = "pacman keeps every package version it ever downloaded in /var/cache/pacman/pkg, which can grow to many gigabytes. A weekly timer can trim it to the last three versions of each package."
+categories = ["updates", "boot"]
+systems = ["arch-and-based"]
+keywords = ["paccache", "paccache.timer", "pacman-contrib", "/var/cache/pacman/pkg", "pacman -Sc", "package cache", "disk space"]
+symptoms = ["disk is full", "root partition full", "/var/cache/pacman/pkg is huge", "how to free disk space", "pacman cache too big"]
+source = "https://wiki.archlinux.org/title/System_maintenance#Package_cache"
+
+[[fixed_when]]
+source = "service"
+name = "paccache.timer"
+state = "enabled"
+
+[[signals]]
+says = "paccache.timer is installed but disabled"
+weight = 0.3
+source = "service"
+name = "paccache.timer"
+state = "disabled"
+
+[[fix]]
+systems = ["arch-and-based"]
+steps = [
+  { op = "install", packages = ["pacman-contrib"] },
+  { op = "service", names = ["paccache.timer"], now = true, says = "Trim the package cache every week (paccache.timer)" },
+]

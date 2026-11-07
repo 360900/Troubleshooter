@@ -1,0 +1,20 @@
+id = "snapper-io-error"
+title = "Snapper: \"IO Error\" when taking a snapshot"
+summary = "Snapper can't create snapshots, usually because the .snapshots folder isn't its own Btrfs subvolume or isn't owned by root."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["snapper", "io error", ".snapshots", "subvolume", "snapper.log", "must have owner root", "snapper create"]
+symptoms = ["snapper io error", "snapper create fails", "snap-pac snapshot failed", "snapper can't create snapshot", ".snapshots must have owner root"]
+advice = "Read /var/log/snapper.log for the exact reason. Make sure .snapshots is a subvolume (sudo btrfs subvolume show /.snapshots) and owned by root (sudo chown root:root /.snapshots). If it's a plain folder, move it aside, recreate it with sudo btrfs subvolume create /.snapshots, or mount your @snapshots subvolume there."
+source = "https://wiki.archlinux.org/title/Snapper#IO_error"
+
+[[when]]
+source = "package"
+names = ["snapper"]
+
+[[signals]]
+says = "Snapper's log says .snapshots has the wrong owner"
+weight = 0.8
+source = "file"
+path = "/var/log/snapper.log"
+regex = '\.snapshots must have owner root'

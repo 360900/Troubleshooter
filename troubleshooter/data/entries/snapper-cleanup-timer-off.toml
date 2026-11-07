@@ -1,0 +1,33 @@
+id = "snapper-cleanup-timer-off"
+title = "Snapper: old snapshots are never deleted"
+summary = "Snapper is set up, but neither its cleanup timer nor a cron daemon is running, so snapshots pile up until the disk fills. Turning on the timer removes old ones according to the limits in your Snapper configs."
+categories = ["boot", "updates"]
+systems = ["arch-and-based"]
+keywords = ["snapper", "snapper-cleanup.timer", "snapper-timeline.timer", "snap-pac", "cronie", "snapshots", "btrfs", "NUMBER_LIMIT", "TIMELINE_LIMIT"]
+symptoms = ["snapper snapshots keep piling up", "disk full because of snapshots", "snapper doesn't delete old snapshots", "hundreds of snapshots in snapper list", "btrfs disk full snapper"]
+source = "https://wiki.archlinux.org/title/Snapper#Enable/disable"
+
+[[when]]
+source = "package"
+names = ["snapper"]
+
+[[when]]
+source = "file"
+path = "/etc/snapper/configs/*"
+
+[[fixed_when]]
+any_of = [
+  { source = "service", name = "snapper-cleanup.timer", state = "enabled" },
+  { source = "service", name = "cronie.service", state = "enabled" },
+  { source = "service", name = "fcron.service", state = "enabled" },
+]
+
+[[signals]]
+says = "snapper-cleanup.timer is disabled and no cron daemon is enabled"
+weight = 0.6
+source = "service"
+name = "snapper-cleanup.timer"
+state = "disabled"
+
+[[fix]]
+steps = [{ op = "service", names = ["snapper-cleanup.timer"], now = true, says = "Turn on daily Snapper cleanup (snapper-cleanup.timer)" }]

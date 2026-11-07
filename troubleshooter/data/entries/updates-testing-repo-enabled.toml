@@ -1,0 +1,16 @@
+id = "updates-testing-repo-enabled"
+title = "Updates: a testing repository is turned on"
+summary = "pacman.conf enables one of Arch's testing repositories. Their packages are experimental and can break the system, so they're not meant for everyday use."
+categories = ["updates"]
+systems = ["arch-only"]
+keywords = ["core-testing", "extra-testing", "multilib-testing", "testing repository", "pacman.conf", "pacman -Syuu", "downgrade"]
+symptoms = ["things keep breaking after updates", "how do I leave testing", "packages newer than the official ones", "update installed an experimental package"]
+advice = "Comment out the [core-testing], [extra-testing] and [multilib-testing] sections (and their Include lines) in /etc/pacman.conf, then run sudo pacman -Syuu to bring the testing packages back to the regular versions."
+source = "https://wiki.archlinux.org/title/Downgrading_packages#Return_from_%5Btesting%5D"
+
+[[signals]]
+says = "A testing repository is enabled in /etc/pacman.conf"
+weight = 0.4
+source = "file"
+path = "/etc/pacman.conf"
+regex = '^\s*\[(core|extra|multilib)-testing\]'

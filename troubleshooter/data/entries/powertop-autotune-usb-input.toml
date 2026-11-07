@@ -1,0 +1,26 @@
+id = "powertop-autotune-usb-input"
+title = "Powertop: USB mouse or keyboard pauses or stops"
+summary = "powertop --auto-tune runs at startup and turns on power saving for every USB device, including mice and keyboards. They then fall asleep and lag or stop responding."
+categories = ["input", "sleep"]
+systems = ["any"]
+keywords = ["powertop", "--auto-tune", "usb autosuspend", "power/control", "usbhid", "powertop.service", "tunables"]
+symptoms = ["usb mouse stops working after a few seconds", "mouse lags after being idle", "keyboard misses the first keypress", "usb devices disconnect after boot", "mouse freezes with powertop"]
+advice = "Add an ExecStartPost line to your powertop service that sets power/control back to on for usbhid devices (the linked section has it), or replace --auto-tune with only the settings you want, applied through udev rules or sysctl."
+source = "https://wiki.archlinux.org/title/Powertop#Apply_settings"
+
+[[when]]
+source = "file"
+path = "/etc/systemd/system/*.service"
+regex = 'powertop\s+--auto-tune'
+
+[[fixed_when]]
+source = "file"
+path = "/etc/systemd/system/*.service"
+regex = 'ExecStartPost=.*usbhid'
+
+[[signals]]
+says = "A startup service runs powertop --auto-tune"
+weight = 0.35
+source = "file"
+path = "/etc/systemd/system/*.service"
+regex = '^\s*ExecStart=\S*powertop\s+--auto-tune'

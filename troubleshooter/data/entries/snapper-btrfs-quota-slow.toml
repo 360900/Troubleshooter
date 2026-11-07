@@ -1,0 +1,19 @@
+id = "snapper-btrfs-quota-slow"
+title = "Btrfs: system lags with quotas and many snapshots"
+summary = "Btrfs quota groups are turned on. With many snapshots they can make the whole system stutter and make snapper list take minutes. Turning them off loses only Snapper's space-based cleanup limits."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["btrfs quota", "qgroups", "btrfs quota disable", "btrfs qgroup show", "snapper", "SPACE_LIMIT", "btrfs-transaction", "snapshots"]
+symptoms = ["system lags with btrfs snapshots", "snapper ls takes minutes", "btrfs-transaction high cpu", "deleting snapshots freezes the system", "computer stutters after snapper cleanup"]
+advice = "Check with sudo btrfs qgroup show / and turn quotas off with sudo btrfs quota disable /. Snapper keeps working, but limits based on free space (SPACE_LIMIT, FREE_LIMIT) no longer apply, so set NUMBER_LIMIT and TIMELINE_LIMIT_* values in /etc/snapper/configs instead. Also count your snapshots with sudo btrfs subvolume list -s / | wc -l and delete old ones if there are many."
+source = "https://wiki.archlinux.org/title/Snapper#Disable_quota_groups"
+
+[[when]]
+source = "package"
+names = ["snapper"]
+
+[[signals]]
+says = "Quota groups are enabled on a mounted Btrfs file system"
+weight = 0.35
+source = "file"
+path = "/sys/fs/btrfs/*/qgroups"

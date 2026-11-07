@@ -1,0 +1,9 @@
+id = "systemd-unit-not-found-user"
+title = "systemctl: \"Unit not found\" for a service that exists"
+summary = "Some services, such as PipeWire, run per user instead of system-wide. Asking the system manager for them (often with sudo) says they don't exist."
+categories = ["boot", "sound"]
+systems = ["any"]
+keywords = ["unit not found", "systemctl --user", "user unit", "user service", "pipewire.service", "wireplumber.service"]
+symptoms = ["unit pipewire.service not found", "failed to restart unit not found", "systemctl says service doesn't exist", "sudo systemctl restart pipewire doesn't work"]
+advice = "Run the command as your normal user with --user, for example systemctl --user restart pipewire, without sudo. User units live under /usr/lib/systemd/user and ~/.config/systemd/user."
+source = "https://wiki.archlinux.org/title/Systemd#Error_%22Unit_xxx.service_not_found%22,_but_service_does_exist"

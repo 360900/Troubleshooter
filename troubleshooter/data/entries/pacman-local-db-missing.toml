@@ -1,0 +1,21 @@
+id = "pacman-local-db-missing"
+title = "Updates: pacman thinks nothing is installed"
+summary = "pacman's record of installed packages in /var/lib/pacman/local is empty or gone. Updates then claim there's nothing to do, and installs try to pull in packages you already have."
+categories = ["updates"]
+systems = ["arch-and-based"]
+keywords = ["/var/lib/pacman/local", "pacman -Q", "local database", "paclog-pkglist", "pacman-db-upgrade", "ALPM_DB_VERSION", "failed to initialise alpm library", "--dbonly"]
+symptoms = ["pacman -Q shows nothing", "pacman says system is up to date but it isn't", "pacman wants to reinstall everything", "failed to initialise alpm library", "pacman database corrupted"]
+auto_detect = true
+advice = "Don't install or remove anything yet. If /var/log/pacman.log still exists, the local database can be rebuilt from it and the package cache with paclog-pkglist and pacman --dbonly, as the linked guide describes. If pacman instead says it failed to initialise the alpm library, sudo pacman-db-upgrade may be all that's needed."
+source = "https://wiki.archlinux.org/title/Pacman/Restore_local_database#Symptoms"
+
+[[when]]
+source = "file"
+path = "/usr/bin/pacman"
+
+[[signals]]
+says = "There are no installed package records in /var/lib/pacman/local"
+weight = 0.9
+source = "file"
+path = "/var/lib/pacman/local/*/desc"
+absent = true

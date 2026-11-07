@@ -1,0 +1,13 @@
+id = "limine-failed-open-image"
+title = "Limine: \"Failed to open image with path\""
+summary = "Limine can't find a file a boot entry points to. Either the path in limine.conf is wrong, or the file is on another disk that the firmware didn't start up because fast boot is on."
+categories = ["boot"]
+systems = ["arch-and-based"]
+keywords = ["limine", "failed to open image with path", "is the path correct", "limine.conf", "boot()", "uuid()", "fast boot", "partuuid"]
+symptoms = ["failed to open image with path is the path correct", "limine can't find the kernel", "limine entry for other disk doesn't work", "limine error after adding windows entry"]
+advice = "Check the entry's path in limine.conf: boot():/ means the partition limine.conf is on, so files elsewhere need uuid(PARTUUID):/ instead. If the file is on another disk, turn off fast boot in the firmware or enable its option to initialize all drives."
+source = "https://wiki.archlinux.org/title/Limine#Configuration"
+
+[[when]]
+source = "package"
+names = ["limine"]

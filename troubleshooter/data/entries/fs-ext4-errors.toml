@@ -1,0 +1,30 @@
+id = "fs-ext4-errors"
+title = "Disk: the file system has errors"
+summary = "The kernel found damage in an ext4 file system, often after a power cut or a forced shutdown. Files may fail with \"Structure needs cleaning\", and the damage can spread if it isn't repaired."
+categories = ["boot", "crashes"]
+systems = ["any"]
+keywords = ["ext4", "fsck", "e2fsck", "structure needs cleaning", "ext4-fs error", "unexpected inconsistency", "run fsck manually", "fsck.repair", "emergency mode"]
+symptoms = ["structure needs cleaning", "unexpected inconsistency run fsck manually", "file system errors after power loss", "booted into emergency mode with fsck error", "can't delete or open some files", "ext4 errors in the log"]
+auto_detect = true
+advice = "Back up anything important, then repair the file system while it isn't mounted: for the system drive, boot a live USB and run sudo fsck /dev/sdXY (or the NVMe partition) on it. A separate data drive can be unmounted and checked the same way. If errors keep coming back, check the drive's health, since a failing disk causes them too."
+reproduce = "Open or change the files that give errors."
+source = "https://wiki.archlinux.org/title/File_systems#%22linux_Structure_needs_cleaning%22"
+
+[[when]]
+source = "file"
+path = "/proc/filesystems"
+regex = '\bext4$'
+
+[[signals]]
+says = "The kernel reported errors in an ext4 file system"
+weight = 0.75
+source = "journal"
+kernel = true
+regex = 'EXT4-fs error \(device '
+
+[[signals]]
+says = "The startup file system check needed a manual repair last time"
+weight = 0.6
+source = "journal"
+boot = -1
+regex = 'UNEXPECTED INCONSISTENCY; RUN fsck MANUALLY'

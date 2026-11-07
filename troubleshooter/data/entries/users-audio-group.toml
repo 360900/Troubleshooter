@@ -1,0 +1,20 @@
+id = "users-audio-group"
+title = "Sound: a user is in the audio group"
+summary = "Being in the audio group gives direct access to the sound hardware in every session. That isn't needed with PipeWire or PulseAudio, and it can let one app block sound for others or break fast user switching."
+categories = ["sound"]
+systems = ["arch-and-based"]
+keywords = ["audio group", "/etc/group", "gpasswd", "usermod", "alsa", "pipewire", "fast user switching", "device busy"]
+symptoms = ["sound stops when another user logs in", "audio device busy", "one app blocks all other sound", "no sound after switching user", "should I be in the audio group"]
+advice = "Unless you need ALSA in remote sessions, remove yourself from the group with sudo gpasswd -d yourname audio, then log out and back in. Normal desktop sessions get sound access automatically."
+source = "https://wiki.archlinux.org/title/Users_and_groups#Pre-systemd_groups"
+
+[[when]]
+source = "package"
+names = ["pipewire-pulse", "pulseaudio"]
+
+[[signals]]
+says = "The audio group has members"
+weight = 0.3
+source = "file"
+path = "/etc/group"
+regex = '^audio:[^:]*:\d+:\S+'
