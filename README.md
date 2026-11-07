@@ -72,7 +72,7 @@ steps = [
 
 **systems:** `any`, `arch-only`, `arch-and-based`, `debian-only`, `debian-and-based`, `fedora-only`, `fedora-and-based`
 
-**sources:** `pci`, `usb`, `journal`, `file`, `command`, `service`, `kernel_param`, `kernel_headers`, `package`, `module`, `cmdline`, `env`, plus `all_of` and `any_of` groups. Match with `regex`, `contains` or `absent = true`.
+**sources:** `pci`, `usb`, `journal`, `file`, `command`, `service`, `kernel_param`, `kernel_headers`, `package`, `module`, `cmdline`, `env`, `boot_loader`, plus `all_of` and `any_of` groups. Match with `regex`, `contains` or `absent = true`.
 
 **ops:** `install`, `remove`, `install_aur`, `kernel_params`, `initramfs`, `write_file`, `replace`, `module_options`, `blacklist`, `sysctl`, `service`, `command`, `run_from_repo`
 

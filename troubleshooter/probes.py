@@ -140,6 +140,8 @@ SOURCES = {
     "module": lambda system, spec: sorted(system.modules & set(spec["names"])),
     "cmdline": lambda system, spec: system.cmdline,
     "env": lambda system, spec: [f"{spec['name']}={system.env[spec['name']]}"] if spec["name"] in system.env else [],
+    # The loader the firmware started (limine, grub or systemd-boot), unknown when it can't tell.
+    "boot_loader": lambda system, spec: [loader] if (loader := boot.active_loader(system)) else None,
 }
 GROUPS = {"all_of": all, "any_of": any}
 # Every key a spec may use beyond the ones the engine reads.
@@ -157,6 +159,7 @@ SOURCE_KEYS = {
     "module": {"names"},
     "cmdline": set(),
     "env": {"name"},
+    "boot_loader": set(),
 }
 MATCH_KEYS = {"regex", "contains", "absent"}
 

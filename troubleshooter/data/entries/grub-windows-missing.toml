@@ -15,10 +15,14 @@ names = ["grub"]
 source = "file"
 path = "/etc/default/grub"
 
-# Only when GRUB actually generated a menu, not just installed next to another loader.
+# Only when GRUB actually generated a menu or booted this machine, not just installed next to
+# another loader. /boot is often root-only (an ESP mounted with fmask=0077), so the firmware's
+# record of what it started counts too.
 [[when]]
-source = "file"
-path = "/boot/grub/grub.cfg"
+any_of = [
+  { source = "file", path = "/boot/grub/grub.cfg" },
+  { source = "boot_loader", regex = '^grub$' },
+]
 
 # The ESP is often root-only (fmask=0077), so also ask the firmware's boot entries.
 [[when]]

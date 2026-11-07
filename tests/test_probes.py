@@ -1,6 +1,11 @@
+import struct
 import unittest
 
 from tests.fakes import FakeMachine
+from tests.test_boot import efi_option
+from troubleshooter import engine
+from troubleshooter.boot import EFI_GLOBAL
+from troubleshooter.database import load_database
 from troubleshooter.probes import probe
 from troubleshooter.system import Result
 
@@ -61,6 +66,36 @@ class PackageListTests(unittest.TestCase):
         self.addCleanup(m.close)
         m.packages = {"linux"}
         self.assertTrue(probe(m.system(), {"source": "package", "names": ["amd-ucode"], "absent": True}).matched)
+
+
+class BootLoaderTests(unittest.TestCase):
+    def setUp(self):
+        self.m = FakeMachine()
+        self.addCleanup(self.m.close)
+
+    def booted(self, description, path):
+        efivars = self.m.root / "sys/firmware/efi/efivars"
+        efivars.mkdir(parents=True)
+        (efivars / f"BootCurrent-{EFI_GLOBAL}").write_bytes(struct.pack("<IH", 7, 3))
+        (efivars / f"Boot0003-{EFI_GLOBAL}").write_bytes(efi_option(description, path))
+
+    def test_names_the_loader_the_firmware_started(self):
+        self.booted("GRUB", "\\EFI\\GRUB\\grubx64.efi")
+        self.assertTrue(probe(self.m.system(), {"source": "boot_loader", "regex": "^grub$"}).matched)
+        self.assertFalse(probe(self.m.system(), {"source": "boot_loader", "regex": "^limine$"}).matched)
+
+    def test_unknown_without_firmware_variables(self):
+        evidence = probe(self.m.system(), {"source": "boot_loader", "regex": "^grub$", "absent": True})
+        self.assertFalse(evidence.matched)
+        self.assertFalse(evidence.known)
+
+    def test_grub_entries_apply_when_the_menu_is_on_a_root_only_esp(self):
+        # /boot/grub/grub.cfg can't be seen, but the firmware says it started GRUB.
+        self.m.packages = {"grub"}
+        self.m.write("/etc/default/grub", "GRUB_TIMEOUT=5\n")
+        self.booted("GRUB", "\\EFI\\GRUB\\grubx64.efi")
+        entry = load_database().entries["grub-menu-hidden"]
+        self.assertNotEqual(engine.evaluate(entry, self.m.system()).status, engine.NOT_APPLICABLE)
 
 
 if __name__ == "__main__":
