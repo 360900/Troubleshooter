@@ -5,6 +5,7 @@ categories = ["input"]
 systems = ["arch-and-based"]
 keywords = ["iso layout", "applespi", "iso_layout", "section key", "grave", "less than key", "mbp132-setup"]
 symptoms = ["< and ^ keys are swapped on my macbook", "key next to shift types the wrong character", "the key left of 1 is wrong on macbook", "german macbook keyboard wrong keys"]
+auto_detect = true
 source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
 
 [[when]]
@@ -23,6 +24,15 @@ absent = true
 source = "file"
 path = "/etc/modprobe.d/*.conf"
 regex = '^options applespi.*iso_layout=1'
+
+[[signals]]
+says = "Your keyboard layout isn't US English, so this MacBook most likely has an ISO keyboard"
+weight = 0.6
+any_of = [
+  { source = "file", path = "~/.config/kxkbrc", regex = '^LayoutList=(?!us\b)[a-z]' },
+  { source = "file", path = "/etc/X11/xorg.conf.d/*.conf", regex = 'XkbLayout"\s+"(?!us")[a-z]' },
+  { source = "file", path = "/etc/vconsole.conf", regex = '^KEYMAP=(?!us$)[a-z]' },
+]
 
 [[fix]]
 reboot = true

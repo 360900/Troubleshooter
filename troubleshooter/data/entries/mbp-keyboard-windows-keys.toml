@@ -5,6 +5,7 @@ categories = ["input", "desktop"]
 systems = ["arch-and-based"]
 keywords = ["altgr", "command key", "option key", "super", "xkb", "altwin:swap_lalt_lwin", "lv3:rwin_switch", "kxkbrc", "mbp132-setup"]
 symptoms = ["alt and command keys are in the wrong place", "no altgr on my macbook", "make macbook keyboard work like windows", "can't type @ on macbook keyboard"]
+auto_detect = true
 source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
 
 [[when]]
@@ -21,6 +22,14 @@ regex = '=(.*:)?KDE(:|$)'
 source = "file"
 path = "~/.config/kxkbrc"
 regex = '^Options=.*altwin:swap_lalt_lwin.*lv3:rwin_switch'
+
+[[signals]]
+says = "The modifier keys are in Mac order, and right Command doesn't work as AltGr"
+weight = 0.5
+source = "file"
+path = "~/.config/kxkbrc"
+regex = '^Options=.*altwin:swap_lalt_lwin.*lv3:rwin_switch'
+absent = true
 
 [[fix]]
 steps = [

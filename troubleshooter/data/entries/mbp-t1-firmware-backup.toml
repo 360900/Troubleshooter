@@ -5,6 +5,7 @@ categories = ["input", "devices"]
 systems = ["arch-and-based"]
 keywords = ["t1", "embeddedos", "backup", "efi partition", "touch bar firmware", "mbp132-setup"]
 symptoms = ["back up the touch bar firmware", "can i delete the macos efi partition", "save t1 firmware before reinstalling"]
+auto_detect = true
 source = "https://github.com/360900/mbp132-setup#readme"
 
 [[when]]

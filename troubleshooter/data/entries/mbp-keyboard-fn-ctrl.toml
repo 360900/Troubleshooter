@@ -5,6 +5,7 @@ categories = ["input"]
 systems = ["arch-and-based"]
 keywords = ["fn", "ctrl", "fnremap", "applespi", "swap fn and control", "mbp132-setup"]
 symptoms = ["swap fn and ctrl on macbook", "fn key is where ctrl should be", "i keep pressing fn instead of control"]
+auto_detect = true
 source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
 
 [[when]]
@@ -23,6 +24,14 @@ absent = true
 source = "file"
 path = "/etc/modprobe.d/*.conf"
 regex = '^options applespi.*fnremap=1'
+
+[[signals]]
+says = "Fn sits where Ctrl is on most keyboards; swapping them is optional"
+weight = 0.5
+source = "file"
+path = "/etc/modprobe.d/*.conf"
+regex = '^options applespi.*fnremap=1'
+absent = true
 
 [[fix]]
 reboot = true

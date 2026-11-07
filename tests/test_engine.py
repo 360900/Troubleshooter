@@ -121,9 +121,41 @@ class MacBookProTests(EngineCase):
         m.modules("applespi", "brcmfmac", "snd_hda_intel")
         return m
 
+    def mbp_found(self, m, env=None):
+        system = m.system()
+        system.env = env or {}
+        return {d.entry.id for d in engine.scan(DB, system) if d.entry.id.startswith("mbp-")}
+
     def test_each_part_is_recommended_on_its_own(self):
-        found = self.scan_ids(self.mac())
-        self.assertEqual(found & {e for e in DB.entries if e.startswith("mbp-")}, self.MBP)
+        # Plus the optional parts that make sense on any of these Macs: the Fn swap, and a
+        # backup of the Touch Bar firmware.
+        self.assertEqual(self.mbp_found(self.mac()), self.MBP | {"mbp-keyboard-fn-ctrl", "mbp-t1-firmware-backup"})
+
+    def test_iso_fix_is_recommended_with_a_non_us_layout(self):
+        m = self.mac()
+        self.assertNotIn("mbp-keyboard-iso", self.mbp_found(m))
+        m.write("/etc/vconsole.conf", "KEYMAP=trq\n")
+        self.assertIn("mbp-keyboard-iso", self.mbp_found(m))
+        m.write("/etc/vconsole.conf", "KEYMAP=us\n")
+        self.assertNotIn("mbp-keyboard-iso", self.mbp_found(m))
+
+    def test_windows_keys_are_recommended_in_kde_until_set(self):
+        m = self.mac()
+        kde = {"XDG_CURRENT_DESKTOP": "KDE"}
+        self.assertNotIn("mbp-keyboard-windows-keys", self.mbp_found(m))
+        self.assertIn("mbp-keyboard-windows-keys", self.mbp_found(m, kde))
+        (m.home / ".config").mkdir()
+        (m.home / ".config/kxkbrc").write_text("[Layout]\nOptions=altwin:swap_lalt_lwin,lv3:rwin_switch\n")
+        self.assertNotIn("mbp-keyboard-windows-keys", self.mbp_found(m, kde))
+
+    def test_grub_entry_is_recommended_when_the_firmware_knows_macos(self):
+        m = self.mac()
+        m.packages = {"grub"}
+        m.write("/etc/default/grub", "")
+        path = "\\System\\Library\\CoreServices\\boot.efi"
+        m.write("/sys/firmware/efi/efivars/Boot0080-8be4df61-93ca-11d2-aa0d-00e098032b8c",
+                "\x07\x00\x00\x00" + "".join(c + "\x00" for c in path))
+        self.assertIn("mbp-grub-macos-entry", self.mbp_found(m))
 
     def test_parts_already_set_up_are_not_recommended(self):
         m = self.mac()

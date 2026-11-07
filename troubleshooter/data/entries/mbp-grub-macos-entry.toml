@@ -5,6 +5,7 @@ categories = ["boot"]
 systems = ["arch-and-based"]
 keywords = ["grub", "macos", "bootnext", "apfs", "dual boot", "41_mbp132-macos", "mbp132-setup"]
 symptoms = ["macos not in grub menu", "how do i boot macos from grub", "can't start macos after installing linux", "hold option key to boot macos"]
+auto_detect = true
 source = "https://github.com/360900/mbp132-setup#what-it-fixes-and-why"
 
 [[when]]
